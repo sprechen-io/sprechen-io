@@ -24,6 +24,8 @@ jobs:
     name: Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
 
     steps:
       - name: Checkout
@@ -62,12 +64,28 @@ jobs:
           --configuration Release
           --no-build
           --logger trx
+          --collect "XPlat Code Coverage"
           --results-directory "$RUNNER_TEMP/test-results"
+          --
+          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ${{ runner.temp }}/test-results/*.trx
+          path: |
+            ${{ runner.temp }}/test-results/*.trx
+            ${{ runner.temp }}/test-results/**/coverage.cobertura.xml
           if-no-files-found: ignore
+
+      # Needs the repository secret CODACY_PROJECT_TOKEN. Without it (for
+      # example in pull requests from forks) the upload is skipped.
+      - name: Upload coverage to Codacy
+        if: env.CODACY_PROJECT_TOKEN != ''
+        run: |
+          mapfile -t reports < <(find "$RUNNER_TEMP/test-results" -name coverage.cobertura.xml)
+          echo "Coverage reports: ${#reports[@]}"
+          args=()
+          for report in "${reports[@]}"; do args+=(-r "$report"); done
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report "${args[@]}"
