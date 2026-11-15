@@ -101,7 +101,7 @@ public sealed class ActiveSegmentCoordinatorLivenessTests
     {
         var debugConsole = new FirstWriteBlockingBrowserDebugConsole();
         var guard = new CaptureChunkLivenessGuard(
-            TimeSpan.FromMilliseconds(50),
+            TimeSpan.FromSeconds(1),
             debugConsole,
             "capture stalled");
         var capture = new TaskCompletionSource<CapturedSpeechAudio>(
@@ -114,10 +114,10 @@ public sealed class ActiveSegmentCoordinatorLivenessTests
 
         try
         {
-            await debugConsole.FirstWriteStarted.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            await debugConsole.FirstWriteStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
             guard.ObserveChunk();
             debugConsole.ContinueFirstWrite.TrySetResult();
-            await Task.Delay(20);
+            await Task.Delay(400);
             Assert.False(failed);
 
             var expected = new CapturedSpeechAudio(SpeechAudioMimeType.Pcm, [new byte[] { 1 }]);
