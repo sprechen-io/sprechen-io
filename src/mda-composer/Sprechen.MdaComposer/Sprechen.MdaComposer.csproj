@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <GeneratedWebAssetsStamp>$(MSBuildProjectExtensionsPath)web-assets.stamp</GeneratedWebAssetsStamp>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.7" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.MdaComposer.SchemaEngine\Sprechen.MdaComposer.SchemaEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WebNodeModulesInputs Include="package.json;package-lock.json" />
+    <WebAssetInputs Include="TypeScript/**/*.ts" />
+    <WebAssetInputs Include="package.json;package-lock.json;tsconfig.json" />
+  </ItemGroup>
+
+  <Target Name="RestoreWebNodeModules" BeforeTargets="BuildWebAssets"
+          Inputs="@(WebNodeModulesInputs)" Outputs="$(MSBuildProjectDirectory)/node_modules/.web-assets.stamp">
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="npm ci --no-fund --no-audit" />
+    <Touch Files="$(MSBuildProjectDirectory)/node_modules/.web-assets.stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="BuildWebAssets" BeforeTargets="ResolveProjectStaticWebAssets" DependsOnTargets="RestoreWebNodeModules"
+          Inputs="@(WebAssetInputs)" Outputs="$(GeneratedWebAssetsStamp)">
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="npm run build --silent" />
+    <MakeDir Directories="$(MSBuildProjectExtensionsPath)" />
+    <Touch Files="$(GeneratedWebAssetsStamp)" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="CopySchemas" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <_SchemaFiles Include="..\..\model\**\schemas\*.schema.json" />
+      <_ReferenceFiles Include="..\..\model\**\reference-contracts\**\*.json" />
+      <!-- Nur anwendungsbezogene Referenzverträge kopieren. Verteilungsdokumente haben
+           denselben Dateinamen und würden sich in diesem flachen Verzeichnis überschreiben;
+           für die Laufzeitkomposition werden sie mit eindeutigen Ressourcennamen eingebettet. -->
+      <_ReferenceFiles Include="..\..\apps\**\*.json" Exclude="..\..\apps\**\application-distribution.reference.json" />
+      <_ExampleFiles Include="..\..\model\**\examples\**\*.json" />
+    </ItemGroup>
+    <MakeDir Directories="wwwroot\schemas" />
+    <MakeDir Directories="wwwroot\reference-contracts" />
+    <MakeDir Directories="wwwroot\examples" />
+    <MakeDir Directories="wwwroot\manifests" />
+    <Copy SourceFiles="@(_SchemaFiles)" DestinationFolder="wwwroot\schemas\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_ReferenceFiles)" DestinationFolder="wwwroot\reference-contracts\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_ExampleFiles)" DestinationFolder="wwwroot\examples\" SkipUnchangedFiles="true" />
+    <WriteLinesToFile File="wwwroot\manifests\schemas.txt"
+                      Lines="@(_SchemaFiles->'%(Filename)%(Extension)')"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="wwwroot\manifests\reference-contracts.txt"
+                      Lines="@(_ReferenceFiles->'%(Filename)%(Extension)')"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+  </Target>
+
+  <!-- __BUILD_HASH__ in der veröffentlichten index.html durch einen UTC-Zeitstempel ersetzen, damit neue Assets neu geladen werden. -->
+  <Target Name="InjectBuildHash" AfterTargets="Publish">
+    <PropertyGroup>
+      <_PublishedIndexHtml>$(PublishDir)wwwroot\index.html</_PublishedIndexHtml>
+      <_BuildHash>$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</_BuildHash>
+    </PropertyGroup>
+    <Exec Command="pwsh -NoProfile -Command &quot;(Get-Content '$(_PublishedIndexHtml)' -Raw) -replace '__BUILD_HASH__','$(_BuildHash)' | Set-Content '$(_PublishedIndexHtml)' -NoNewline&quot;"
+          Condition="Exists('$(_PublishedIndexHtml)')" />
+    <Message Text="Cache bust: injected build hash $(_BuildHash) into index.html" Importance="high" />
+  </Target>
+
+</Project>

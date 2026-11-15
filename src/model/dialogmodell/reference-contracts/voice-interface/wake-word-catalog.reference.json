@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "wakeWordModelId": "default.voiceWakeWords",
+  "commandAnchorLeadIns": [
+    {
+      "leadIn": "okay",
+      "role": "activation"
+    },
+    {
+      "leadIn": "ok",
+      "role": "recognitionOnly"
+    },
+    {
+      "leadIn": "hey",
+      "role": "activation"
+    }
+  ],
+  "activationProfilesByLanguage": [
+    {
+      "languageCode": "de",
+      "wakeWordName": "alex"
+    },
+    {
+      "languageCode": "en",
+      "wakeWordName": "alex"
+    },
+    {
+      "languageCode": "fr",
+      "wakeWordName": "alex"
+    },
+    {
+      "languageCode": "es",
+      "wakeWordName": "alex"
+    },
+    {
+      "languageCode": "it",
+      "wakeWordName": "alex"
+    }
+  ],
+  "recoveryFeedback": {
+    "notRecognizedEarconId": "WakeWordNotRecognized",
+    "guidanceMissThreshold": 2,
+    "guidanceCooldownSeconds": 60,
+    "guidanceMaxCooldownSeconds": 300
+  },
+  "microphoneAvailabilityPolicy": {
+    "failureThreshold": 2,
+    "cooldownSeconds": 60,
+    "maxCooldownSeconds": 300,
+    "automaticRetry": true,
+    "announceRecovery": true
+  },
+  "activationFeedback": {
+    "activatedEarconId": "FlowAck"
+  },
+  "wakeUtteranceWindow": {
+    "maxInterCyclePauseMs": 1500,
+    "maxCarriedCycles": 1,
+    "prefixOnlyFirstCycleAccepted": true
+  }
+}

@@ -1,0 +1,782 @@
+{
+  "spellingTokens": {
+    "alpha": "a",
+    "anton": "a",
+    "bravo": "b",
+    "berta": "b",
+    "charlie": "c",
+    "caesar": "c",
+    "cesar": "c",
+    "delta": "d",
+    "dora": "d",
+    "echo": "e",
+    "emil": "e",
+    "foxtrot": "f",
+    "friedrich": "f",
+    "golf": "g",
+    "gustav": "g",
+    "hotel": "h",
+    "heinrich": "h",
+    "india": "i",
+    "ida": "i",
+    "juliett": "j",
+    "juliet": "j",
+    "julius": "j",
+    "kilo": "k",
+    "kaufmann": "k",
+    "konrad": "k",
+    "lima": "l",
+    "ludwig": "l",
+    "mike": "m",
+    "martha": "m",
+    "november": "n",
+    "nordpol": "n",
+    "oscar": "o",
+    "otto": "o",
+    "papa": "p",
+    "paula": "p",
+    "quebec": "q",
+    "quelle": "q",
+    "romeo": "r",
+    "richard": "r",
+    "sierra": "s",
+    "samuel": "s",
+    "tango": "t",
+    "theodor": "t",
+    "uniform": "u",
+    "ulrich": "u",
+    "victor": "v",
+    "viktor": "v",
+    "whiskey": "w",
+    "whisky": "w",
+    "wilhelm": "w",
+    "xray": "x",
+    "xanthippe": "x",
+    "yankee": "y",
+    "ypsilon": "y",
+    "zulu": "z",
+    "zeppelin": "z",
+    "zero": "0",
+    "null": "0",
+    "one": "1",
+    "eins": "1",
+    "two": "2",
+    "zwei": "2",
+    "zwo": "2",
+    "three": "3",
+    "drei": "3",
+    "four": "4",
+    "vier": "4",
+    "five": "5",
+    "f\u00fcnf": "5",
+    "six": "6",
+    "sechs": "6",
+    "seven": "7",
+    "sieben": "7",
+    "eight": "8",
+    "acht": "8",
+    "nine": "9",
+    "neun": "9",
+    "minus": "-",
+    "dash": "-",
+    "bindestrich": "-",
+    "underscore": "_",
+    "unterstrich": "_",
+    "punkt": ".",
+    "dot": ".",
+    "point": ".",
+    "at": "@",
+    "klammeraffe": "@",
+    "eszett": "\u00df"
+  },
+  "spellingAlphabets": {
+    "german": {
+      "letterWords": {
+        "a": "Anton",
+        "b": "Berta",
+        "c": "Caesar",
+        "d": "Dora",
+        "e": "Emil",
+        "f": "Friedrich",
+        "g": "Gustav",
+        "h": "Heinrich",
+        "i": "Ida",
+        "j": "Julius",
+        "k": "Kaufmann",
+        "l": "Ludwig",
+        "m": "Martha",
+        "n": "Nordpol",
+        "o": "Otto",
+        "p": "Paula",
+        "q": "Quelle",
+        "r": "Richard",
+        "s": "Samuel",
+        "t": "Theodor",
+        "u": "Ulrich",
+        "v": "Viktor",
+        "w": "Wilhelm",
+        "x": "Xanthippe",
+        "y": "Ypsilon",
+        "z": "Zeppelin"
+      }
+    },
+    "nato": {
+      "letterWords": {
+        "a": "Alpha",
+        "b": "Bravo",
+        "c": "Charlie",
+        "d": "Delta",
+        "e": "Echo",
+        "f": "Foxtrot",
+        "g": "Golf",
+        "h": "Hotel",
+        "i": "India",
+        "j": "Juliett",
+        "k": "Kilo",
+        "l": "Lima",
+        "m": "Mike",
+        "n": "November",
+        "o": "Oscar",
+        "p": "Papa",
+        "q": "Quebec",
+        "r": "Romeo",
+        "s": "Sierra",
+        "t": "Tango",
+        "u": "Uniform",
+        "v": "Victor",
+        "w": "Whiskey",
+        "x": "Xray",
+        "y": "Yankee",
+        "z": "Zulu"
+      }
+    }
+  },
+  "spokenSpellingFormatByLanguage": {
+    "de": {
+      "alphabet": "german",
+      "connector": "wie",
+      "uppercaseMarker": "gro\u00dfes",
+      "characterNames": {
+        ".": "Punkt",
+        "@": "At-Zeichen",
+        "-": "Bindestrich",
+        "_": "Unterstrich"
+      },
+      "digitWords": {
+        "0": "null",
+        "1": "eins",
+        "2": "zwei",
+        "3": "drei",
+        "4": "vier",
+        "5": "f\u00fcnf",
+        "6": "sechs",
+        "7": "sieben",
+        "8": "acht",
+        "9": "neun"
+      }
+    },
+    "en": {
+      "alphabet": "nato",
+      "connector": "for",
+      "uppercaseMarker": "capital",
+      "characterNames": {
+        ".": "dot",
+        "@": "at sign",
+        "-": "dash",
+        "_": "underscore"
+      }
+    },
+    "fr": {
+      "alphabet": "nato",
+      "connector": "comme",
+      "uppercaseMarker": "majuscule",
+      "characterNames": {
+        ".": "point",
+        "@": "arobase",
+        "-": "tiret",
+        "_": "tiret bas"
+      }
+    },
+    "es": {
+      "alphabet": "nato",
+      "connector": "como",
+      "uppercaseMarker": "may\u00fascula",
+      "characterNames": {
+        ".": "punto",
+        "@": "arroba",
+        "-": "guion",
+        "_": "guion bajo"
+      }
+    },
+    "it": {
+      "alphabet": "nato",
+      "connector": "come",
+      "uppercaseMarker": "maiuscola",
+      "characterNames": {
+        ".": "punto",
+        "@": "chiocciola",
+        "-": "trattino",
+        "_": "trattino basso"
+      }
+    }
+  },
+  "spellingConnectorsByLanguage": {
+    "de": [
+      "wie"
+    ],
+    "en": [
+      "as",
+      "for"
+    ],
+    "fr": [
+      "comme"
+    ],
+    "es": [
+      "como"
+    ],
+    "it": [
+      "come"
+    ]
+  },
+  "diacriticsConnectorTokensByLanguage": {
+    "de": [
+      "mit"
+    ],
+    "en": [
+      "with"
+    ],
+    "fr": [
+      "avec"
+    ],
+    "es": [
+      "con"
+    ],
+    "it": [
+      "con"
+    ]
+  },
+  "uppercaseMarkersByLanguage": {
+    "de": [
+      "gro\u00df",
+      "gro\u00dfes",
+      "gross",
+      "grosses"
+    ],
+    "en": [
+      "capital"
+    ],
+    "fr": [
+      "majuscule"
+    ],
+    "es": [
+      "may\u00fascula"
+    ],
+    "it": [
+      "maiuscola"
+    ]
+  },
+  "uppercaseMarkerPlacementByLanguage": {
+    "de": "beforeLetter",
+    "en": "beforeLetter",
+    "fr": "afterLetter",
+    "es": "afterLetter",
+    "it": "afterLetter"
+  },
+  "umlautDescriptors": [
+    "umlaut",
+    "trema"
+  ],
+  "acuteDescriptors": [
+    "akut",
+    "acute"
+  ],
+  "umlautByBaseToken": {
+    "a": "\u00e4",
+    "o": "\u00f6",
+    "u": "\u00fc"
+  },
+  "acuteByBaseToken": {
+    "a": "\u00e1",
+    "e": "\u00e9",
+    "i": "\u00ed",
+    "o": "\u00f3",
+    "u": "\u00fa"
+  },
+  "numberWordsByLanguage": {
+    "de": {
+      "units": {
+        "null": 0,
+        "ein": 1,
+        "eins": 1,
+        "zwei": 2,
+        "zwo": 2,
+        "drei": 3,
+        "vier": 4,
+        "f\u00fcnf": 5,
+        "sechs": 6,
+        "sieben": 7,
+        "acht": 8,
+        "neun": 9
+      },
+      "teens": {
+        "zehn": 10,
+        "elf": 11,
+        "zw\u00f6lf": 12,
+        "dreizehn": 13,
+        "vierzehn": 14,
+        "f\u00fcnfzehn": 15,
+        "sechzehn": 16,
+        "siebzehn": 17,
+        "achtzehn": 18,
+        "neunzehn": 19
+      },
+      "tens": {
+        "zwanzig": 20,
+        "drei\u00dfig": 30,
+        "dreissig": 30,
+        "vierzig": 40,
+        "f\u00fcnfzig": 50,
+        "sechzig": 60,
+        "siebzig": 70,
+        "achtzig": 80,
+        "neunzig": 90
+      },
+      "scales": {
+        "hundert": 100,
+        "tausend": 1000,
+        "million": 1000000,
+        "millionen": 1000000,
+        "milliarde": 1000000000,
+        "milliarden": 1000000000,
+        "billion": 1000000000000,
+        "billionen": 1000000000000
+      }
+    },
+    "en": {
+      "units": {
+        "zero": 0,
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9
+      },
+      "teens": {
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+        "thirteen": 13,
+        "fourteen": 14,
+        "fifteen": 15,
+        "sixteen": 16,
+        "seventeen": 17,
+        "eighteen": 18,
+        "nineteen": 19
+      },
+      "tens": {
+        "twenty": 20,
+        "thirty": 30,
+        "forty": 40,
+        "fifty": 50,
+        "sixty": 60,
+        "seventy": 70,
+        "eighty": 80,
+        "ninety": 90
+      },
+      "scales": {
+        "hundred": 100,
+        "thousand": 1000,
+        "million": 1000000,
+        "billion": 1000000000
+      }
+    },
+    "fr": {
+      "units": {
+        "zero": 0,
+        "un": 1,
+        "une": 1,
+        "deux": 2,
+        "trois": 3,
+        "quatre": 4,
+        "cinq": 5,
+        "six": 6,
+        "sept": 7,
+        "huit": 8,
+        "neuf": 9
+      }
+    },
+    "es": {
+      "units": {
+        "cero": 0,
+        "uno": 1,
+        "un": 1,
+        "dos": 2,
+        "tres": 3,
+        "cuatro": 4,
+        "cinco": 5,
+        "seis": 6,
+        "siete": 7,
+        "ocho": 8,
+        "nueve": 9
+      }
+    },
+    "it": {
+      "units": {
+        "zero": 0,
+        "uno": 1,
+        "un": 1,
+        "due": 2,
+        "tre": 3,
+        "quattro": 4,
+        "cinque": 5,
+        "sei": 6,
+        "sette": 7,
+        "otto": 8,
+        "nove": 9
+      }
+    }
+  },
+  "choiceConnectivesByLanguage": {
+    "de": [
+      "und"
+    ],
+    "en": [
+      "and"
+    ],
+    "fr": [
+      "et"
+    ],
+    "es": [
+      "y"
+    ],
+    "it": [
+      "e"
+    ]
+  },
+  "fillerTokensByLanguage": {
+    "de": [
+      "bitte",
+      "danke",
+      "gern",
+      "gerne"
+    ],
+    "en": [
+      "please",
+      "thanks"
+    ],
+    "fr": [
+      "merci"
+    ],
+    "es": [
+      "gracias"
+    ],
+    "it": [
+      "grazie"
+    ]
+  },
+  "commandPolitePaddingTokensByLanguage": {
+    "de": [
+      "bitte",
+      "mal",
+      "doch",
+      "einmal",
+      "kurz"
+    ],
+    "en": [
+      "please",
+      "kindly",
+      "just"
+    ]
+  },
+  "dateInputVocabularyByLanguage": {
+    "de": {
+      "relativeDayOffsets": {
+        "vorgestern": -2,
+        "gestern": -1,
+        "heute": 0,
+        "morgen": 1,
+        "\u00fcbermorgen": 2,
+        "uebermorgen": 2
+      },
+      "leadingParticles": [
+        "am",
+        "der",
+        "den",
+        "die"
+      ],
+      "ordinalEndings": [
+        "er",
+        "en",
+        "e"
+      ],
+      "ordinalDayStems": {
+        "erst": 1,
+        "zweit": 2,
+        "dritt": 3,
+        "viert": 4,
+        "f\u00fcnft": 5,
+        "sechst": 6,
+        "siebt": 7,
+        "siebent": 7,
+        "acht": 8,
+        "neunt": 9,
+        "zehnt": 10,
+        "elft": 11,
+        "zw\u00f6lft": 12,
+        "dreizehnt": 13,
+        "vierzehnt": 14,
+        "f\u00fcnfzehnt": 15,
+        "sechzehnt": 16,
+        "siebzehnt": 17,
+        "achtzehnt": 18,
+        "neunzehnt": 19,
+        "zwanzigst": 20,
+        "einundzwanzigst": 21,
+        "zweiundzwanzigst": 22,
+        "dreiundzwanzigst": 23,
+        "vierundzwanzigst": 24,
+        "f\u00fcnfundzwanzigst": 25,
+        "sechsundzwanzigst": 26,
+        "siebenundzwanzigst": 27,
+        "achtundzwanzigst": 28,
+        "neunundzwanzigst": 29,
+        "dreissigst": 30,
+        "drei\u00dfigst": 30,
+        "einunddreissigst": 31,
+        "einunddrei\u00dfigst": 31
+      }
+    }
+  },
+  "timeInputKeywordsByLanguage": {
+    "de": {
+      "halfHour": "halb",
+      "quarter": "viertel",
+      "before": "vor",
+      "after": "nach",
+      "clockMarker": "uhr"
+    }
+  },
+  "numberGrammarByLanguage": {
+    "de": {
+      "andConnector": "und",
+      "unsupportedMagnitudeWords": [
+        "dutzend",
+        "dutzende"
+      ],
+      "signWords": [
+        "minus",
+        "negativ"
+      ],
+      "boundOnePrefix": "ein",
+      "hundredWord": "hundert",
+      "thousandWord": "tausend"
+    },
+    "en": {
+      "signWords": [
+        "minus",
+        "negative"
+      ],
+      "ohWord": "oh",
+      "hundredWord": "hundred",
+      "thousandWord": "thousand"
+    }
+  },
+  "dateInputParticlesByLanguage": {
+    "en": [
+      "the",
+      "of",
+      "on",
+      "in"
+    ],
+    "fr": [
+      "le",
+      "la",
+      "l",
+      "el",
+      "lo",
+      "los",
+      "las",
+      "il",
+      "i",
+      "gli",
+      "the",
+      "d",
+      "de",
+      "del",
+      "di",
+      "du",
+      "of"
+    ],
+    "es": [
+      "le",
+      "la",
+      "l",
+      "el",
+      "lo",
+      "los",
+      "las",
+      "il",
+      "i",
+      "gli",
+      "the",
+      "d",
+      "de",
+      "del",
+      "di",
+      "du",
+      "of"
+    ],
+    "it": [
+      "le",
+      "la",
+      "l",
+      "el",
+      "lo",
+      "los",
+      "las",
+      "il",
+      "i",
+      "gli",
+      "the",
+      "d",
+      "de",
+      "del",
+      "di",
+      "du",
+      "of"
+    ]
+  },
+  "ordinalDaysByLanguage": {
+    "en": {
+      "days": {
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9,
+        "tenth": 10,
+        "eleventh": 11,
+        "twelfth": 12,
+        "thirteenth": 13,
+        "fourteenth": 14,
+        "fifteenth": 15,
+        "sixteenth": 16,
+        "seventeenth": 17,
+        "eighteenth": 18,
+        "nineteenth": 19,
+        "twentieth": 20,
+        "thirtieth": 30
+      },
+      "compoundOnes": {
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4,
+        "fifth": 5,
+        "sixth": 6,
+        "seventh": 7,
+        "eighth": 8,
+        "ninth": 9
+      }
+    },
+    "fr": {
+      "days": {
+        "premier": 1,
+        "premiere": 1,
+        "primero": 1,
+        "primer": 1,
+        "primo": 1
+      }
+    },
+    "es": {
+      "days": {
+        "premier": 1,
+        "premiere": 1,
+        "primero": 1,
+        "primer": 1,
+        "primo": 1
+      }
+    },
+    "it": {
+      "days": {
+        "premier": 1,
+        "premiere": 1,
+        "primero": 1,
+        "primer": 1,
+        "primo": 1
+      }
+    }
+  },
+  "spokenOrdinalDayByLanguage": {
+    "de": {
+      "1": "erster",
+      "2": "zweiter",
+      "3": "dritter",
+      "4": "vierter",
+      "5": "f\u00fcnfter",
+      "6": "sechster",
+      "7": "siebter",
+      "8": "achter",
+      "9": "neunter",
+      "10": "zehnter",
+      "11": "elfter",
+      "12": "zw\u00f6lfter",
+      "13": "dreizehnter",
+      "14": "vierzehnter",
+      "15": "f\u00fcnfzehnter",
+      "16": "sechzehnter",
+      "17": "siebzehnter",
+      "18": "achtzehnter",
+      "19": "neunzehnter",
+      "20": "zwanzigster",
+      "21": "einundzwanzigster",
+      "22": "zweiundzwanzigster",
+      "23": "dreiundzwanzigster",
+      "24": "vierundzwanzigster",
+      "25": "f\u00fcnfundzwanzigster",
+      "26": "sechsundzwanzigster",
+      "27": "siebenundzwanzigster",
+      "28": "achtundzwanzigster",
+      "29": "neunundzwanzigster",
+      "30": "drei\u00dfigster",
+      "31": "einunddrei\u00dfigster"
+    },
+    "fr": {
+      "1": "1er"
+    }
+  },
+  "spokenDateConnectorByLanguage": {
+    "es": "de"
+  },
+  "spokenTimeFormatByLanguage": {
+    "de": {
+      "clockMarker": "Uhr"
+    },
+    "en": {
+      "anteMeridiem": "AM",
+      "postMeridiem": "PM"
+    },
+    "fr": {
+      "hourWordSingular": "heure",
+      "hourWordPlural": "heures"
+    },
+    "es": {
+      "articleSingular": "la",
+      "articlePlural": "las",
+      "minuteConnector": "y"
+    },
+    "it": {
+      "articlePlural": "le",
+      "oneOClockForm": "l'una",
+      "minuteConnector": "e"
+    }
+  }
+}

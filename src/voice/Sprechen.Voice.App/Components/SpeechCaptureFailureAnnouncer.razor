@@ -1,0 +1,36 @@
+@implements IDisposable
+@using Sprechen.Voice.App.Services
+@inject ISpeechCaptureFeedback SpeechCaptureFeedback
+@inject IUserLanguageState UserLanguageState
+
+<div class="visually-hidden" role="alert" aria-live="assertive" aria-atomic="true">@_message</div>
+
+@code {
+    private readonly SpeechCaptureFeedbackResourceResolver _feedbackResources = new();
+    private IDisposable? _failureSubscription;
+    private string? _message;
+
+    protected override void OnInitialized()
+    {
+        _failureSubscription = SpeechCaptureFeedback.SubscribeToFailures(OnFailedAsync);
+    }
+
+    private ValueTask OnFailedAsync(SpeechCaptureFailed message)
+    {
+        var languageCode = _feedbackResources.ResolveDisplayLanguage(UserLanguageState.SelectedIsoCode);
+        var resolved = _feedbackResources.ResolveFailureAnnouncementMessage(message.ErrorCode, languageCode);
+
+        _ = InvokeAsync(() =>
+        {
+            _message = resolved;
+            StateHasChanged();
+        });
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _failureSubscription?.Dispose();
+    }
+}

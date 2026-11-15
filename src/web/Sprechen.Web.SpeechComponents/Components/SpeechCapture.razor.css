@@ -1,0 +1,112 @@
+.speech-surface {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: min(100%, 72rem);
+    min-height: inherit;
+    border: 1px solid var(--sp-home-background-border);
+    border-radius: clamp(1.75rem, 4vw, 2.5rem);
+    box-shadow:
+        var(--sp-home-background-shadow),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+    cursor: pointer;
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        filter 180ms ease,
+        opacity 180ms ease;
+    background: linear-gradient(180deg, var(--sp-home-background-start) 0%, var(--sp-home-background-end) 100%);
+}
+
+.speech-surface:hover:not(:disabled),
+.speech-surface:focus-visible {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow:
+        0 32px 72px rgba(0, 58, 102, 0.16),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+}
+
+.speech-surface:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 8px;
+}
+
+.speech-surface:disabled {
+    cursor: progress;
+    opacity: 0.82;
+}
+
+.speech-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+    pointer-events: none;
+}
+
+.speech-surface.recording {
+    animation: pulse-recording 1.35s ease-in-out infinite;
+}
+
+.speech-surface.recording::after {
+    box-shadow:
+        0 0 0 0 rgba(255, 98, 90, 0.24),
+        0 0 0 18px rgba(255, 98, 90, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.speech-surface.earcon-flow {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sp-surface-tint-base) 76%, var(--sp-earcon-flow-bg) 24%) 0%, color-mix(in srgb, var(--sp-surface-tint-base) 88%, var(--sp-earcon-flow-bg) 12%) 100%);
+}
+
+.speech-surface.earcon-validation-success {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sp-surface-tint-base) 80%, var(--sp-earcon-validation-success-bg) 20%) 0%, color-mix(in srgb, var(--sp-surface-tint-base) 90%, var(--sp-earcon-validation-success-bg) 10%) 100%);
+}
+
+.speech-surface.earcon-validation-not-ok {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sp-surface-tint-base) 82%, var(--sp-earcon-validation-not-ok-bg) 18%) 0%, color-mix(in srgb, var(--sp-surface-tint-base) 92%, var(--sp-earcon-validation-not-ok-bg) 8%) 100%);
+}
+
+.speech-surface.earcon-structure {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sp-surface-tint-base) 82%, var(--sp-earcon-structure-bg) 18%) 0%, color-mix(in srgb, var(--sp-surface-tint-base) 92%, var(--sp-earcon-structure-bg) 8%) 100%);
+}
+
+.speech-surface.earcon-mode {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sp-surface-tint-base) 84%, var(--sp-earcon-mode-bg) 16%) 0%, color-mix(in srgb, var(--sp-surface-tint-base) 93%, var(--sp-earcon-mode-bg) 7%) 100%);
+}
+
+.speech-surface.activation-starting {
+    filter: saturate(0.92) brightness(1.03);
+}
+
+.speech-surface.activation-ready {
+    box-shadow:
+        0 24px 56px rgba(0, 58, 102, 0.12),
+        inset 0 0 0 1px rgba(117, 255, 222, 0.28);
+}
+
+.speech-surface.activation-paused {
+    filter: saturate(0.72) brightness(0.98);
+    box-shadow:
+        0 16px 44px rgba(0, 58, 102, 0.08),
+        inset 0 0 0 1px rgba(0, 58, 102, 0.16);
+}
+
+.speech-surface.activation-failed {
+    filter: saturate(0.9);
+}
+
+@keyframes pulse-recording {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.008);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

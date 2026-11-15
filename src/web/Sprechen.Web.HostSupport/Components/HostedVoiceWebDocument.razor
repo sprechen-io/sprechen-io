@@ -1,0 +1,254 @@
+@inject IApplicationVersionInfoProvider ApplicationVersionInfoProvider
+
+@{
+    var applicationVersionInfo = ApplicationVersionInfoProvider.GetCurrent();
+    var applicationVersionJson = JsonSerializer.Serialize(new
+    {
+        displayVersion = applicationVersionInfo.DisplayVersion,
+        informationalVersion = applicationVersionInfo.InformationalVersion,
+        assemblyVersion = applicationVersionInfo.AssemblyVersion,
+        sourceRevision = applicationVersionInfo.SourceRevision,
+        shortSourceRevision = applicationVersionInfo.ShortSourceRevision
+    });
+    var bootCopy = GetBootCopy(Language);
+}
+
+<!DOCTYPE html>
+<html lang="@Language">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+    <meta name="sprechen:version" content="@applicationVersionInfo.DisplayVersion" />
+    @if (!string.IsNullOrWhiteSpace(applicationVersionInfo.SourceRevision))
+    {
+        <meta name="sprechen:revision" content="@applicationVersionInfo.SourceRevision" />
+    }
+    <base href="/" />
+    <script>
+        // Das gespeicherte Farbschema wird vor den Stylesheets gesetzt, um ein Aufblitzen des falschen Schemas zu vermeiden.
+        // themeSettings.js verwendet denselben localStorage-Schlüssel und übernimmt spätere Änderungen.
+        // Ohne gültige manuelle Auswahl bestimmt prefers-color-scheme die Darstellung.
+        (function () {
+            try {
+                var mode = window.localStorage.getItem("sprechenIo.voice.appearance.theme");
+                if (mode === "light" || mode === "dark") {
+                    document.documentElement.setAttribute("data-sp-theme", mode);
+                }
+            } catch (e) {
+                // Bei fehlendem Speicherzugriff bleibt die Darstellung vom Betriebssystem abhängig.
+            }
+        })();
+    </script>
+    <ResourcePreloader />
+    <title>@Title</title>
+    <link rel="stylesheet" href="@Assets["_content/Sprechen.Web.HostSupport/voice-support/vendor/bootstrap/bootstrap.min.css"]" />
+    <link rel="stylesheet" href="@Assets["_content/Sprechen.Web.HostSupport/voice-support/vendor/bootstrap-icons/bootstrap-icons.min.css"]" />
+    <link rel="stylesheet" href="@Assets["_content/Sprechen.Web.HostSupport/voice-support/app.css"]" />
+    @if (!string.IsNullOrWhiteSpace(HostStylesheetAsset))
+    {
+        <link rel="stylesheet" href="@Assets[HostStylesheetAsset]" />
+    }
+    @if (!string.IsNullOrWhiteSpace(AdditionalStylesheetAsset))
+    {
+        <link rel="stylesheet" href="@Assets[AdditionalStylesheetAsset]" />
+    }
+    <ImportMap />
+    <link rel="icon" type="image/png" href="@Assets["_content/Sprechen.Web.HostSupport/voice-support/favicon.png"]" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <div id="sprechen-boot-status" class="sprechen-boot-status" role="status" aria-live="polite">
+        @bootCopy.Loading
+    </div>
+    <div id="sprechen-boot-alert" class="sprechen-boot-alert" role="alert"></div>
+    <script>
+        (function () {
+            var startupWatchdogTimeoutMs = 30000;
+            var loadingStatus = document.getElementById('sprechen-boot-status');
+            var fatalAlert = document.getElementById('sprechen-boot-alert');
+            var startupFailureMessage = '@bootCopy.BootFailure';
+
+            // Der Fehlertext wird bei Zeitüberschreitung in die vorhandene Alert-Region eingefügt,
+            // damit Screenreader die Änderung als neue Fehlermeldung erkennen können.
+            var watchdogTimer = window.setTimeout(function () {
+                watchdogTimer = null;
+                if (loadingStatus) {
+                    loadingStatus.hidden = true;
+                }
+                if (fatalAlert) {
+                    fatalAlert.textContent = startupFailureMessage;
+                }
+            }, startupWatchdogTimeoutMs);
+
+            window.sprechenIoWeb = window.sprechenIoWeb || {};
+            window.sprechenIoWeb.boot = {
+                ready: function () {
+                    if (watchdogTimer !== null) {
+                        window.clearTimeout(watchdogTimer);
+                        watchdogTimer = null;
+                    }
+                    if (fatalAlert) {
+                        fatalAlert.textContent = '';
+                    }
+                    if (loadingStatus) {
+                        loadingStatus.remove();
+                    }
+                }
+            };
+        })();
+    </script>
+
+    @ChildContent
+
+    <div id="blazor-error-ui" role="alert" data-nosnippet>
+        @bootCopy.FatalError
+        <a href="." class="reload">@bootCopy.Reload</a>
+        <span class="dismiss">&times;</span>
+    </div>
+
+    <script>
+        window.sprechenIoWeb = window.sprechenIoWeb || {};
+        window.sprechenIoWeb.version = @((MarkupString)applicationVersionJson);
+        console.info("[sprechen-version]", window.sprechenIoWeb.version);
+        window.sprechenIoWeb.pcmRecorderWorkletUrl = '@Assets["_content/Sprechen.Speech.App.MicrophoneRecording/js/worklets/pcmRecorderProcessor.js"]';
+        // Ringpuffer und Resampler müssen vor dem Prozessor im gemeinsamen
+        // AudioWorkletGlobalScope verfügbar sein.
+        window.sprechenIoWeb.pcmPlaybackWorkletUrls = [
+            '@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/pcmRingBuffer.js"]',
+            '@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/streamingResampler.js"]',
+            '@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/worklets/pcmPlaybackProcessor.js"]'
+        ];
+        window.sprechenIoWeb.earconUrls = {
+            FlowOutputStart: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/s1.ogg"])',
+            FlowBargeIn: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/f1.ogg"])',
+            FlowListening: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/f1.ogg"])',
+            FlowAck: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/v1.ogg"])',
+            FlowProcessing: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/f3.ogg"])',
+            FlowDone: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/v1.ogg"])',
+            ValidationSuccess: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/v1.ogg"])',
+            ValidationAsrFail: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/vx.ogg"])',
+            ValidationAmbiguous: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/vx.ogg"])',
+            StructureStepTransition: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/s1.ogg"])',
+            StructureBoundary: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/s2.ogg"])',
+            ModePrivacyChange: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/m1.ogg"])',
+            ModeConfirmationRequired: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/m3.ogg"])',
+            VoiceInputMicOn: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/mic_on.ogg"])',
+            VoiceInputMicOff: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/mic_off.ogg"])',
+            WakeWordNotRecognized: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/vx.ogg"])'
+        };
+    </script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/vendor/standardized-audio-context/sac.global.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/earcons.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/audioDsp.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/workletPlaybackSink.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/pcmPlayer.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/userLanguageSettings.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/themeSettings.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/voiceActivationSettings.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/speechCaptureSettings.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Speech.App.MicrophoneRecording/js/microphoneRecorder.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/voiceDialogSettingsOverrides.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/browserDebugConsole.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/evaluationTelemetryOutbox.js"]"></script>
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+</body>
+
+</html>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Sprechen";
+
+    [Parameter]
+    public string Language { get; set; } = "de";
+
+    [Parameter]
+    public string? HostStylesheetAsset { get; set; }
+
+    [Parameter]
+    public string? AdditionalStylesheetAsset { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private static (string Loading, string BootFailure, string FatalError, string Reload) GetBootCopy(string language)
+    {
+        var isEnglish = language is not null &&
+            language.StartsWith("en", StringComparison.OrdinalIgnoreCase);
+
+        return isEnglish
+            ? ("Loading application ...",
+                "The application could not be started. Please reload the page.",
+                "An unexpected error has occurred.",
+                "Reload")
+            : ("Anwendung wird geladen ...",
+                "Die Anwendung konnte nicht gestartet werden. Bitte laden Sie die Seite neu.",
+                "Ein unerwarteter Fehler ist aufgetreten.",
+                "Neu laden");
+    }
+
+    private static string ToRootRelativeAssetPath(string assetPath)
+    {
+        if (Uri.TryCreate(assetPath, UriKind.Absolute, out var absoluteAssetUri))
+        {
+            return string.Concat(absoluteAssetUri.AbsolutePath, absoluteAssetUri.Query, absoluteAssetUri.Fragment);
+        }
+
+        if (assetPath.StartsWith("/", StringComparison.Ordinal))
+        {
+            return assetPath;
+        }
+
+        return "/" + assetPath;
+    }
+
+    private static string ToRootRelativeCanonicalHostSupportEarconAssetPath(string assetPath)
+    {
+        const string hostSupportEarconRoutePrefix = "/_content/Sprechen.Web.HostSupport/voice-support/earcon/";
+
+        var rootRelativeAssetPath = ToRootRelativeAssetPath(assetPath);
+        if (!rootRelativeAssetPath.StartsWith(hostSupportEarconRoutePrefix, StringComparison.Ordinal))
+        {
+            return rootRelativeAssetPath;
+        }
+
+        var suffixSeparatorIndex = rootRelativeAssetPath.IndexOfAny(['?', '#']);
+        var routePath = suffixSeparatorIndex >= 0
+            ? rootRelativeAssetPath[..suffixSeparatorIndex]
+            : rootRelativeAssetPath;
+        var routeSuffix = suffixSeparatorIndex >= 0
+            ? rootRelativeAssetPath[suffixSeparatorIndex..]
+            : string.Empty;
+
+        var lastSlashIndex = routePath.LastIndexOf('/');
+        if (lastSlashIndex < 0 || lastSlashIndex == routePath.Length - 1)
+        {
+            return rootRelativeAssetPath;
+        }
+
+        var fileName = routePath[(lastSlashIndex + 1)..];
+        var fileNameParts = fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        var extension = fileNameParts.Length == 0 ? string.Empty : fileNameParts[^1];
+        if (fileNameParts.Length < 3 ||
+            (!string.Equals(extension, "ogg", StringComparison.OrdinalIgnoreCase) &&
+             !string.Equals(extension, "mp3", StringComparison.OrdinalIgnoreCase)))
+        {
+            return rootRelativeAssetPath;
+        }
+
+        var canonicalFileNameBase = string.Join('.', fileNameParts[..^2]);
+        if (canonicalFileNameBase.Length == 0)
+        {
+            return rootRelativeAssetPath;
+        }
+
+        var canonicalRoutePath = string.Concat(routePath[..(lastSlashIndex + 1)], canonicalFileNameBase, ".", extension.ToLowerInvariant());
+        var fingerprintToken = Uri.EscapeDataString(fileNameParts[^2]);
+
+        return string.Concat(canonicalRoutePath, "?v=", fingerprintToken, routeSuffix);
+    }
+}

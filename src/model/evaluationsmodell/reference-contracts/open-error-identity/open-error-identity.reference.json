@@ -1,0 +1,351 @@
+{
+  "$schema": "../../schemas/open-error-identity.schema.json",
+  "artifactId": "open-error-identity",
+  "description": "The authored truth table of what ONE open error is, taken from model.md section 13.1.2.3. The error rate is the number the two conditions are compared on, so both channels have to agree - otherwise the rate measures how each channel happens to key and pick its errors. Written by hand rather than generated from either channel, so the table stays independent of the implementations it checks. 'cases' covers when two reported violations are the SAME open error; 'openRuleAtOneFieldCases' covers which of the rules one field breaks is its open one.",
+  "cases": [
+    {
+      "case": "the same rule reported twice at the same field is one open error",
+      "violations": [
+        {
+          "id": "first",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "again",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "first",
+          "again"
+        ]
+      ]
+    },
+    {
+      "case": "the same rule at two fields is two open errors, one per field that owns it",
+      "violations": [
+        {
+          "id": "atEmail",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "atPhone",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "contactPhone",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "atEmail"
+        ],
+        [
+          "atPhone"
+        ]
+      ]
+    },
+    {
+      "case": "a rule no single field owns is one open error per field group it is reached through",
+      "violations": [
+        {
+          "id": "contactViaEmail",
+          "scope": "fieldGroup",
+          "code": "contact.oneChannelRequired",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "contactViaPhone",
+          "scope": "fieldGroup",
+          "code": "contact.oneChannelRequired",
+          "severity": "error",
+          "fieldId": "contactPhone",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "addressViaStreet",
+          "scope": "fieldGroup",
+          "code": "contact.oneChannelRequired",
+          "severity": "error",
+          "fieldId": "addressStreet",
+          "fieldGroupId": "address"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "contactViaEmail",
+          "contactViaPhone"
+        ],
+        [
+          "addressViaStreet"
+        ]
+      ]
+    },
+    {
+      "case": "a form-scope rule reached through two groups is two open errors",
+      "violations": [
+        {
+          "id": "viaContact",
+          "scope": "form",
+          "code": "form.atLeastOneAddress",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "viaAddress",
+          "scope": "form",
+          "code": "form.atLeastOneAddress",
+          "severity": "error",
+          "fieldId": "addressStreet",
+          "fieldGroupId": "address"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "viaContact"
+        ],
+        [
+          "viaAddress"
+        ]
+      ]
+    },
+    {
+      "case": "a cross-group rule reached through two fields of one group is one open error",
+      "violations": [
+        {
+          "id": "crossViaEmail",
+          "scope": "crossGroup",
+          "code": "contact.matchesAddressCountry",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "crossViaPhone",
+          "scope": "crossGroup",
+          "code": "contact.matchesAddressCountry",
+          "severity": "error",
+          "fieldId": "contactPhone",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "crossViaEmail",
+          "crossViaPhone"
+        ]
+      ]
+    },
+    {
+      "case": "the same code under two scopes is two open errors, because the owning unit differs",
+      "violations": [
+        {
+          "id": "asGroupRule",
+          "scope": "fieldGroup",
+          "code": "contact.oneChannelRequired",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "asCrossGroupRule",
+          "scope": "crossGroup",
+          "code": "contact.oneChannelRequired",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "asGroupRule"
+        ],
+        [
+          "asCrossGroupRule"
+        ]
+      ]
+    },
+    {
+      "case": "the same rule at one field with two severities is two open errors, because only one of them is counted in the error rate",
+      "violations": [
+        {
+          "id": "blocking",
+          "scope": "field",
+          "code": "contact.emailFormat",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "advisory",
+          "scope": "field",
+          "code": "contact.emailFormat",
+          "severity": "warning",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "blocking"
+        ],
+        [
+          "advisory"
+        ]
+      ]
+    },
+    {
+      "case": "two different rules at one field are two open errors under the identity rule; collapsing them to one is the other half of the counting unit",
+      "violations": [
+        {
+          "id": "missing",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "malformed",
+          "scope": "field",
+          "code": "contact.emailFormat",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenErrors": [
+        [
+          "missing"
+        ],
+        [
+          "malformed"
+        ]
+      ]
+    }
+  ],
+  "openRuleAtOneFieldCases": [
+    {
+      "case": "a blocking rule is open before an advisory one, even when the advisory rule instance sorts first",
+      "violations": [
+        {
+          "id": "advisoryFormat",
+          "constraintId": "emailFormat",
+          "scope": "field",
+          "code": "form.email.invalid",
+          "severity": "warning",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        },
+        {
+          "id": "blockingRequired",
+          "constraintId": "emailRequired",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "contactEmail",
+          "fieldGroupId": "contact"
+        }
+      ],
+      "expectedOpenViolationId": "blockingRequired"
+    },
+    {
+      "case": "an advisory rule is open before a merely informational one, even when the informational rule instance sorts first",
+      "violations": [
+        {
+          "id": "informational",
+          "constraintId": "noteAdvice",
+          "scope": "field",
+          "code": "form.note.advice",
+          "severity": "info",
+          "fieldId": "deliveryNote",
+          "fieldGroupId": "delivery"
+        },
+        {
+          "id": "advisory",
+          "constraintId": "noteFormat",
+          "scope": "field",
+          "code": "form.note.invalid",
+          "severity": "warning",
+          "fieldId": "deliveryNote",
+          "fieldGroupId": "delivery"
+        }
+      ],
+      "expectedOpenViolationId": "advisory"
+    },
+    {
+      "case": "all three severities at one field: the blocking rule is open although it sorts last of the three",
+      "violations": [
+        {
+          "id": "hint",
+          "constraintId": "postalCodeAdvice",
+          "scope": "field",
+          "code": "form.postalCode.advice",
+          "severity": "info",
+          "fieldId": "postalCode",
+          "fieldGroupId": "address"
+        },
+        {
+          "id": "format",
+          "constraintId": "postalCodeFormat",
+          "scope": "field",
+          "code": "form.postalCode.pattern",
+          "severity": "warning",
+          "fieldId": "postalCode",
+          "fieldGroupId": "address"
+        },
+        {
+          "id": "presence",
+          "constraintId": "postalCodeRequired",
+          "scope": "field",
+          "code": "form.required",
+          "severity": "error",
+          "fieldId": "postalCode",
+          "fieldGroupId": "address"
+        }
+      ],
+      "expectedOpenViolationId": "presence"
+    },
+    {
+      "case": "at equal severity the rule instance decides, not the order a runtime happens to check in",
+      "violations": [
+        {
+          "id": "pattern",
+          "constraintId": "ibanPattern",
+          "scope": "field",
+          "code": "form.iban.pattern",
+          "severity": "error",
+          "fieldId": "iban",
+          "fieldGroupId": "payment"
+        },
+        {
+          "id": "checksum",
+          "constraintId": "ibanChecksum",
+          "scope": "field",
+          "code": "form.iban.checksum",
+          "severity": "error",
+          "fieldId": "iban",
+          "fieldGroupId": "payment"
+        }
+      ],
+      "expectedOpenViolationId": "checksum"
+    }
+  ]
+}

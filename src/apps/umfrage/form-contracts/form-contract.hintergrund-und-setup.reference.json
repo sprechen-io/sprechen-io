@@ -1,0 +1,804 @@
+{
+  "schemaVersion": "1",
+  "contractVersion": "1",
+  "applicationId": "study.umfrage",
+  "formId": "hintergrund-und-setup",
+  "displayName": {
+    "de": "Quizabend",
+    "en": "Quiz night",
+    "fr": "Soir\u00e9e quiz",
+    "es": "Noche de quiz",
+    "it": "Serata quiz"
+  },
+  "description": {
+    "de": "Acht Feldgruppen: acht Angaben stehen auf der Aufgabenkarte. Die letzte Feldgruppe erscheint nur, wenn eine Siegerehrung geplant wird. Ihre Pflichtangabe gilt dann und sonst nicht.",
+    "en": "Eight field groups: eight entries are on the task card. The last field group appears only if an awards ceremony is planned. Its mandatory entry applies then and not otherwise.",
+    "fr": "Huit groupes de champs : huit indications sont sur la fiche. Le dernier groupe de champs n\u2019appara\u00eet que si une remise des prix est pr\u00e9vue. Son caract\u00e8re obligatoire s\u2019applique alors, et pas autrement.",
+    "es": "Ocho grupos de campos: ocho datos est\u00e1n en la tarjeta. El \u00faltimo grupo de campos aparece solo si se planea una premiaci\u00f3n. Su obligatoriedad rige entonces y no en otro caso.",
+    "it": "Otto gruppi di campi: otto indicazioni sono sulla scheda. L\u2019ultimo gruppo di campi compare solo se \u00e8 prevista una premiazione. La sua obbligatoriet\u00e0 vale allora e non altrimenti."
+  },
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "entryFieldGroupId": "kategorien",
+  "strictLocalization": true,
+  "defaultLanguage": "de",
+  "fieldCatalog": {
+    "fieldDefinitionsId": "study.umfrage.fields.multilingual",
+    "catalogVersion": "1"
+  },
+  "variableCatalog": {
+    "variableDefinitionsId": "study.umfrage.variables.multilingual",
+    "catalogVersion": "1"
+  },
+  "variables": [
+    {
+      "variableId": "quizkategorien",
+      "variableDefinitionId": "quizkategorien"
+    },
+    {
+      "variableId": "anleitungKategorien",
+      "variableDefinitionId": "anleitungKategorien",
+      "initialValue": "Musik, Weltraum, Geschichte"
+    },
+    {
+      "variableId": "quizrundenalter",
+      "variableDefinitionId": "quizrundenalter"
+    },
+    {
+      "variableId": "anleitungQuizrundenalter",
+      "variableDefinitionId": "anleitungQuizrundenalter",
+      "initialValue": "vier bis sechs Jahre"
+    },
+    {
+      "variableId": "uebungstreffen",
+      "variableDefinitionId": "uebungstreffen"
+    },
+    {
+      "variableId": "anleitungUebungstreffen",
+      "variableDefinitionId": "anleitungUebungstreffen",
+      "initialValue": "t\u00e4glich"
+    },
+    {
+      "variableId": "zusatzpunkte",
+      "variableDefinitionId": "zusatzpunkte"
+    },
+    {
+      "variableId": "anleitungZusatzpunkte",
+      "variableDefinitionId": "anleitungZusatzpunkte",
+      "initialValue": "gelegentlich"
+    },
+    {
+      "variableId": "weltraumVertrautheit",
+      "variableDefinitionId": "weltraumVertrautheit"
+    },
+    {
+      "variableId": "anleitungWeltraum",
+      "variableDefinitionId": "anleitungWeltraum",
+      "initialValue": "mittel"
+    },
+    {
+      "variableId": "bonusfrage",
+      "variableDefinitionId": "bonusfrage"
+    },
+    {
+      "variableId": "anleitungBonusfrage",
+      "variableDefinitionId": "anleitungBonusfrage",
+      "initialValue": "Blauwal"
+    },
+    {
+      "variableId": "siegerehrung",
+      "variableDefinitionId": "siegerehrung"
+    },
+    {
+      "variableId": "anleitungSiegerehrung",
+      "variableDefinitionId": "anleitungSiegerehrung",
+      "initialValue": "ja, die Siegerehrung findet statt"
+    },
+    {
+      "variableId": "hauptpreis",
+      "variableDefinitionId": "hauptpreis"
+    },
+    {
+      "variableId": "anleitungHauptpreis",
+      "variableDefinitionId": "anleitungHauptpreis",
+      "initialValue": "ein kleiner Wanderpokal aus Holz"
+    }
+  ],
+  "fields": [
+    {
+      "fieldId": "anleitung_kategorien_field",
+      "variableId": "anleitungKategorien",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_kategorien_field"
+    },
+    {
+      "fieldId": "quizkategorien_field",
+      "variableId": "quizkategorien",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.quizkategorien_field"
+    },
+    {
+      "fieldId": "anleitung_quizrundenalter_field",
+      "variableId": "anleitungQuizrundenalter",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_quizrundenalter_field"
+    },
+    {
+      "fieldId": "quizrundenalter_field",
+      "variableId": "quizrundenalter",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.quizrundenalter_field"
+    },
+    {
+      "fieldId": "anleitung_uebungstreffen_field",
+      "variableId": "anleitungUebungstreffen",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_uebungstreffen_field"
+    },
+    {
+      "fieldId": "uebungstreffen_field",
+      "variableId": "uebungstreffen",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.uebungstreffen_field"
+    },
+    {
+      "fieldId": "anleitung_zusatzpunkte_field",
+      "variableId": "anleitungZusatzpunkte",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_zusatzpunkte_field"
+    },
+    {
+      "fieldId": "zusatzpunkte_field",
+      "variableId": "zusatzpunkte",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.zusatzpunkte_field"
+    },
+    {
+      "fieldId": "anleitung_weltraum_field",
+      "variableId": "anleitungWeltraum",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_weltraum_field"
+    },
+    {
+      "fieldId": "weltraum_vertrautheit_field",
+      "variableId": "weltraumVertrautheit",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.weltraum_vertrautheit_field"
+    },
+    {
+      "fieldId": "anleitung_bonusfrage_field",
+      "variableId": "anleitungBonusfrage",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_bonusfrage_field"
+    },
+    {
+      "fieldId": "bonusfrage_field",
+      "variableId": "bonusfrage",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.bonusfrage_field"
+    },
+    {
+      "fieldId": "anleitung_siegerehrung_field",
+      "variableId": "anleitungSiegerehrung",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_siegerehrung_field"
+    },
+    {
+      "fieldId": "siegerehrung_field",
+      "variableId": "siegerehrung",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.siegerehrung_field"
+    },
+    {
+      "fieldId": "anleitung_hauptpreis_field",
+      "variableId": "anleitungHauptpreis",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_hauptpreis_field"
+    },
+    {
+      "fieldId": "hauptpreis_field",
+      "variableId": "hauptpreis",
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.hauptpreis_field"
+    }
+  ],
+  "fieldGroups": [
+    {
+      "fieldGroupId": "kategorien",
+      "title": {
+        "de": "Quizkategorien",
+        "en": "Quiz categories",
+        "fr": "Cat\u00e9gories de quiz",
+        "es": "Categor\u00edas del quiz",
+        "it": "Categorie del quiz"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_kategorien_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "quizkategorien_field"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "quizrundenalter"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "uebungstreffen"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "zusatzpunkte"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "weltraum_vertrautheit"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "bonusfrage"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "siegerehrung_frage"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "hauptpreis"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "quizrundenalter",
+      "title": {
+        "de": "Alter der Quizrunde",
+        "en": "Age of the quiz round",
+        "fr": "\u00c2ge de la manche de quiz",
+        "es": "Antig\u00fcedad de la ronda de quiz",
+        "it": "Et\u00e0 del turno di quiz"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_quizrundenalter_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "quizrundenalter_field"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "uebungstreffen",
+      "title": {
+        "de": "\u00dcbungstreffen",
+        "en": "Practice meetings",
+        "fr": "S\u00e9ances d\u2019entra\u00eenement",
+        "es": "Ensayos",
+        "it": "Allenamenti"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_uebungstreffen_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "uebungstreffen_field"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "zusatzpunkte",
+      "title": {
+        "de": "Zusatzpunkte",
+        "en": "Bonus points",
+        "fr": "Points bonus",
+        "es": "Puntos extra",
+        "it": "Punti extra"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_zusatzpunkte_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "zusatzpunkte_field"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "weltraum_vertrautheit",
+      "title": {
+        "de": "Weltraum-Vertrautheit",
+        "en": "Space familiarity",
+        "fr": "Familiarit\u00e9 Espace",
+        "es": "Familiaridad Espacio",
+        "it": "Familiarit\u00e0 Spazio"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_weltraum_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "weltraum_vertrautheit_field"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "bonusfrage",
+      "title": {
+        "de": "Bonusfrage",
+        "en": "Bonus question",
+        "fr": "Question bonus",
+        "es": "Pregunta bonus",
+        "it": "Domanda bonus"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_bonusfrage_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "bonusfrage_field"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "siegerehrung_frage",
+      "title": {
+        "de": "Siegerehrung",
+        "en": "Plan an awards ceremony",
+        "fr": "Pr\u00e9voir une remise des prix",
+        "es": "Planear una premiaci\u00f3n",
+        "it": "Pianificare una premiazione"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_siegerehrung_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "siegerehrung_field"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "hauptpreis",
+      "title": {
+        "de": "Hauptpreis",
+        "en": "Main prize",
+        "fr": "Prix principal",
+        "es": "Premio principal",
+        "it": "Premio principale"
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "anleitung_hauptpreis_field"
+        },
+        {
+          "kind": "field",
+          "fieldId": "hauptpreis_field"
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "ruleId": "hauptpreis-sichtbarkeit-init",
+      "scope": "onInit",
+      "when": {
+        "kind": "equals",
+        "left": {
+          "kind": "var",
+          "variableId": "siegerehrung"
+        },
+        "right": {
+          "kind": "const",
+          "value": true
+        }
+      },
+      "then": [
+        {
+          "kind": "setVisible",
+          "target": {
+            "kind": "fieldGroup",
+            "fieldGroupId": "hauptpreis"
+          },
+          "value": true
+        }
+      ],
+      "else": [
+        {
+          "kind": "setVisible",
+          "target": {
+            "kind": "fieldGroup",
+            "fieldGroupId": "hauptpreis"
+          },
+          "value": false
+        },
+        {
+          "kind": "clearValue",
+          "variableId": "hauptpreis"
+        }
+      ]
+    },
+    {
+      "ruleId": "hauptpreis-sichtbarkeit-aenderung",
+      "scope": "onValueChanged",
+      "when": {
+        "kind": "equals",
+        "left": {
+          "kind": "var",
+          "variableId": "siegerehrung"
+        },
+        "right": {
+          "kind": "const",
+          "value": true
+        }
+      },
+      "then": [
+        {
+          "kind": "setVisible",
+          "target": {
+            "kind": "fieldGroup",
+            "fieldGroupId": "hauptpreis"
+          },
+          "value": true
+        }
+      ],
+      "else": [
+        {
+          "kind": "setVisible",
+          "target": {
+            "kind": "fieldGroup",
+            "fieldGroupId": "hauptpreis"
+          },
+          "value": false
+        },
+        {
+          "kind": "clearValue",
+          "variableId": "hauptpreis"
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.kategorien.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "quizkategorien_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.kategorien.required",
+      "kind": "required",
+      "message": {
+        "de": "Mindestens eine Kategorie fehlt noch.",
+        "en": "At least one category is still missing.",
+        "fr": "Au moins une cat\u00e9gorie manque encore.",
+        "es": "Al menos una categor\u00eda todav\u00eda falta.",
+        "it": "Almeno una categoria manca ancora."
+      },
+      "remediation": {
+        "de": "Nennen Sie einen oder mehrere Namen nacheinander und sagen Sie dann \u00fcbernehmen.",
+        "de@informal": "Nenne einen oder mehrere Namen nacheinander und sag dann \u00fcbernehmen.",
+        "en": "Name one or more, one after another, then say accept.",
+        "fr": "Nommez-en une ou plusieurs, l\u2019une apr\u00e8s l\u2019autre, puis dites accepter.",
+        "fr@informal": "Nommes-en une ou plusieurs, l\u2019une apr\u00e8s l\u2019autre, puis dis accepter.",
+        "es": "Nombre una o varias, una tras otra, y luego diga aceptar.",
+        "es@informal": "Nombra una o varias, una tras otra, y luego di aceptar.",
+        "it": "Ne indichi una o pi\u00f9, una dopo l\u2019altra, poi dica accettare.",
+        "it@informal": "Indica una o pi\u00f9, una dopo l\u2019altra, poi di' accettare."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.quizrundenalter.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "quizrundenalter_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.quizrundenalter.required",
+      "kind": "required",
+      "message": {
+        "de": "Das Alter der Quizrunde fehlt noch.",
+        "en": "The age of the quiz round is still missing.",
+        "fr": "L\u2019\u00e2ge de la manche de quiz manque encore.",
+        "es": "La antig\u00fcedad de la ronda de quiz todav\u00eda falta.",
+        "it": "L\u2019et\u00e0 del turno di quiz manca ancora."
+      },
+      "remediation": {
+        "de": "Die Zeitspannen sind: weniger als ein Jahr, ein bis drei Jahre, vier bis sechs Jahre, sieben bis zehn Jahre, mehr als zehn Jahre.",
+        "en": "The ranges are: less than one year, one to three years, four to six years, seven to ten years, more than ten years.",
+        "fr": "Les dur\u00e9es sont : moins d\u2019un an, un \u00e0 trois ans, quatre \u00e0 six ans, sept \u00e0 dix ans, plus de dix ans.",
+        "es": "Los intervalos son: menos de un a\u00f1o, de uno a tres a\u00f1os, de cuatro a seis a\u00f1os, de siete a diez a\u00f1os, m\u00e1s de diez a\u00f1os.",
+        "it": "Gli intervalli sono: meno di un anno, da uno a tre anni, da quattro a sei anni, da sette a dieci anni, pi\u00f9 di dieci anni."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.uebungstreffen.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "uebungstreffen_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.uebungstreffen.required",
+      "kind": "required",
+      "message": {
+        "de": "Die Angabe zu den \u00dcbungstreffen fehlt noch.",
+        "en": "The entry on practice meetings is still missing.",
+        "fr": "L\u2019indication sur les s\u00e9ances d\u2019entra\u00eenement manque encore.",
+        "es": "El dato sobre los ensayos todav\u00eda falta.",
+        "it": "L\u2019indicazione sugli allenamenti manca ancora."
+      },
+      "remediation": {
+        "de": "Die Angaben sind: t\u00e4glich, mehrmals pro Woche, w\u00f6chentlich, seltener.",
+        "en": "The options are: daily, several times a week, weekly, less often.",
+        "fr": "Les r\u00e9ponses sont : quotidiennement, plusieurs fois par semaine, chaque semaine, plus rarement.",
+        "es": "Las opciones son: a diario, varias veces por semana, semanalmente, con menos frecuencia.",
+        "it": "Le opzioni sono: ogni giorno, pi\u00f9 volte alla settimana, ogni settimana, meno spesso."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.zusatzpunkte.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "zusatzpunkte_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.zusatzpunkte.required",
+      "kind": "required",
+      "message": {
+        "de": "Die Angabe zu den Zusatzpunkten fehlt noch.",
+        "en": "The entry on bonus points is still missing.",
+        "fr": "L\u2019indication sur les points bonus manque encore.",
+        "es": "El dato sobre los puntos extra todav\u00eda falta.",
+        "it": "L\u2019indicazione sui punti extra manca ancora."
+      },
+      "remediation": {
+        "de": "Die Angaben sind: nie, selten, gelegentlich, h\u00e4ufig, sehr h\u00e4ufig.",
+        "en": "The options are: never, rarely, occasionally, often, very often.",
+        "fr": "Les r\u00e9ponses sont : jamais, rarement, de temps en temps, souvent, tr\u00e8s souvent.",
+        "es": "Las opciones son: nunca, rara vez, de vez en cuando, a menudo, muy a menudo.",
+        "it": "Le opzioni sono: mai, raramente, ogni tanto, spesso, molto spesso."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.weltraum.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "weltraum_vertrautheit_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.weltraum.required",
+      "kind": "required",
+      "message": {
+        "de": "Die Angabe zur Weltraum-Vertrautheit fehlt noch.",
+        "en": "The entry on Space familiarity is still missing.",
+        "fr": "L\u2019indication sur la Familiarit\u00e9 Espace manque encore.",
+        "es": "El dato sobre la Familiaridad Espacio todav\u00eda falta.",
+        "it": "L\u2019indicazione sulla Familiarit\u00e0 Spazio manca ancora."
+      },
+      "remediation": {
+        "de": "Die Angaben sind: gar nicht, wenig, mittel, hoch, sehr hoch.",
+        "en": "The options are: not at all, a little, moderately, well, very well.",
+        "fr": "Les r\u00e9ponses sont : pas du tout, un peu, moyennement, bien, tr\u00e8s bien.",
+        "es": "Las opciones son: nada, poco, medianamente, bastante, much\u00edsimo.",
+        "it": "Le opzioni sono: per niente, poco, mediamente, molto, moltissimo."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.bonusfrage.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "bonusfrage_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.bonusfrage.required",
+      "kind": "required",
+      "message": {
+        "de": "Die L\u00f6sung der Bonusfrage fehlt noch.",
+        "en": "The bonus-question solution is still missing.",
+        "fr": "La solution de la question bonus manque encore.",
+        "es": "La soluci\u00f3n de la pregunta bonus todav\u00eda falta.",
+        "it": "La soluzione della domanda bonus manca ancora."
+      },
+      "remediation": {
+        "de": "Die Angaben sind: Blauwal, Elefant, Giraffe, Krokodil.",
+        "en": "The options are: blue whale, elephant, giraffe, crocodile.",
+        "fr": "Les r\u00e9ponses sont : baleine bleue, \u00e9l\u00e9phant, girafe, crocodile.",
+        "es": "Las opciones son: ballena azul, elefante, jirafa, cocodrilo.",
+        "it": "Le opzioni sono: balenottera azzurra, elefante, giraffa, coccodrillo."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.siegerehrung.required",
+      "target": {
+        "kind": "field",
+        "fieldId": "siegerehrung_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.siegerehrung.required",
+      "kind": "required",
+      "message": {
+        "de": "Die Entscheidung zur Siegerehrung fehlt noch.",
+        "en": "The awards-ceremony decision is still missing.",
+        "fr": "La d\u00e9cision sur la remise des prix manque encore.",
+        "es": "La decisi\u00f3n sobre la premiaci\u00f3n todav\u00eda falta.",
+        "it": "La decisione sulla premiazione manca ancora."
+      },
+      "remediation": {
+        "de": "Sagen Sie ja oder nein.",
+        "de@informal": "Sag ja oder nein.",
+        "en": "Say yes or no.",
+        "fr": "Dites oui ou non.",
+        "fr@informal": "Dis oui ou non.",
+        "es": "Diga s\u00ed o no.",
+        "es@informal": "Di s\u00ed o no.",
+        "it": "Dica s\u00ec o no.",
+        "it@informal": "Di' s\u00ec o no."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.siegerehrung-hauptpreis.allOrNone",
+      "target": {
+        "kind": "field",
+        "fieldId": "hauptpreis_field"
+      },
+      "severity": "error",
+      "code": "form.crossGroup.siegerehrungHauptpreis",
+      "kind": "allOrNone",
+      "scope": "crossGroup",
+      "variableIds": [
+        "siegerehrung",
+        "hauptpreis"
+      ],
+      "when": {
+        "kind": "equals",
+        "left": {
+          "kind": "var",
+          "variableId": "siegerehrung"
+        },
+        "right": {
+          "kind": "const",
+          "value": true
+        }
+      },
+      "message": {
+        "de": "Wenn eine Siegerehrung geplant ist, geh\u00f6ren die Entscheidung und der Hauptpreis zusammen.",
+        "en": "If an awards ceremony is planned, the decision and the main prize belong together.",
+        "fr": "Si une remise des prix est pr\u00e9vue, la d\u00e9cision et le prix principal vont ensemble.",
+        "es": "Si se planea una premiaci\u00f3n, la decisi\u00f3n y el premio principal van juntos.",
+        "it": "Se \u00e8 prevista una premiazione, la decisione e il premio principale stanno insieme."
+      },
+      "remediation": {
+        "de": "Nennen Sie den Hauptpreis.",
+        "de@informal": "Nenne den Hauptpreis.",
+        "en": "Name the main prize.",
+        "fr": "Nommez le prix principal.",
+        "fr@informal": "Nomme le prix principal.",
+        "es": "Nombre el premio principal.",
+        "es@informal": "Nombra el premio principal.",
+        "it": "Indichi il premio principale.",
+        "it@informal": "Indica il premio principale."
+      }
+    },
+    {
+      "constraintId": "study.umfrage.hintergrund-und-setup.hauptpreis.minLength",
+      "target": {
+        "kind": "field",
+        "fieldId": "hauptpreis_field"
+      },
+      "severity": "error",
+      "code": "study.umfrage.hauptpreis.invalid",
+      "kind": "minLength",
+      "minLength": 3,
+      "message": {
+        "de": "Der Hauptpreis ist zu kurz.",
+        "en": "The main prize is too short.",
+        "fr": "Le prix principal est trop court.",
+        "es": "El premio principal es demasiado corto.",
+        "it": "Il premio principale \u00e8 troppo corto."
+      },
+      "remediation": {
+        "de": "Nennen Sie mindestens drei Zeichen, zum Beispiel: ein kleiner Wanderpokal aus Holz.",
+        "de@informal": "Nenne mindestens drei Zeichen, zum Beispiel: ein kleiner Wanderpokal aus Holz.",
+        "en": "Give at least three characters, for example: a small wooden challenge cup.",
+        "fr": "Donnez au moins trois caract\u00e8res, par exemple : une petite coupe challenge en bois.",
+        "fr@informal": "Donne au moins trois caract\u00e8res, par exemple : une petite coupe challenge en bois.",
+        "es": "Indique al menos tres caracteres, por ejemplo: una peque\u00f1a copa itinerante de madera.",
+        "es@informal": "Indica al menos tres caracteres, por ejemplo: una peque\u00f1a copa itinerante de madera.",
+        "it": "Indichi almeno tre caratteri, per esempio: una piccola coppa itinerante di legno.",
+        "it@informal": "Indica almeno tre caratteri, per esempio: una piccola coppa itinerante di legno."
+      }
+    }
+  ],
+  "projections": {
+    "voice": {
+      "hints": {
+        "fieldNameSynonyms": {
+          "anleitung_kategorien_field": {
+            "primaryName": {
+              "de": "Vorgabe Quizkategorien",
+              "en": "prescribed value Quiz categories",
+              "fr": "valeur prescrite Cat\u00e9gories de quiz",
+              "es": "valor prescrito Categor\u00edas del quiz",
+              "it": "valore prescritto Categorie del quiz"
+            }
+          },
+          "anleitung_quizrundenalter_field": {
+            "primaryName": {
+              "de": "Vorgabe Alter der Quizrunde",
+              "en": "prescribed value Age of the quiz round",
+              "fr": "valeur prescrite \u00c2ge de la manche de quiz",
+              "es": "valor prescrito Antig\u00fcedad de la ronda de quiz",
+              "it": "valore prescritto Et\u00e0 del turno di quiz"
+            }
+          },
+          "anleitung_uebungstreffen_field": {
+            "primaryName": {
+              "de": "Vorgabe \u00dcbungstreffen",
+              "en": "prescribed value Practice meetings",
+              "fr": "valeur prescrite S\u00e9ances d\u2019entra\u00eenement",
+              "es": "valor prescrito Ensayos",
+              "it": "valore prescritto Allenamenti"
+            }
+          },
+          "anleitung_zusatzpunkte_field": {
+            "primaryName": {
+              "de": "Vorgabe Zusatzpunkte",
+              "en": "prescribed value Bonus points",
+              "fr": "valeur prescrite Points bonus",
+              "es": "valor prescrito Puntos extra",
+              "it": "valore prescritto Punti extra"
+            }
+          },
+          "anleitung_weltraum_field": {
+            "primaryName": {
+              "de": "Vorgabe Weltraum-Vertrautheit",
+              "en": "prescribed value Space familiarity",
+              "fr": "valeur prescrite Familiarit\u00e9 Espace",
+              "es": "valor prescrito Familiaridad Espacio",
+              "it": "valore prescritto Familiarit\u00e0 Spazio"
+            }
+          },
+          "anleitung_bonusfrage_field": {
+            "primaryName": {
+              "de": "Vorgabe Bonusfrage",
+              "en": "prescribed value Bonus question",
+              "fr": "valeur prescrite Question bonus",
+              "es": "valor prescrito Pregunta bonus",
+              "it": "valore prescritto Domanda bonus"
+            }
+          },
+          "anleitung_siegerehrung_field": {
+            "primaryName": {
+              "de": "Vorgabe Siegerehrung",
+              "en": "prescribed value Plan an awards ceremony",
+              "fr": "valeur prescrite Pr\u00e9voir une remise des prix",
+              "es": "valor prescrito Planear una premiaci\u00f3n",
+              "it": "valore prescritto Pianificare una premiazione"
+            }
+          },
+          "anleitung_hauptpreis_field": {
+            "primaryName": {
+              "de": "Vorgabe Hauptpreis",
+              "en": "prescribed value Main prize",
+              "fr": "valeur prescrite Prix principal",
+              "es": "valor prescrito Premio principal",
+              "it": "valore prescritto Premio principale"
+            }
+          },
+          "weltraum_vertrautheit_field": {
+            "primaryName": {
+              "de": "Vertrautheit mit der Kategorie Weltraum",
+              "en": "familiarity with the Space category",
+              "fr": "familiarit\u00e9 avec la cat\u00e9gorie Espace",
+              "es": "familiaridad con la categor\u00eda Espacio",
+              "it": "familiarit\u00e0 con la categoria Spazio"
+            }
+          }
+        }
+      }
+    }
+  }
+}

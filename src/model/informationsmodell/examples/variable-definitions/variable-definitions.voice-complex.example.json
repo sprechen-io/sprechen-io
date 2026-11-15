@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "variableDefinitionsId": "sample.voice-complex.variables",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": false,
+  "defaultLanguage": "de",
+  "definitions": [
+    {
+      "variableDefinitionId": "city",
+      "name": "city",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 2,
+        "maxLength": 100,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "email",
+      "name": "email",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 5,
+        "maxLength": 120,
+        "formatHint": "email"
+      }
+    },
+    {
+      "variableDefinitionId": "notes",
+      "name": "notes",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 400,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "phone",
+      "name": "phone",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 7,
+        "maxLength": 20,
+        "formatHint": "phone"
+      }
+    },
+    {
+      "variableDefinitionId": "postalCode",
+      "name": "postalCode",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 5,
+        "maxLength": 5,
+        "formatHint": "digits"
+      }
+    },
+    {
+      "variableDefinitionId": "street",
+      "name": "street",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 3,
+        "maxLength": 120,
+        "formatHint": "text"
+      }
+    }
+  ]
+}
+

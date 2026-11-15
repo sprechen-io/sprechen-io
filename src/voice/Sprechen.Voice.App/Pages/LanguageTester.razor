@@ -1,0 +1,88 @@
+@page "/language-tester"
+@inherits AccessibleTablistComponentBase
+@implements IDisposable
+@inject IUserLanguageState UserLanguageState
+
+<h1 class="visually-hidden">@Copy.Chrome.GetLanguageTesterTitle(UserLanguageState.SelectedIsoCode)</h1>
+
+<ul class="nav nav-tabs" role="tablist" @onkeydown="OnTablistKeyDownAsync">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @GetTabCss(TabTts)"
+                id="language-tester-tab-tts"
+                type="button"
+                role="tab"
+                aria-selected="@(IsActive(TabTts) ? "true" : "false")"
+                aria-controls="language-tester-panel-tts"
+                tabindex="@(IsActive(TabTts) ? "0" : "-1")"
+                @ref="TabReferences[0]"
+                @onclick="@(() => Activate(TabTts))">
+            TTS
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @GetTabCss(TabStt)"
+                id="language-tester-tab-stt"
+                type="button"
+                role="tab"
+                aria-selected="@(IsActive(TabStt) ? "true" : "false")"
+                aria-controls="language-tester-panel-stt"
+                tabindex="@(IsActive(TabStt) ? "0" : "-1")"
+                @ref="TabReferences[1]"
+                @onclick="@(() => Activate(TabStt))">
+            STT
+        </button>
+    </li>
+</ul>
+
+<div class="border border-top-0 rounded-bottom p-3">
+    @if (_activeTab == TabTts)
+    {
+        <div id="language-tester-panel-tts" role="tabpanel" aria-labelledby="language-tester-tab-tts">
+            <LanguageTesterTextToSpeechTab />
+        </div>
+    }
+    else if (_activeTab == TabStt)
+    {
+        <div id="language-tester-panel-stt" role="tabpanel" aria-labelledby="language-tester-tab-stt">
+            <LanguageTesterSpeechToTextTab />
+        </div>
+    }
+</div>
+
+@code {
+    private const string TabTts = "tts";
+    private const string TabStt = "stt";
+
+    private static readonly string[] TabOrder = [TabTts, TabStt];
+
+    private string _activeTab = TabTts;
+
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override int TabCount => TabOrder.Length;
+
+    protected override int ActiveTabIndex => Array.IndexOf(TabOrder, _activeTab);
+
+    protected override void OnInitialized()
+    {
+        UserLanguageState.SelectedLanguageChanged += OnDisplayLanguageChanged;
+    }
+
+    private void OnDisplayLanguageChanged(string isoCode)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        UserLanguageState.SelectedLanguageChanged -= OnDisplayLanguageChanged;
+    }
+
+    protected override void ActivateTab(int index) => _activeTab = TabOrder[index];
+
+    private void Activate(string tab) => _activeTab = tab;
+
+    private bool IsActive(string tab) => string.Equals(_activeTab, tab, StringComparison.OrdinalIgnoreCase);
+
+    private string GetTabCss(string tab) => IsActive(tab) ? "active" : string.Empty;
+}

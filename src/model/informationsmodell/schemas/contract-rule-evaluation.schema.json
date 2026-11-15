@@ -1,0 +1,1174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/contract-rule-evaluation.schema.json",
+  "title": "Contract rule evaluation truth table",
+  "description": "The authored truth table both channels are pinned to when they decide whether a rule of the form contract is broken by a value. Model.md sections 13.1.2.6 to 13.1.2.10 state what a rule means once, but each channel answers it in its own runtime with its own engine. A channel that reads the same pattern as a search rather than as the shape of the whole value, that counts a field left blank as a value of the wrong shape, or that decides emptiness from whether it holds a slot for the field rather than from the value it captured, or that reads a capture its field cannot carry as a missing value rather than as a wrong one, reports a different number of open errors on the same form state - and that count is the error rate the two conditions are compared on. The same holds for the bound a rule states: a channel that reads only one of the two notations the contract vocabulary offers, that stops at a different width, or that drops a bound it cannot read instead of reporting the contract, enforces and counts a different rule than the other. Only rule kinds whose reading could differ between the runtimes are carried here.",
+  "$defs": {
+    "AuthoredWholeNumberBound": {
+      "description": "A whole-number bound exactly as a contract may author it. The contract vocabulary states a numeric bound as a JSON number or as its decimal string, and both are the same bound: a channel that reads only one of the two notations enforces and counts a rule the other channel treats as absent.",
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string",
+          "pattern": "^-?(0|[1-9]\\d*)$"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifactId",
+    "patternRuleCases",
+    "lengthRuleCases",
+    "choiceRuleCases",
+    "boundedRuleCases",
+    "unreadableBoundCases",
+    "blankValueCases",
+    "valueTypeStatedRuleCases",
+    "enforcedRuleProjectionCases"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../schemas/contract-rule-evaluation.schema.json"
+    },
+    "artifactId": {
+      "type": "string",
+      "const": "contract-rule-evaluation"
+    },
+    "description": {
+      "type": "string"
+    },
+    "patternRuleCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Whether a pattern rule is broken by a value. Every case is one authored pattern against one value.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "pattern",
+          "value",
+          "expectedBroken"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The pattern exactly as a contract authors it, anchors and all."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The value the field carries. Never empty: an absent value is answered before a shape rule is evaluated."
+          },
+          "expectedBroken": {
+            "type": "boolean",
+            "description": "True when this value breaks the rule, false when it satisfies it."
+          }
+        }
+      }
+    },
+    "lengthRuleCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Whether a length rule is broken by a value. Every case is one authored bound against one value the field carries; the blank field is a question of its own and is authored in blankValueCases.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "value",
+          "expectedBroken"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "minLength"
+            ]
+          },
+          {
+            "required": [
+              "maxLength"
+            ]
+          }
+        ],
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "minLength": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The shortest the value may be. A case authors this, the maximum, or both."
+          },
+          "maxLength": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The longest the value may be. A case authors this, the minimum, or both."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The value the field carries, exactly as the channel captured it. Never blank: a blank field is answered before a rule about its value is asked."
+          },
+          "expectedBroken": {
+            "type": "boolean",
+            "description": "True when this value breaks the rule, false when it satisfies it."
+          }
+        }
+      }
+    },
+    "choiceRuleCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Whether a choice rule is broken by a value. A choice rule states the values a field may carry; every case is one authored list against one value the field carries. The blank field is a question of its own and is authored in blankValueCases. Only scalar values are carried here: a set-typed choice is normalized on both sides before it is compared, and that normalization is pinned by the per-channel tests of the evaluators themselves.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "values",
+          "value",
+          "expectedBroken"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "values": {
+            "type": "array",
+            "minItems": 1,
+            "description": "The values the contract allows, exactly as it authors them.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The value the field carries, exactly as the channel captured it. Never blank: a blank field is answered before a rule about its value is asked."
+          },
+          "expectedBroken": {
+            "type": "boolean",
+            "description": "True when this value breaks the rule, false when it satisfies it."
+          }
+        }
+      }
+    },
+    "boundedRuleCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Whether a rule about the magnitude of a value is broken by the value a field carries. Every case names the kind of value the field holds, because that is what decides how the capture is read: a rule about a magnitude compares the value the field holds, and which kind of value that is, is said by the field and not guessed from the text. A capture that is not blank and that this kind cannot read is a value the field cannot carry - it breaks the rule, and it is neither reported as a missing value nor quietly reshaped into one the kind can read. The blank field is a question of its own and is authored in blankValueCases.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "ruleKind",
+          "valueTypeKind",
+          "value",
+          "expectedBroken"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "ruleKind": {
+            "type": "string",
+            "enum": [
+              "min",
+              "max",
+              "range",
+              "dateMin",
+              "dateMax",
+              "dateRange"
+            ],
+            "description": "The kind of rule the value is held against. Which of these a rule states decides only which bound names it carries: a rule that names a lower bound alone states the same lower bound as a two-sided rule, and it is held against the value the same way."
+          },
+          "valueTypeKind": {
+            "type": "string",
+            "enum": [
+              "integer",
+              "date"
+            ],
+            "description": "The kind of value the field holds. It decides how the capture is read, and a capture this kind cannot read is a value the field cannot carry."
+          },
+          "min": {
+            "$ref": "#/$defs/AuthoredWholeNumberBound",
+            "description": "The lowest the value may be. Authored when the rule kind is min or range."
+          },
+          "max": {
+            "$ref": "#/$defs/AuthoredWholeNumberBound",
+            "description": "The highest the value may be. Authored when the rule kind is max or range."
+          },
+          "minDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "The earliest the value may be, as the invariant calendar date the contract authors. Authored when the rule kind is dateMin or dateRange."
+          },
+          "maxDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "The latest the value may be, as the invariant calendar date the contract authors. Authored when the rule kind is dateMax or dateRange."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The value the field carries, exactly as the channel captured it. Never blank: a blank field is answered before a rule about its value is asked."
+          },
+          "expectedBroken": {
+            "type": "boolean",
+            "description": "True when this value breaks the rule, false when it satisfies it."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "min"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "min"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "max"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "max"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "range"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "required": [
+                    "min"
+                  ]
+                },
+                {
+                  "required": [
+                    "max"
+                  ]
+                }
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "dateMin"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "minDate"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "dateMax"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "maxDate"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "dateRange"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "required": [
+                    "minDate"
+                  ]
+                },
+                {
+                  "required": [
+                    "maxDate"
+                  ]
+                }
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "unreadableBoundCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "A bound the contract states but that cannot be read as one. Every case is one authored bound that is present and unreadable, and the expectation is the same for all of them, so no case states it: the contract is refused. Dropping such a bound instead would remove the rule for every value silently, and the channel that refused it would report open errors the other never reaches. Only bounds are carried here; a value the field cannot carry is a broken rule and is authored in boundedRuleCases.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "ruleKind",
+          "valueTypeKind",
+          "value"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "ruleKind": {
+            "type": "string",
+            "enum": [
+              "min",
+              "max",
+              "range",
+              "dateMin",
+              "dateMax",
+              "dateRange"
+            ],
+            "description": "The kind of rule the unreadable bound is authored on. A rule that names one bound alone carries it under the same name a two-sided rule uses."
+          },
+          "valueTypeKind": {
+            "type": "string",
+            "enum": [
+              "integer",
+              "date"
+            ],
+            "description": "The kind of value the field holds."
+          },
+          "min": {
+            "description": "The lower bound exactly as the contract authors it, in whatever shape makes it unreadable. Any JSON value, including null."
+          },
+          "max": {
+            "description": "The upper bound exactly as the contract authors it, in whatever shape makes it unreadable. Any JSON value, including null."
+          },
+          "minDate": {
+            "description": "The earliest date exactly as the contract authors it, in whatever shape makes it unreadable. Any JSON value, including null."
+          },
+          "maxDate": {
+            "description": "The latest date exactly as the contract authors it, in whatever shape makes it unreadable. Any JSON value, including null."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The value the field carries. It is authored so that a channel which quietly used a lenient reading of the bound would answer the rule satisfied, rather than reporting the contract."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "min"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "min"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "max"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "max"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "range"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "required": [
+                    "min"
+                  ]
+                },
+                {
+                  "required": [
+                    "max"
+                  ]
+                }
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "dateMin"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "minDate"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "maxDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "dateMax"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "maxDate"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "minDate"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "dateRange"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "required": [
+                    "minDate"
+                  ]
+                },
+                {
+                  "required": [
+                    "maxDate"
+                  ]
+                }
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "min"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "max"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "blankValueCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Whether a rule is broken by a field the person left blank. Authored per rule kind and per value type, because the two channels answer this in different places - one inside the reading of each rule, the other once before any rule is read - and because a channel can also answer it from the slot it holds for the field rather than from the value it captured. A blank field breaks exactly one rule: the one that says it may not be left blank. A channel that answers the question only for some rule kinds, or only for the value types whose capture is text, counts the same empty field as a different number of open errors than the other.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "ruleKind",
+          "value",
+          "expectedBroken"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "ruleKind": {
+            "type": "string",
+            "enum": [
+              "required",
+              "pattern",
+              "minLength",
+              "maxLength",
+              "oneOf",
+              "range"
+            ],
+            "description": "The kind of rule the blank field is held against. The required rule is the one rule a blank field does break."
+          },
+          "valueTypeKind": {
+            "type": "string",
+            "enum": [
+              "string",
+              "integer",
+              "date"
+            ],
+            "description": "The kind of value the field holds. Absent means a text field. A field is blank or not by the value the channel captured, whatever kind that value would become once converted."
+          },
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The pattern exactly as a contract authors it. Required when the rule kind is pattern."
+          },
+          "minLength": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The shortest the value may be. Required when the rule kind is minLength."
+          },
+          "maxLength": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The longest the value may be. Required when the rule kind is maxLength."
+          },
+          "values": {
+            "type": "array",
+            "minItems": 1,
+            "description": "The values the contract allows. Required when the rule kind is oneOf.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "min": {
+            "type": "integer",
+            "description": "The lowest the value may be. Authored when the rule kind is range."
+          },
+          "max": {
+            "type": "integer",
+            "description": "The highest the value may be. Authored when the rule kind is range."
+          },
+          "value": {
+            "type": "string",
+            "description": "The blank value the field carries: empty, or made of spaces only."
+          },
+          "expectedBroken": {
+            "type": "boolean",
+            "description": "True when this blank field breaks the rule - which only the required rule does - false when it does not."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "pattern"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "pattern"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "minLength"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "minLength"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "maxLength"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "maxLength"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "oneOf"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "required": [
+                "values"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ruleKind": {
+                  "const": "range"
+                }
+              },
+              "required": [
+                "ruleKind"
+              ]
+            },
+            "then": {
+              "anyOf": [
+                {
+                  "required": [
+                    "min"
+                  ]
+                },
+                {
+                  "required": [
+                    "max"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "valueTypeStatedRuleCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Which rules a field's own value type states. A bound is a rule about the value whether a contract rule states it beside the field or the field's value type states it, so both channels have to derive the same rules from the same value type - and give them the same identity, because what makes two reports one open error is the scope, the code, the severity and the unit that owns them. A channel that derived nothing leaves the bound unenforced and unreported where the other enforces and reports it; a channel that derived it under another identity counts it as a different error. Only the derivation is carried here: how a derived bound is then read is the same question as for any other bound and is authored in boundedRuleCases and unreadableBoundCases.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "valueType",
+          "expectedRules"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "valueType": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "The value type of the field exactly as a contract authors it, bounds and all - including a bound in a shape nobody can read, because a channel that sanitised while deriving would drop the rule silently."
+          },
+          "expectedRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "constraintId",
+                "code",
+                "severity",
+                "ruleKind",
+                "boundName",
+                "bound"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "constraintId": {
+                  "type": "string",
+                  "pattern": "^valueType\\.[A-Za-z]+$",
+                  "description": "The identity that breaks a tie between two rules of the same field at the same severity. One per stated bound, so two bounds of one value type never collapse into one rule."
+                },
+                "code": {
+                  "type": "string",
+                  "const": "form.valueType.invalid",
+                  "description": "The code both channels give a rule the value type states. It is part of what the open error IS, so it may not differ between the channels, and it has to fall into a known error class rather than stay unclassified."
+                },
+                "severity": {
+                  "type": "string",
+                  "const": "error",
+                  "description": "A value the field's own type excludes is not one the field can hold, so the rule is not advisory. The severity decides whether the line falls into the error rate, so both channels state the same one."
+                },
+                "ruleKind": {
+                  "type": "string",
+                  "enum": [
+                    "minLength",
+                    "maxLength",
+                    "min",
+                    "max"
+                  ],
+                  "description": "The rule the stated bound states. Only kinds the contract rule vocabulary already carries: a channel may not invent a rule kind for a bound the vocabulary has no rule about, because an invented kind lives in exactly one channel."
+                },
+                "boundName": {
+                  "type": "string",
+                  "enum": [
+                    "minLength",
+                    "maxLength",
+                    "min",
+                    "max"
+                  ],
+                  "description": "The name the value type states the bound under, and the name the derived rule carries it under."
+                },
+                "bound": {
+                  "description": "The bound exactly as the value type authored it, forwarded to the derived rule unchanged - notation and all, readable or not. Any JSON value."
+                }
+              }
+            },
+            "description": "The rules this value type states, in no particular order. Empty when it states none."
+          }
+        }
+      }
+    },
+    "enforcedRuleProjectionCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Which of a field's stated rules a channel carries in the surface it enforces with. A rule the surface carries is checked by the surface and blocks on its own, so the surface may carry only the blocking subset of the rules the field states, read exactly as the channel that counts reads them: an advisory rule the surface carries rejects the value as a check of the surface itself, under an invented identity and at error severity, while the other channel reports the contract's advisory rule for the same value - the two lines are then not the same open error and only one of them falls into the error rate. Where two rules bound the same side, the narrower one is carried and named; where a side cannot be narrowed, the rule the open-error precedence names is carried. A channel with no enforcing surface is held against the same rows by comparing its blocking subset with the carried one.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "statedRules",
+          "expectedCarried"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "statedRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "constraintId",
+                "ruleKind",
+                "severity"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "constraintId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The identity of the rule. It breaks the tie between two rules of the same field at the same severity, so the rows author it explicitly rather than letting the reading order decide."
+                },
+                "ruleKind": {
+                  "type": "string",
+                  "enum": [
+                    "required",
+                    "pattern",
+                    "minLength",
+                    "maxLength",
+                    "min",
+                    "max",
+                    "range",
+                    "dateMin",
+                    "dateMax",
+                    "oneOf"
+                  ],
+                  "description": "The rule the field states. oneOf is authored so a kind no attribute of the surface carries is covered too: it may reach no side at all."
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "error",
+                    "warning",
+                    "info"
+                  ],
+                  "description": "The severity the contract states for this rule. Only error blocks; warning and info are advisory and stay off the surface."
+                },
+                "bound": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The length bound a minLength or maxLength rule states."
+                },
+                "pattern": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The pattern a pattern rule states, exactly as a contract authors it."
+                },
+                "values": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": "The values a oneOf rule allows."
+                },
+                "min": {
+                  "$ref": "#/$defs/AuthoredWholeNumberBound",
+                  "description": "The lowest value a min or range rule states, in either notation the vocabulary writes a whole number in."
+                },
+                "max": {
+                  "$ref": "#/$defs/AuthoredWholeNumberBound",
+                  "description": "The highest value a max or range rule states, in either notation the vocabulary writes a whole number in."
+                },
+                "minDate": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The earliest day a dateMin rule states, as the invariant ISO day the vocabulary writes."
+                },
+                "maxDate": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The latest day a dateMax rule states, as the invariant ISO day the vocabulary writes."
+                }
+              }
+            },
+            "description": "The rules the field states, in the order a contract authors them. The order is part of the case: a channel that kept whichever rule it read first would look right in one arrangement and wrong in the other."
+          },
+          "expectedCarried": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "side",
+                "constraintId"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "side": {
+                  "type": "string",
+                  "enum": [
+                    "required",
+                    "pattern",
+                    "minLength",
+                    "maxLength",
+                    "min",
+                    "max"
+                  ],
+                  "description": "The side of the surface this rule reaches. How a bound is read is authored in valueTypeStatedRuleCases and boundedRuleCases; which of the stated bounds the surface then carries is authored here."
+                },
+                "constraintId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The rule the surface carries this side from. The surface reports its own rejection as this rule, so carrying one rule's bound under another rule's name would count the wrong open error."
+                },
+                "bound": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The bound the surface carries on this side. Present exactly for minLength and maxLength."
+                },
+                "pattern": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The pattern the surface carries. Present exactly for the pattern side."
+                },
+                "boundText": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The text the surface carries on a magnitude side, exactly as the browser reads it there. Present exactly for the min and max sides, because a bound of a magnitude may be a whole number or a calendar day."
+                }
+              }
+            },
+            "description": "The sides the surface carries, in no particular order. Empty when the surface carries nothing at all."
+          }
+        }
+      }
+    }
+  }
+}

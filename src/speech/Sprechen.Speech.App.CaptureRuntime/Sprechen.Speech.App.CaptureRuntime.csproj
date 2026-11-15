@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.ModelRuntime\Sprechen.Speech.ModelRuntime.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Using Include="Sprechen.Speech.WakeWord.Contracts" />
+  </ItemGroup>
+</Project>

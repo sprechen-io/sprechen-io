@@ -1,0 +1,147 @@
+@using SupportedLanguageContract = Sprechen.Speech.LanguageContracts.SupportedLanguage
+@inject ISupportedLanguagesClient SupportedLanguagesClient
+@inject ITextToSpeechPlayer TextToSpeechPlayer
+
+<section class="card">
+    <div class="card-body">
+        <h2 class="h5 card-title">Text To Speech</h2>
+
+        <form @onsubmit="TextToSpeechAsync" @onsubmit:preventDefault>
+            <div class="mb-3">
+                <label for="text" class="form-label">Text</label>
+                <textarea id="text" class="form-control" rows="3" @bind="_text"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="lang" class="form-label">Language</label>
+                <select id="lang" class="form-select" @bind="_selectedLanguageCode" disabled="@(!_languagesLoaded || _supportedLanguages.Count == 0)">
+                    @if (!_languagesLoaded)
+                    {
+                        <option value="">Loading…</option>
+                    }
+                    else
+                    {
+                        @foreach (var language in _supportedLanguages)
+                        {
+                            <option value="@language.IsoCode">@language.DisplayName (@language.IsoCode)</option>
+                        }
+                    }
+                </select>
+                <div class="form-text">Using: @EffectiveLanguageDisplay</div>
+            </div>
+            <button class="btn btn-primary" type="submit" disabled="@(_isTtsBusy || !_languagesLoaded || _supportedLanguages.Count == 0)">Speak</button>
+        </form>
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger mt-3" role="alert">@_error</div>
+}
+
+@code {
+    private const string FALLBACK_DEFAULT_LANGUAGE_CODE = "de";
+
+    private string? _error;
+    private bool _isTtsBusy;
+    private string _text = "Dies ist ein Beispieltext zur Sprachausgabe. Er dient dazu, Aussprache, Betonung und Klang der ausgewählten Stimme zu prüfen.";
+    private string? _selectedLanguageCode = FALLBACK_DEFAULT_LANGUAGE_CODE;
+
+    private IReadOnlyList<SupportedLanguageContract> _supportedLanguages = Array.Empty<SupportedLanguageContract>();
+    private string _defaultLanguageCode = FALLBACK_DEFAULT_LANGUAGE_CODE;
+    private bool _languagesLoaded;
+
+    private string EffectiveLanguageCode => string.IsNullOrWhiteSpace(_selectedLanguageCode)
+        ? _defaultLanguageCode
+        : _selectedLanguageCode.Trim();
+
+    private string EffectiveLanguageDisplay
+    {
+        get
+        {
+            var iso = EffectiveLanguageCode;
+            var match = _supportedLanguages.FirstOrDefault(l => string.Equals(l.IsoCode, iso, StringComparison.OrdinalIgnoreCase));
+            return match is null ? iso : $"{match.DisplayName} ({match.IsoCode})";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSupportedLanguagesAsync();
+    }
+
+    private async Task LoadSupportedLanguagesAsync()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            var response = await SupportedLanguagesClient.GetAsync(cts.Token);
+
+            _supportedLanguages = response.Languages
+                .Where(l => !string.IsNullOrWhiteSpace(l.IsoCode))
+                .ToArray();
+
+            _defaultLanguageCode = string.IsNullOrWhiteSpace(response.DefaultIsoCode)
+                ? FALLBACK_DEFAULT_LANGUAGE_CODE
+                : response.DefaultIsoCode.Trim();
+
+            if (string.IsNullOrWhiteSpace(_selectedLanguageCode))
+            {
+                _selectedLanguageCode = _defaultLanguageCode;
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Loading supported languages failed: {ex.Message}";
+            _supportedLanguages = Array.Empty<SupportedLanguageContract>();
+            _defaultLanguageCode = FALLBACK_DEFAULT_LANGUAGE_CODE;
+
+            if (string.IsNullOrWhiteSpace(_selectedLanguageCode))
+            {
+                _selectedLanguageCode = _defaultLanguageCode;
+            }
+        }
+        finally
+        {
+            _languagesLoaded = true;
+        }
+    }
+
+    private async Task TextToSpeechAsync()
+    {
+        _error = null;
+        _isTtsBusy = true;
+
+        try
+        {
+            var text = (_text ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new InvalidOperationException("Text is required.");
+            }
+
+            if (_supportedLanguages.Count == 0)
+            {
+                throw new InvalidOperationException("Supported languages are not available.");
+            }
+
+            var languageCode = EffectiveLanguageCode;
+            _selectedLanguageCode = languageCode;
+
+            await TextToSpeechPlayer.SpeakAsync(text, languageCode, CancellationToken.None);
+        }
+        catch (OperationCanceledException)
+        {
+            // Wiedergabe abgebrochen, etwa durch Barge-in.
+        }
+        catch (Exception ex)
+        {
+            _error = $"TextToSpeech failed: {ex.Message}";
+        }
+        finally
+        {
+            _isTtsBusy = false;
+        }
+    }
+}
+
+

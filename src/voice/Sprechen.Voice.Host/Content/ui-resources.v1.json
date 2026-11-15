@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "resources": [
+    {
+      "id": "settings.audio.volumeTest",
+      "texts": {
+        "de": "Dies ist ein Lautst\u00e4rke-Test. Bewegen Sie den Regler, um die Lautst\u00e4rke einzustellen. Dr\u00fccken Sie die Taste erneut, um den Test zu beenden.",
+        "en": "This is a volume test. Move the slider to adjust the volume. Press the button again to stop the test.",
+        "fr": "Ceci est un test de volume. D\u00e9placez le curseur pour r\u00e9gler le volume. Appuyez de nouveau sur le bouton pour arr\u00eater le test.",
+        "es": "Esta es una prueba de volumen. Mueve el control deslizante para ajustar el volumen. Pulsa el bot\u00f3n de nuevo para detener la prueba.",
+        "it": "Questo \u00e8 un test del volume. Sposta il cursore per regolare il volume. Premi di nuovo il pulsante per interrompere il test."
+      }
+    }
+  ]
+}

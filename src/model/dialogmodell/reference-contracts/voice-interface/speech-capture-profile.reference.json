@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "captureProfilesByMode": [
+    {
+      "mode": "Listening",
+      "silenceDebounceMs": 500
+    },
+    {
+      "mode": "ListeningContinuation",
+      "silenceDebounceMs": 500
+    },
+    {
+      "mode": "PromptInterruption",
+      "silenceDebounceMs": 500
+    },
+    {
+      "mode": "PromptInterruptionDetection",
+      "silenceDebounceMs": 500
+    },
+    {
+      "mode": "ActivationListening",
+      "silenceDebounceMs": 900,
+      "maxUtteranceDurationMs": 4000,
+      "maxTotalSegmentDurationMs": 8000,
+      "speechStartConfirmationMs": 200
+    },
+    {
+      "mode": "ActivationListeningContinuation",
+      "silenceDebounceMs": 500,
+      "maxUtteranceDurationMs": 4000,
+      "maxTotalSegmentDurationMs": 8000,
+      "speechStartConfirmationMs": 200
+    },
+    {
+      "mode": "ShortConfirmation",
+      "silenceDebounceMs": 500
+    }
+  ],
+  "micGate": {
+    "policy": "heuristic"
+  },
+  "segmenter": {
+    "speechAmplitudeThreshold": 350,
+    "speechStartAdaptiveMargin": 120,
+    "activePlaybackSpeechStartAdaptiveMargin": 220,
+    "idleAdaptiveFloorMaxMargin": 300,
+    "playbackLeakageBypassAmplitudeThreshold": 1000,
+    "activePlaybackCalibrationChunkCount": 8,
+    "recentPlaybackCalibrationChunkCount": 2,
+    "maxPreRollChunks": 25,
+    "tailSilenceMs": 500,
+    "optionListingInitialSilenceTimeoutMs": 18000
+  },
+  "sessionEntry": {
+    "firstContactInitialSilenceTimeoutMs": 6000,
+    "repeatInitialSilenceTimeoutMs": 3000,
+    "languageQuestionInitialSilenceTimeoutMs": 4000,
+    "playbackSettleAllowanceMs": 650
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "stage": "active",
+  "isoCode": "en",
+  "applicationId": "crm",
+  "applicationDisplayName": "CRM",
+  "formId": "person",
+  "formDisplayName": "Person",
+  "formProjection": {
+    "entryFieldGroupId": "entry",
+    "fieldGroupsById": {
+      "entry": {
+        "fieldGroupId": "entry",
+        "title": "Person",
+        "description": "Readonly projection of the active person form.",
+        "voiceSummary": "Provide the person's name and email address."
+      }
+    },
+    "fields": [
+      {
+        "fieldId": "fullName",
+        "fieldGroupId": "entry",
+        "label": "Full name",
+        "valueTypeKind": "string",
+        "codeStyle": false,
+        "inputType": "text",
+        "required": true,
+        "isUserEditable": true,
+        "isReadOnlyDisplay": false,
+        "helpText": "Enter the full name as spoken by the user.",
+        "placeholder": "Jane Doe",
+        "autocomplete": "name",
+        "minLength": 2,
+        "maxLength": 80,
+        "examples": [
+          "Jane Doe"
+        ],
+        "accessibleDescription": "Primary identity field of the readonly surface.",
+        "variableId": "person.fullName"
+      },
+      {
+        "fieldId": "contactEmail",
+        "fieldGroupId": "entry",
+        "label": "Email",
+        "valueTypeKind": "string",
+        "codeStyle": false,
+        "inputType": "email",
+        "required": true,
+        "isUserEditable": true,
+        "isReadOnlyDisplay": false,
+        "helpText": "Email address used for contact.",
+        "placeholder": "name@example.com",
+        "autocomplete": "email",
+        "examples": [
+          "jane@example.com"
+        ],
+        "variableId": "person.email"
+      }
+    ]
+  },
+  "fieldValuesById": {
+    "fullName": {
+      "kind": "publicValue",
+      "value": "Jane Doe"
+    }
+  },
+  "focusedFieldId": "contactEmail",
+  "fieldStatusesById": {
+    "fullName": {
+      "fieldId": "fullName",
+      "fieldGroupId": "entry",
+      "relevant": true,
+      "required": true,
+      "completed": true,
+      "blockingErrorCodes": []
+    },
+    "contactEmail": {
+      "fieldId": "contactEmail",
+      "fieldGroupId": "entry",
+      "relevant": true,
+      "required": true,
+      "completed": false,
+      "blockingErrorCodes": [
+        "required"
+      ]
+    }
+  },
+  "fieldGroupStatusesById": {
+    "entry": {
+      "fieldGroupId": "entry",
+      "relevant": true,
+      "completed": false,
+      "openGroupErrorCodes": [
+        "required"
+      ]
+    }
+  }
+}

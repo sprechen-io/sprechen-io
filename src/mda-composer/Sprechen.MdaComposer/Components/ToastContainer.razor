@@ -1,0 +1,53 @@
+@inject ToastService Toasts
+@implements IDisposable
+
+@if (Toasts.Messages.Count > 0)
+{
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1090">
+        @foreach (var msg in Toasts.Messages)
+        {
+            <div class="toast show align-items-center border-0 @GetCssClass(msg.Level)"
+                 role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @GetIcon(msg.Level) @msg.Text
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            @onclick="() => Toasts.Dismiss(msg.Id)"></button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Toasts.OnChanged += Refresh;
+    }
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    private static string GetCssClass(ToastLevel level) => level switch
+    {
+        ToastLevel.Success => "text-bg-success",
+        ToastLevel.Warning => "text-bg-warning",
+        ToastLevel.Error => "text-bg-danger",
+        ToastLevel.Info => "text-bg-info",
+        _ => "text-bg-secondary",
+    };
+
+    private static string GetIcon(ToastLevel level) => level switch
+    {
+        ToastLevel.Success => "✓",
+        ToastLevel.Warning => "⚠",
+        ToastLevel.Error => "✗",
+        ToastLevel.Info => "ℹ",
+        _ => "",
+    };
+
+    public void Dispose()
+    {
+        Toasts.OnChanged -= Refresh;
+    }
+}

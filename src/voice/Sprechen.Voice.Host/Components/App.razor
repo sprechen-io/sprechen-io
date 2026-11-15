@@ -1,0 +1,12 @@
+@using Sprechen.Web.HostSupport.Components
+@using Sprechen.Speech.App.Contracts.Services
+@using Sprechen.Speech.LanguageContracts
+
+@{
+    var hostStylesheetAsset = $"{typeof(App).Assembly.GetName().Name}.styles.css";
+}
+
+<HostedVoiceWebDocument Title="Sprechen" Language="@VoiceInterfaceModelCatalog.DefaultLanguage" HostStylesheetAsset="@hostStylesheetAsset">
+    <Routes />
+</HostedVoiceWebDocument>
+

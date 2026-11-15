@@ -1,0 +1,20 @@
+{{- if .Values.issuer.enabled }}
+{{- $issuerName := required "issuer.name is required" .Values.issuer.name }}
+{{- $ingressClassName := required "ingress.className is required" .Values.ingress.className }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ $issuerName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  acme:
+    email: {{ required "issuer.email is required when issuer.enabled=true" .Values.issuer.email }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: {{ $issuerName }}-account-key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: {{ $ingressClassName }}
+{{- end }}
+

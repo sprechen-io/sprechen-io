@@ -1,0 +1,59 @@
+{
+  "distributionId": "sample.complex",
+  "applications": [
+    {
+      "applicationId": "sample.complex",
+      "displayName": {
+        "de": "Komplexes Beispiel",
+        "en": "Complex example",
+        "fr": "Exemple complexe",
+        "es": "Ejemplo complejo",
+        "it": "Esempio complesso"
+      },
+      "description": {
+        "de": "Beispielanwendung, die jeden unterst\u00fctzten Feldtyp abdeckt, inklusive eines sensiblen IBAN-Felds, das vertraulich behandelt wird.",
+        "en": "Example application covering every supported field type, including a sensitive IBAN field that is treated confidentially.",
+        "fr": "Application d'exemple couvrant chaque type de champ pris en charge, y compris un champ IBAN sensible trait\u00e9 de mani\u00e8re confidentielle.",
+        "es": "Aplicaci\u00f3n de ejemplo que cubre todos los tipos de campo admitidos, incluido un campo IBAN sensible que se maneja de forma confidencial.",
+        "it": "Applicazione di esempio che copre ogni tipo di campo supportato, incluso un campo IBAN sensibile trattato in modo riservato."
+      },
+      "tags": [
+        "sample",
+        "complex",
+        "demo"
+      ],
+      "supportedLanguages": [
+        "de",
+        "en",
+        "fr",
+        "es",
+        "it"
+      ],
+      "defaultLanguage": "de",
+      "forms": [
+        {
+          "formId": "full-coverage",
+          "displayName": {
+            "de": "Alle Feldtypen",
+            "en": "All field types",
+            "fr": "Tous les types de champs",
+            "es": "Todos los tipos de campo",
+            "it": "Tutti i tipi di campo"
+          },
+          "description": {
+            "de": "Text, E-Mail, Telefon, Postleitzahl, Auswahl, Mehrfachauswahl, Zahl, Ja-Nein, Datum, Uhrzeit und IBAN.",
+            "en": "Text, email, phone, postal code, single-select, multi-select, number, yes-no, date, time, and IBAN.",
+            "fr": "Texte, e-mail, t\u00e9l\u00e9phone, code postal, s\u00e9lection unique, s\u00e9lection multiple, nombre, oui-non, date, heure et IBAN.",
+            "es": "Texto, correo electr\u00f3nico, tel\u00e9fono, c\u00f3digo postal, selecci\u00f3n \u00fanica, selecci\u00f3n m\u00faltiple, n\u00famero, s\u00ed-no, fecha, hora e IBAN.",
+            "it": "Testo, e-mail, telefono, codice postale, selezione singola, selezione multipla, numero, s\u00ec-no, data, orario e IBAN."
+          },
+          "latestContractVersion": "1",
+          "availableContractVersions": [
+            "1"
+          ],
+          "sequence": 1
+        }
+      ]
+    }
+  ]
+}

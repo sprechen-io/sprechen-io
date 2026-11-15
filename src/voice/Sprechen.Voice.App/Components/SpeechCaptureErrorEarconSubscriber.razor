@@ -1,0 +1,30 @@
+@implements IDisposable
+@inject ISpeechCaptureFeedback SpeechCaptureFeedback
+@inject IEarconPlayer EarconPlayer
+@inject ILogger<SpeechCaptureErrorEarconSubscriber> Logger
+
+@code {
+    private IDisposable? _failedSubscription;
+
+    protected override void OnInitialized()
+    {
+        _failedSubscription = SpeechCaptureFeedback.SubscribeToFailures(OnFailedAsync);
+    }
+
+    private async ValueTask OnFailedAsync(SpeechCaptureFailed message)
+    {
+        try
+        {
+            await EarconPlayer.PlayAsync(EarconId.ValidationAsrFail, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "Failed to play error earcon.");
+        }
+    }
+
+    public void Dispose()
+    {
+        _failedSubscription?.Dispose();
+    }
+}

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Sprechen.MdaComposer.SchemaEngine.Tests/Sprechen.MdaComposer.SchemaEngine.Tests.csproj" />
+  <Project Path="Sprechen.MdaComposer.SchemaEngine/Sprechen.MdaComposer.SchemaEngine.csproj" />
+  <Project Path="../mda/Sprechen.Mda.SchemaBundle/Sprechen.Mda.SchemaBundle.csproj" />
+  <Project Path="Sprechen.MdaComposer/Sprechen.MdaComposer.csproj" />
+</Solution>

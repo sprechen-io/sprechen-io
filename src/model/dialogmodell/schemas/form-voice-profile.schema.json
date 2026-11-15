@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/form-voice-profile.schema.json",
+  "title": "FormVoiceProfile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "profileVersion",
+    "formVoiceProfileId"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "formVoiceProfileId": {
+      "$ref": "#/$defs/Id"
+    },
+    "allowBargeIn": {
+      "type": "boolean",
+      "description": "Whether users can interrupt TTS output with speech input. This only enables prompt interruption mechanically; it does not redefine the dialog's activation rule. Runtimes MUST require surface-eligible input/command evidence before treating the interruption as a command failure or consuming retry budget. When omitted, runtimes SHOULD fall back to the merged catalog/application value before any intrinsic runtime default."
+    },
+    "noInputTimeoutMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "No-input timeout in milliseconds while listening. The timeout applies only while no surface-eligible input/command attempt has been evidenced; raw acoustic onset, playback leakage, or transcripts without the required activation signal MUST NOT end the timeout by themselves. When omitted, runtimes SHOULD fall back to the merged catalog/application timeout before any intrinsic runtime default. If 0, runtimes MAY treat this as disabled."
+    },
+    "noInputMaxRetries": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Maximum number of consecutive no-input/non-recognition retries before escalating. Retries may only be consumed by true no-input/non-recognition outcomes after applying the owning dialog's activation rule; playback leakage or transcripts without the required activation signal MUST NOT consume this budget. When omitted, runtimes SHOULD fall back to the merged catalog/application retry budget before any intrinsic runtime default."
+    },
+    "sttMinConfidenceToAccept": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 85,
+      "description": "Minimum STT confidence percentage (0..100) to accept input without additional confirmation. Default: 85."
+    },
+    "sttMinConfidenceToConfirm": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 65,
+      "description": "Minimum STT confidence percentage (0..100) to treat input as usable with confirmation. Default: 65. Below this, runtimes SHOULD treat input as not usable."
+    },
+    "speechRate": {
+      "$ref": "#/$defs/SpeechRate",
+      "description": "Default TTS speech-rate multiplier for this form. When set, this overrides the merged catalog/application speechRate for the form dialog."
+    },
+    "diacriticsStrategy": {
+      "$ref": "#/$defs/DiacriticsStrategy"
+    },
+    "pauseAfterPromptMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Pause in milliseconds after a prompt before the system starts listening."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "SpeechRate": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 2.0,
+      "description": "TTS speech-rate multiplier (0.5-2.0). Documented presets: slow=0.7, normal=1.0, fast=1.3."
+    },
+    "DiacriticsStrategy": {
+      "type": "string",
+      "enum": [
+        "preserve",
+        "preferDiacritics",
+        "preferAscii"
+      ],
+      "default": "preserve",
+      "description": "How diacritics should be handled/canonicalized in voice-first flows. Default: preserve. Values: preserve, preferDiacritics, preferAscii."
+    },
+    "FormVoiceProfileReference": {
+      "description": "Reference to a standalone form voice profile.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formVoiceProfileId",
+        "profileVersion"
+      ],
+      "properties": {
+        "formVoiceProfileId": {
+          "$ref": "#/$defs/Id"
+        },
+        "profileVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    }
+  }
+}

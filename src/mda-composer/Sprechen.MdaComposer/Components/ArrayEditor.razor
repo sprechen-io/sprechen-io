@@ -1,0 +1,90 @@
+@inject ExampleAuthoringSession Session
+
+@{
+    var arr = Session.Queries.GetNode(Path) as JsonArray;
+}
+
+@if (arr is null)
+{
+    <div class="alert alert-warning py-2 small mb-0">
+        Für diesen Pfad liegt aktuell kein Array vor.
+        <button class="btn btn-outline-warning btn-sm ms-2" @onclick="InitializeArray">
+            Array erzeugen
+        </button>
+    </div>
+}
+else
+{
+    var canAdd = Schema.MaxItems is null || arr.Count < Schema.MaxItems;
+    var canRemove = Schema.MinItems is null || arr.Count > Schema.MinItems;
+
+    @if (Schema.MinItems is not null || Schema.MaxItems is not null)
+    {
+        <small class="text-muted d-block mb-1">
+            @arr.Count Elemente
+            @if (Schema.MinItems is not null) { <text> (min: @Schema.MinItems)</text> }
+            @if (Schema.MaxItems is not null) { <text> (max: @Schema.MaxItems)</text> }
+        </small>
+    }
+
+    @for (var i = 0; i < arr.Count; i++)
+    {
+        var idx = i;
+        var itemPath = JsonPointer.AppendIndex(Path, idx);
+
+        <div class="d-flex align-items-start mb-1 ps-2 border-start">
+            <div class="d-flex flex-column me-1 mt-1">
+                <button class="btn btn-outline-secondary py-0 px-1"
+                        style="font-size:0.6rem; line-height:1"
+                        disabled="@(idx == 0)"
+                        @onclick="() => MoveArrayItem(idx, -1)" title="Nach oben">▲</button>
+                <span class="badge bg-secondary text-center" style="font-size:0.65rem">@idx</span>
+                <button class="btn btn-outline-secondary py-0 px-1"
+                        style="font-size:0.6rem; line-height:1"
+                        disabled="@(idx == arr.Count - 1)"
+                        @onclick="() => MoveArrayItem(idx, 1)" title="Nach unten">▼</button>
+            </div>
+            <div class="flex-grow-1">
+                @if (Schema.Items is not null)
+                {
+                    <PropertyEditor Schema="@Schema.Items" Path="@itemPath" />
+                }
+            </div>
+            <button class="btn btn-outline-danger btn-sm ms-1"
+                    disabled="@(!canRemove)"
+                    @onclick="() => RemoveArrayItem(idx)">&#215;</button>
+        </div>
+    }
+
+    <button class="btn btn-outline-secondary btn-sm mt-1"
+            disabled="@(!canAdd)"
+            @onclick="AddArrayItem">+ Element</button>
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+    [Parameter] public string Path { get; set; } = JsonPointer.Root;
+
+    private void InitializeArray()
+    {
+        Session.Scalars.InitializeValue(Path, Schema);
+    }
+
+    private void AddArrayItem()
+    {
+        if (Schema.Items is not null)
+        {
+            Session.Arrays.AddArrayItem(Path, Schema.Items);
+        }
+    }
+
+    private void RemoveArrayItem(int index)
+    {
+        Session.Arrays.RemoveArrayItem(Path, index);
+    }
+
+    private void MoveArrayItem(int index, int direction)
+    {
+        Session.Arrays.MoveArrayItem(Path, index, direction);
+    }
+}

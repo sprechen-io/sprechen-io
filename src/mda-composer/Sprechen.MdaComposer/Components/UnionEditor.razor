@@ -1,0 +1,98 @@
+@inject ExampleAuthoringSession Session
+
+@{
+    var unionOptions = Schema.OneOf ?? Schema.AnyOf ?? [];
+}
+
+@if (unionOptions.Count > 0)
+{
+    <select class="form-select form-select-sm mb-1" @onchange="OnVariantChanged">
+        @for (var i = 0; i < unionOptions.Count; i++)
+        {
+            <option value="@i" selected="@(i == _selectedVariant)">
+                @GetVariantLabel(unionOptions[i], i)
+            </option>
+        }
+    </select>
+    @if (_selectedVariant < unionOptions.Count)
+    {
+        <PropertyEditor Schema="@unionOptions[_selectedVariant]" Path="@Path" />
+    }
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+    [Parameter] public string Path { get; set; } = JsonPointer.Root;
+
+    private int _selectedVariant;
+
+    protected override void OnParametersSet()
+    {
+        var options = Schema.OneOf ?? Schema.AnyOf ?? [];
+        _selectedVariant = options.Count == 0 ? 0 : FindMatchingVariant(options);
+    }
+
+    private void OnVariantChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var idx))
+        {
+            _selectedVariant = idx;
+
+            var options = Schema.OneOf ?? Schema.AnyOf ?? [];
+            if (idx < options.Count)
+            {
+                Session.Scalars.SwitchUnionVariant(Path, options[idx]);
+            }
+        }
+    }
+
+    private static string GetVariantLabel(SchemaNode option, int index)
+    {
+        if (option.Title is not null)
+        {
+            return option.Title;
+        }
+
+        if (option.ConstValue is not null)
+        {
+            return option.ConstValue;
+        }
+
+        if (option.Type != SchemaNodeType.Unknown)
+        {
+            return $"{option.Type} (Option {index + 1})";
+        }
+
+        return $"Option {index + 1}";
+    }
+
+    private int FindMatchingVariant(IReadOnlyList<SchemaNode> options)
+    {
+        var currentNode = Session.Queries.GetNode(Path);
+        if (currentNode is null)
+        {
+            return 0;
+        }
+
+        for (var i = 0; i < options.Count; i++)
+        {
+            if (MatchesNodeType(currentNode, options[i]))
+            {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    private static bool MatchesNodeType(JsonNode currentNode, SchemaNode option) => option.Type switch
+    {
+        SchemaNodeType.Object => currentNode is JsonObject,
+        SchemaNodeType.Array => currentNode is JsonArray,
+        SchemaNodeType.String => currentNode is JsonValue value && value.TryGetValue(out string? _),
+        SchemaNodeType.Integer => currentNode is JsonValue value && value.TryGetValue(out int _),
+        SchemaNodeType.Number => currentNode is JsonValue value && value.TryGetValue(out double _),
+        SchemaNodeType.Boolean => currentNode is JsonValue value && value.TryGetValue(out bool _),
+        _ => false,
+    };
+}

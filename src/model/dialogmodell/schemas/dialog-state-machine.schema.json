@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/dialog-state-machine.schema.json",
+  "title": "DialogStateMachine",
+  "description": "Formalizes the micro-flow and macro-flow state machines of the dialog model. Micro-flows govern per-field interaction (capture/confirm/correct), macro-flows govern cross-field-group navigation and process completion (review/submit). States and transitions documented in model.md 2.6.1-2.6.2 are normative; this schema makes them machine-readable and independently testable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "microFlow",
+    "macroFlow"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "microFlow": {
+      "$ref": "#/$defs/MicroFlow",
+      "description": "Per-field interaction state machine: capture, interpret, validate, confirm/repair cycle."
+    },
+    "macroFlow": {
+      "$ref": "#/$defs/MacroFlow",
+      "description": "Cross-field-group navigation state machine: field-group intro, field loop, summary, submit/cancel."
+    }
+  },
+  "$defs": {
+    "MicroStateId": {
+      "description": "Micro-flow state identifiers for per-field interaction. PROMPTING speaks label/help, LISTENING captures speech, INTERPRETING maps transcript to intent/value, VALIDATING checks constraints, CONFIRMATION presents recognized value for user acceptance, ERROR_PROMPT announces validation failure with remediation, REPAIR represents field-level correction; richer runtimes may realize it as slot-, word-, or character-level repair.",
+      "type": "string",
+      "enum": [
+        "PROMPTING",
+        "LISTENING",
+        "INTERPRETING",
+        "VALIDATING",
+        "CONFIRMATION",
+        "ERROR_PROMPT",
+        "REPAIR"
+      ]
+    },
+    "MacroStateId": {
+      "description": "Macro-flow state identifiers for cross-field-group navigation. FIELD_GROUP_INTRO speaks the voiceSummary for orientation, FIELD_LOOP iterates over fields within the active field group, FIELD_GROUP_SUMMARY recaps entered values before advancing, PROCESS_SUMMARY presents the full review before submission, SUBMITTED marks successful completion, CANCELLED marks user-initiated abort.",
+      "type": "string",
+      "enum": [
+        "FIELD_GROUP_INTRO",
+        "FIELD_LOOP",
+        "FIELD_GROUP_SUMMARY",
+        "PROCESS_SUMMARY",
+        "SUBMITTED",
+        "CANCELLED"
+      ]
+    },
+    "MicroTransitionTrigger": {
+      "description": "Triggers that cause micro-flow state transitions.",
+      "type": "string",
+      "enum": [
+        "promptComplete",
+        "speechReceived",
+        "noInputTimeout",
+        "interpretationComplete",
+        "validationPassed",
+        "validationFailed",
+        "userConfirmed",
+        "userRejected",
+        "errorPromptComplete",
+        "repairComplete",
+        "maxRetriesExceeded"
+      ]
+    },
+    "MacroTransitionTrigger": {
+      "description": "Triggers that cause macro-flow state transitions.",
+      "type": "string",
+      "enum": [
+        "introComplete",
+        "allFieldsProcessed",
+        "summaryAccepted",
+        "summaryRejected",
+        "navigateNext",
+        "navigateBack",
+        "jumpToFieldGroup",
+        "processConfirmed",
+        "processRejected",
+        "cancelConfirmed"
+      ]
+    },
+    "MicroTransition": {
+      "description": "A single micro-flow state transition.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "trigger",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/MicroStateId"
+        },
+        "trigger": {
+          "$ref": "#/$defs/MicroTransitionTrigger"
+        },
+        "to": {
+          "description": "Target state. Use null to indicate exit from the current field micro-flow so the runtime can advance to the next field or macro-flow transition.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MicroStateId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "guard": {
+          "type": "string",
+          "description": "Optional guard condition in plain language. Runtime interprets guards; the schema documents them for traceability."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this transition."
+        }
+      }
+    },
+    "MacroTransition": {
+      "description": "A single macro-flow state transition.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "trigger",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/MacroStateId"
+        },
+        "trigger": {
+          "$ref": "#/$defs/MacroTransitionTrigger"
+        },
+        "to": {
+          "$ref": "#/$defs/MacroStateId"
+        },
+        "guard": {
+          "type": "string",
+          "description": "Optional guard condition in plain language."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this transition."
+        }
+      }
+    },
+    "MicroStateDefinition": {
+      "description": "Definition of a single micro-flow state with its entry action and allowed transitions.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateId",
+        "entryAction"
+      ],
+      "properties": {
+        "stateId": {
+          "$ref": "#/$defs/MicroStateId"
+        },
+        "entryAction": {
+          "type": "string",
+          "description": "Action performed on entering this state (e.g. 'Speak field label and help text')."
+        },
+        "privacyBehavior": {
+          "type": "string",
+          "description": "Privacy-dependent behavior in this state (e.g. 'Masked readback for sensitive fields, opt-in required for full value')."
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "MacroStateDefinition": {
+      "description": "Definition of a single macro-flow state with its entry action.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateId",
+        "entryAction"
+      ],
+      "properties": {
+        "stateId": {
+          "$ref": "#/$defs/MacroStateId"
+        },
+        "entryAction": {
+          "type": "string",
+          "description": "Action performed on entering this state (e.g. 'Speak field group voiceSummary')."
+        },
+        "isTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this state is a terminal state (no outgoing transitions)."
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "MicroFlow": {
+      "description": "Per-field interaction state machine. Governs the capture/confirm/correct cycle for a single field.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initialState",
+        "states",
+        "transitions"
+      ],
+      "properties": {
+        "initialState": {
+          "$ref": "#/$defs/MicroStateId",
+          "description": "State entered when a field receives focus."
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicroStateDefinition"
+          },
+          "minItems": 1,
+          "description": "All micro-flow states. Each MicroStateId MUST appear exactly once."
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicroTransition"
+          },
+          "minItems": 1,
+          "description": "All allowed state transitions. Unlisted transitions are forbidden."
+        }
+      }
+    },
+    "MacroFlow": {
+      "description": "Cross-field-group navigation state machine. Governs the overall process from field-group intro through review/submit or cancel.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initialState",
+        "terminalStates",
+        "states",
+        "transitions"
+      ],
+      "properties": {
+        "initialState": {
+          "$ref": "#/$defs/MacroStateId",
+          "description": "State entered when the form dialog starts."
+        },
+        "terminalStates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MacroStateId"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "States that end the form dialog. Typically SUBMITTED and CANCELLED."
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MacroStateDefinition"
+          },
+          "minItems": 1,
+          "description": "All macro-flow states. Each MacroStateId MUST appear exactly once."
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MacroTransition"
+          },
+          "minItems": 1,
+          "description": "All allowed state transitions. Unlisted transitions are forbidden."
+        }
+      }
+    }
+  }
+}

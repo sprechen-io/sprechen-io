@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/generic-prompt-catalog.schema.json",
+  "title": "GenericPromptCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "promptCatalogModelId",
+    "promptsByLanguage"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "promptCatalogModelId": {
+      "$ref": "#/$defs/Id"
+    },
+    "promptsByLanguage": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/PromptTemplateMap"
+      },
+      "minProperties": 1,
+      "description": "Prompt templates grouped by base language. The owning VoiceInterfaceDocument defines the authoritative supportedLanguages and defaultLanguage; exact cross-language prompt coverage is enforced there when strictLocalization is true."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "PromptTemplateMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Prompt-id to template map for one language. Full cross-language prompt-id coverage is enforced by referencing voice-interface preflight when strictLocalization is true."
+    }
+  }
+}
+

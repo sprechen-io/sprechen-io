@@ -1,0 +1,61 @@
+@page
+@model Sprechen.Forms.Pages.SettingsModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var language = (Model.SelectedLanguage ?? string.Empty).Trim().ToLowerInvariant();
+    var chrome = Sprechen.Forms.Pages.FormsChromeCopyResolver.For(Model.SelectedLanguage);
+    var theme = Sprechen.Forms.Pages.FormsThemePreference.From(Model.SelectedTheme);
+    // data-theme nur bei ausdrücklicher Themenwahl ausgeben; bei "system" fehlt das Attribut,
+    // damit @@media (prefers-color-scheme) gilt. Zulässige Werte sind light und dark.
+    var themeAttribute = theme.DataThemeAttribute is { } themeValue
+        ? $" data-theme=\"{themeValue}\""
+        : string.Empty;
+
+    var pageTitle = chrome.Settings;
+    var languageLabel = chrome.LanguageLabel;
+    var themeLabel = chrome.ThemeLabel;
+    var saveLabel = chrome.SaveLabel;
+    var backLabel = chrome.BackLabel;
+}
+<!doctype html>
+<html lang="@language"@Html.Raw(themeAttribute)>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@pageTitle - Forms</title>
+    <link rel="stylesheet" href="~/css/forms-theme.css" asp-append-version="true" />
+</head>
+<body class="settings-page">
+<a class="skip-link" href="#main-content">@chrome.SkipToContent</a>
+<main id="main-content" role="main">
+    <h1>@pageTitle</h1>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <div>
+            <label for="language">@languageLabel</label>
+            <select id="language" name="language">
+                @foreach (var lang in Model.SupportedLanguages)
+                {
+                    <option value="@lang" selected="@(string.Equals(lang, Model.SelectedLanguage, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@Sprechen.Forms.Pages.SettingsModel.Endonym(lang)</option>
+                }
+            </select>
+        </div>
+        <div class="actions">
+            <label for="theme">@themeLabel</label>
+            <select id="theme" name="theme">
+                @foreach (var themeOption in Model.SupportedThemes)
+                {
+                    <option value="@themeOption" selected="@(theme.Is(themeOption) ? "selected" : null)">@chrome.ThemeOptionLabel(themeOption)</option>
+                }
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit">@saveLabel</button>
+        </div>
+    </form>
+
+    <p class="back-link"><a href="/?lang=@language">@backLabel</a></p>
+</main>
+</body>
+</html>

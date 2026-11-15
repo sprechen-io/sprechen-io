@@ -1,0 +1,2565 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/telemetry-events.schema.json",
+  "title": "Telemetry Events Schema",
+  "description": "Single telemetry event. Wire format is JSON Lines: one JSON document (validating against TelemetryEvent) per line. Shared telemetry envelope, status, error, and evaluation vocabularies live in telemetry-fragments.schema.json.",
+  "$defs": {
+    "Condition": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/Condition"
+    },
+    "RecordProvenance": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/RecordProvenance"
+    },
+    "TaskEndState": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/TaskEndState"
+    },
+    "CanonicalClass": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalClass"
+    },
+    "TransitionScope": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/TransitionScope"
+    },
+    "ResultingState": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ResultingState"
+    },
+    "CanonicalTransition": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransition"
+    },
+    "CanonicalTransitionList": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+    },
+    "AmbiguityType": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/AmbiguityType"
+    },
+    "AmbiguityResolutionStrategy": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/AmbiguityResolutionStrategy"
+    },
+    "AmbiguitySignalClass": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/AmbiguitySignalClass"
+    },
+    "AmbiguityResult": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/AmbiguityResult"
+    },
+    "Severity": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/Severity"
+    },
+    "Scope": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/Scope"
+    },
+    "InputMode": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/InputMode"
+    },
+    "InputModeTrigger": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/InputModeTrigger"
+    },
+    "ErrorTrigger": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorTrigger"
+    },
+    "SystemFeedbackType": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/SystemFeedbackType"
+    },
+    "ZeroDenominatorMode": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ZeroDenominatorMode"
+    },
+    "ProgressCounter": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ProgressCounter"
+    },
+    "StatusNavigation": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/StatusNavigation"
+    },
+    "StatusNavigationFields": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/StatusNavigationFields"
+    },
+    "BaseEvent": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/BaseEvent"
+    },
+    "TaskStartData": {
+      "description": "Task start carries no data of its own: the task variant is an envelope member on every event of the task, not only on its first one.",
+      "type": "object",
+      "properties": {
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "canonical_transitions"
+      ]
+    },
+    "TaskEndData": {
+      "description": "Task completion data. It carries the canonical end state, the empty transition list every task-bracket line carries, one task-wide mismatch code from the system-side comparison, and the correctness basis of that comparison. Target and actual values are not members and must not appear. Interaction-step count and step basis stay out.",
+      "type": "object",
+      "properties": {
+        "end_state": {
+          "$ref": "#/$defs/TaskEndState"
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        },
+        "mismatch_code": {
+          "type": "string",
+          "enum": [
+            "none",
+            "task_card_mismatch",
+            "missing_required",
+            "wrong_field_class",
+            "wrong_dependency_state",
+            "validation_error_open",
+            "not_submitted",
+            "aborted",
+            "unclear",
+            "not_assessed"
+          ],
+          "description": "One task-wide comparison result. The runtime never emits aborted or unclear."
+        },
+        "correctness_basis": {
+          "type": "string",
+          "enum": [
+            "log_and_system_check"
+          ]
+        }
+      },
+      "required": [
+        "end_state",
+        "canonical_transitions",
+        "mismatch_code",
+        "correctness_basis"
+      ],
+      "additionalProperties": false
+    },
+    "NavigationChangedData": {
+      "description": "Navigation change data: new current field and field group identifiers, plus the canonical transitions the line carries.",
+      "allOf": [
+        {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/StatusNavigationFields"
+        },
+        {
+          "type": "object",
+          "required": [
+            "canonical_transitions"
+          ],
+          "properties": {
+            "canonical_transitions": {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "FieldRelevanceChangedData": {
+      "description": "Field visibility change data: field ID, group ID, and relevance flag.",
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "field_group_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "relevant": {
+          "type": "boolean"
+        },
+        "reason_code": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_id",
+        "field_group_id",
+        "relevant",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "FieldCompletionChangedData": {
+      "description": "Field completion change data: field ID, group ID, and completion flag.",
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "field_group_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "relevant": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "blocking_error_codes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ErrorCode"
+          }
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_id",
+        "field_group_id",
+        "relevant",
+        "required",
+        "completed",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "FieldGroupRelevanceChangedData": {
+      "description": "Field group visibility change data: group ID and relevance flag.",
+      "type": "object",
+      "properties": {
+        "field_group_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "relevant": {
+          "type": "boolean"
+        },
+        "reason_code": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_group_id",
+        "relevant",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "FieldGroupCompletionChangedData": {
+      "description": "Field group completion change data: group ID and completion flag.",
+      "type": "object",
+      "properties": {
+        "field_group_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "relevant": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "open_group_error_codes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ErrorCode"
+          }
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_group_id",
+        "relevant",
+        "completed",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "StatusSnapshotProgress": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/StatusSnapshotProgress"
+    },
+    "StatusSnapshotData": {
+      "description": "Status snapshot data: navigation state and progress counters.",
+      "type": "object",
+      "properties": {
+        "navigation": {
+          "$ref": "#/$defs/StatusNavigation"
+        },
+        "progress": {
+          "$ref": "#/$defs/StatusSnapshotProgress"
+        },
+        "zero_denominator_mode": {
+          "$ref": "#/$defs/ZeroDenominatorMode"
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "navigation",
+        "progress",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "ErrorCode": {
+      "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorCode"
+    },
+    "ValidationErrorClearedData": {
+      "description": "Error data of a validation error that closed. The diagnosis code is fixed for this event: it says which kind of case the line is, and the internal code the channel reported stays inside the channel, where the open-error identity and the blocking/open-group lists need it.",
+      "allOf": [
+        {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorDataFields"
+        },
+        {
+          "type": "object",
+          "required": [
+            "canonical_transitions",
+            "error_code"
+          ],
+          "properties": {
+            "canonical_transitions": {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+            },
+            "error_code": {
+              "const": "D-VALIDATION"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "NavigationErrorData": {
+      "description": "Error data of a navigation or form-logic step that failed. The diagnosis code is fixed for this event: it says which kind of case the line is, and the internal code the channel reported stays inside the channel, where the open-error identity and the blocking/open-group lists need it.",
+      "allOf": [
+        {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorDataFields"
+        },
+        {
+          "type": "object",
+          "required": [
+            "canonical_transitions",
+            "error_code"
+          ],
+          "properties": {
+            "canonical_transitions": {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+            },
+            "error_code": {
+              "const": "D-NAVIGATION"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "SttErrorData": {
+      "description": "Error data of a recognition failure the channel can prove without reading the transcript. The diagnosis code is fixed for this event: it says which kind of case the line is, and the internal code the channel reported stays inside the channel, where the open-error identity and the blocking/open-group lists need it.",
+      "allOf": [
+        {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorDataFields"
+        },
+        {
+          "type": "object",
+          "required": [
+            "canonical_transitions",
+            "error_code"
+          ],
+          "properties": {
+            "canonical_transitions": {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+            },
+            "error_code": {
+              "const": "D-STT"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ValidationErrorOpenedData": {
+      "description": "Error data of an opened validation error, plus the act that made the line exist. The trigger is required because the producing emitters cannot be told apart afterwards: a state diff opens the same line at load, after a rule became visible, and after a submit attempt. One line stands for one open error, and an open error is at most one per field plus at most one per rule and owning field group: validation reports every rule a field breaks and repeats a shared rule at each field it touches, and counting those reports would measure how the rules are cut rather than how many errors the person is stuck on. A site that reports a state - a submit attempt is made against the whole form - reports every open error of that state even when the channel speaks only one of them, so the measured number stays a property of the form state and not of the prompt. The diagnosis code is fixed for this event: it says which kind of case the line is, and the internal code the channel reported stays inside the channel, where the open-error identity and the blocking/open-group lists need it. See model.md sections 13.1.2.3 and 13.1.2.4.",
+      "allOf": [
+        {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorDataFields"
+        },
+        {
+          "type": "object",
+          "required": [
+            "canonical_transitions",
+            "error_code",
+            "trigger"
+          ],
+          "properties": {
+            "canonical_transitions": {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+            },
+            "error_code": {
+              "const": "D-VALIDATION"
+            },
+            "trigger": {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorTrigger"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "IntentRecognizedData": {
+      "description": "Voice intent recognition data: stable intent ID.",
+      "type": "object",
+      "properties": {
+        "intent": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "intent",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "CommandRecognitionFailedData": {
+      "description": "Command recognition failure data: bounded failure reason and the optional command context.",
+      "type": "object",
+      "properties": {
+        "failure_reason": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "command_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "failure_reason",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "NoSpeechDetectedData": {
+      "description": "No-speech data: optional field ID when the unanswered turn belonged to a field.",
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "ConversationalPacingSignalType": {
+      "description": "Stable voice-only struggle/fluency signal vocabulary for future adaptive conversational pacing.",
+      "type": "string",
+      "enum": [
+        "field_attempt",
+        "no_input",
+        "repair_attempt",
+        "help_request",
+        "repeat_request",
+        "barge_in",
+        "capture_retry",
+        "command_recognition_failure"
+      ]
+    },
+    "ConversationalPacingSignalData": {
+      "description": "Conversational pacing signal data: bounded voice-only struggle/fluency metadata without raw utterance or field values. Optional response_latency_ms is cue-to-speech-start latency and must only be populated from a true speech-onset source.",
+      "type": "object",
+      "properties": {
+        "signal_type": {
+          "$ref": "#/$defs/ConversationalPacingSignalType"
+        },
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "command_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "failure_reason": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "repair_mode": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "input_mode": {
+          "$ref": "#/$defs/InputMode"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "attempt_number": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "response_latency_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stt_confidence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Speech-to-text confidence from the ASR provider as percentage (0..100), when available."
+        },
+        "interrupted_prompt_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "signal_type",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "Field attempt signal.",
+          "properties": {
+            "signal_type": {
+              "const": "field_attempt"
+            }
+          },
+          "required": [
+            "signal_type",
+            "field_id",
+            "input_mode",
+            "success"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "command_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "No-input signal.",
+          "properties": {
+            "signal_type": {
+              "const": "no_input"
+            }
+          },
+          "required": [
+            "signal_type",
+            "field_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "command_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "response_latency_ms"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "Repair attempt signal.",
+          "properties": {
+            "signal_type": {
+              "const": "repair_attempt"
+            }
+          },
+          "required": [
+            "signal_type",
+            "field_id",
+            "repair_mode"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "command_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "attempt_number"
+                ]
+              },
+              {
+                "required": [
+                  "response_latency_ms"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "Help request signal.",
+          "properties": {
+            "signal_type": {
+              "const": "help_request"
+            },
+            "command_id": {
+              "const": "help"
+            }
+          },
+          "required": [
+            "signal_type",
+            "command_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "field_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "Repeat request signal.",
+          "properties": {
+            "signal_type": {
+              "const": "repeat_request"
+            },
+            "command_id": {
+              "const": "repeat"
+            }
+          },
+          "required": [
+            "signal_type",
+            "command_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "field_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "Barge-in signal.",
+          "properties": {
+            "signal_type": {
+              "const": "barge_in"
+            }
+          },
+          "required": [
+            "signal_type",
+            "field_id"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "command_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "response_latency_ms"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "Capture retry signal.",
+          "properties": {
+            "signal_type": {
+              "const": "capture_retry"
+            }
+          },
+          "required": [
+            "signal_type",
+            "attempt_number"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "field_id"
+                ]
+              },
+              {
+                "required": [
+                  "command_id"
+                ]
+              },
+              {
+                "required": [
+                  "failure_reason"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "response_latency_ms"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "description": "Command recognition failure signal.",
+          "properties": {
+            "signal_type": {
+              "const": "command_recognition_failure"
+            }
+          },
+          "required": [
+            "signal_type",
+            "failure_reason"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "field_id"
+                ]
+              },
+              {
+                "required": [
+                  "repair_mode"
+                ]
+              },
+              {
+                "required": [
+                  "input_mode"
+                ]
+              },
+              {
+                "required": [
+                  "success"
+                ]
+              },
+              {
+                "required": [
+                  "stt_confidence"
+                ]
+              },
+              {
+                "required": [
+                  "interrupted_prompt_id"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "LanguageDetectedData": {
+      "description": "Conversational STT language signal: detected ISO 639-1 codes from the provider, optional hint codes that were active when the turn was decided, and the optional turn index.",
+      "type": "object",
+      "properties": {
+        "detected_language_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 16
+          },
+          "minItems": 1
+        },
+        "hinted_language_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 16
+          },
+          "minItems": 0
+        },
+        "turn_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "detected_language_codes",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "SystemFeedbackData": {
+      "description": "System feedback data: the feedback type and the optional command context that produced it.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/SystemFeedbackType"
+        },
+        "command_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "type",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "FocusChangeData": {
+      "description": "UI focus change data: target field ID.",
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_id",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "ValueChangeData": {
+      "description": "Field value change data: field ID and optional STT confidence percentage.",
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText"
+        },
+        "stt_confidence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Speech-to-text confidence from the ASR provider as percentage (0..100). Only present for voice input."
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_id",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "ManualStepData": {
+      "description": "Manual step data: exactly one fully determined canonical field or field-group transition, plus an optional bounded technical note.",
+      "type": "object",
+      "properties": {
+        "note": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "allOf": [
+            {
+              "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+            }
+          ],
+          "minItems": 1,
+          "maxItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "canonical_transitions"
+      ]
+    },
+    "AmbiguityResolvedData": {
+      "description": "Ambiguity resolution data: ambiguity type, resolution strategy, and user action.",
+      "type": "object",
+      "properties": {
+        "ambiguity_type": {
+          "$ref": "#/$defs/AmbiguityType"
+        },
+        "resolution_strategy": {
+          "$ref": "#/$defs/AmbiguityResolutionStrategy"
+        },
+        "signal_class": {
+          "$ref": "#/$defs/AmbiguitySignalClass"
+        },
+        "result": {
+          "$ref": "#/$defs/AmbiguityResult"
+        },
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "command_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "ambiguity_type",
+        "resolution_strategy",
+        "signal_class",
+        "result",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "InputModeChangedData": {
+      "description": "Input mode transition data: new mode and trigger (explicit_command, automatic, or field_default).",
+      "type": "object",
+      "properties": {
+        "from_mode": {
+          "$ref": "#/$defs/InputMode"
+        },
+        "to_mode": {
+          "$ref": "#/$defs/InputMode"
+        },
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "trigger": {
+          "$ref": "#/$defs/InputModeTrigger"
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "from_mode",
+        "to_mode",
+        "field_id",
+        "trigger",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "DestructiveCommandResolvedData": {
+      "description": "Destructive command resolution data: command ID and user confirmation result.",
+      "type": "object",
+      "properties": {
+        "command_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 64
+        },
+        "confirmed": {
+          "type": "boolean",
+          "description": "True if the user confirmed the destructive command."
+        },
+        "refractory_blocked": {
+          "type": "boolean",
+          "description": "True if the command was blocked by the refractory window (spec \u00a75.4.4.4)."
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "command_id",
+        "confirmed",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "BargeInData": {
+      "description": "Barge-in event data: records when user interrupts system prompt with speech input.",
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "interrupted_prompt_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128,
+          "description": "Prompt ID that was interrupted by the barge-in, if identifiable."
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "field_id",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordListenerSetupPhase": {
+      "description": "Normative wake-word listener setup phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "Started",
+        "InventoryLoaded",
+        "Failed"
+      ]
+    },
+    "WakeWordListenerSetupEventCode": {
+      "description": "Stable event-code vocabulary for wake-word listener setup telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_LISTENER_STARTED",
+        "WAKE_WORD_LISTENER_INVENTORY_LOADED",
+        "WAKE_WORD_LISTENER_SETUP_FAILED"
+      ]
+    },
+    "WakeWordListenerSetupData": {
+      "description": "Wake-word listener setup telemetry data: setup phase, stable event code, and optional inventory dimensions.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordListenerSetupPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordListenerSetupEventCode"
+        },
+        "language_code": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 16
+        },
+        "activation_form_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recognition_only_activation_form_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exception_type": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordAcousticDetectionPhase": {
+      "description": "Normative wake-word acoustic detection phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "Detected",
+        "DetectorUnavailable",
+        "DetectorWarmup",
+        "DetectorFailure"
+      ]
+    },
+    "WakeWordAcousticDetectionEventCode": {
+      "description": "Stable event-code vocabulary for wake-word acoustic detection telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_ACOUSTIC_DETECTED",
+        "WAKE_WORD_ACOUSTIC_DETECTOR_UNAVAILABLE",
+        "WAKE_WORD_ACOUSTIC_DETECTOR_WARMUP",
+        "WAKE_WORD_ACOUSTIC_DETECTOR_FAILURE"
+      ]
+    },
+    "WakeWordAcousticDetectionData": {
+      "description": "Wake-word acoustic detection telemetry data: detection phase, stable event code, detector identity, and optional exception type.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordAcousticDetectionPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordAcousticDetectionEventCode"
+        },
+        "detector_id": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "exception_type": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordCaptureLoopPhase": {
+      "description": "Normative wake-word capture-loop retry phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "CaptureNoSpeechRetry",
+        "CaptureFailedRetry",
+        "TranscriptionNoSpeechRetry",
+        "TranscriptionEmptyRetry"
+      ]
+    },
+    "WakeWordCaptureLoopEventCode": {
+      "description": "Stable event-code vocabulary for wake-word capture-loop telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_CAPTURE_NO_SPEECH_RETRY",
+        "WAKE_WORD_CAPTURE_FAILED_RETRY",
+        "WAKE_WORD_TRANSCRIPTION_NO_SPEECH_RETRY",
+        "WAKE_WORD_TRANSCRIPTION_EMPTY_RETRY"
+      ]
+    },
+    "WakeWordCaptureLoopData": {
+      "description": "Wake-word capture-loop telemetry data: retry phase, stable event code, and optional exception type.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordCaptureLoopPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordCaptureLoopEventCode"
+        },
+        "exception_type": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordTranscriptionRejectionPhase": {
+      "description": "Normative wake-word transcription rejection phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "QueueFull",
+        "BackoffExhausted",
+        "MicGateHardOff",
+        "Dispatched"
+      ]
+    },
+    "WakeWordTranscriptionRejectionEventCode": {
+      "description": "Stable event-code vocabulary for wake-word transcription rejection telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_TRANSCRIPTION_QUEUE_FULL",
+        "WAKE_WORD_TRANSCRIPTION_BACKOFF_EXHAUSTED",
+        "WAKE_WORD_TRANSCRIPTION_MIC_GATE_HARD_OFF",
+        "WAKE_WORD_TRANSCRIPTION_DISPATCHED"
+      ]
+    },
+    "WakeWordTranscriptionRejectionData": {
+      "description": "Wake-word transcription rejection telemetry data: rejection phase, stable event code, optional failure code, and optional exception type.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordTranscriptionRejectionPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordTranscriptionRejectionEventCode"
+        },
+        "failure_code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "exception_type": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeStitchPhase": {
+      "description": "Normative wake-stitch outcome vocabulary mirrored from the runtime stitch owner.",
+      "type": "string",
+      "enum": [
+        "Started",
+        "Attached",
+        "Expired",
+        "NoOp"
+      ]
+    },
+    "WakeStitchEventCode": {
+      "description": "Stable event-code vocabulary for wake-stitch telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_STITCH_STARTED",
+        "WAKE_STITCH_ATTACHED",
+        "WAKE_STITCH_EXPIRED",
+        "WAKE_STITCH_NOOP"
+      ]
+    },
+    "WakeStitchData": {
+      "description": "Wake-stitch telemetry data: outcome phase, stable event code, and transcript length dimensions.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeStitchPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeStitchEventCode"
+        },
+        "transcript_text_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stitched_transcript_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "command_text_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "transcript_text_length",
+        "stitched_transcript_length",
+        "command_text_length",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordActivationStatus": {
+      "description": "Normative wake-word activation result status vocabulary carried by wake miss telemetry.",
+      "type": "string",
+      "enum": [
+        "NoRecognizedSpeech",
+        "MissingLeadingWakeWord",
+        "LeadingWakeWordDetected"
+      ]
+    },
+    "WakeWordMissPhase": {
+      "description": "Normative wake-word miss phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "MissTrace",
+        "MissDiagnostic",
+        "EarconFailed",
+        "RecordingCleanupFailed",
+        "GuidanceSpoken"
+      ]
+    },
+    "WakeWordMissEventCode": {
+      "description": "Stable event-code vocabulary for wake-word miss telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_MISS_TRACE",
+        "WAKE_WORD_MISS_DIAGNOSTIC",
+        "WAKE_WORD_MISS_EARCON_FAILED",
+        "WAKE_WORD_MISS_RECORDING_CLEANUP_FAILED",
+        "WAKE_WORD_MISS_GUIDANCE_SPOKEN"
+      ]
+    },
+    "WakeWordMissData": {
+      "description": "Wake-word miss telemetry data: miss phase, stable event code, activation status, and optional recognition dimensions.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordMissPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordMissEventCode"
+        },
+        "status": {
+          "$ref": "#/$defs/WakeWordActivationStatus"
+        },
+        "confidence_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "transcript_text_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activation_form_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recognition_only_activation_form_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exception_type": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "status",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordActivationPhase": {
+      "description": "Normative wake-word activation phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "LexicalDetected",
+        "Diagnostic"
+      ]
+    },
+    "WakeWordActivationEventCode": {
+      "description": "Stable event-code vocabulary for wake-word activation telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_ACTIVATION_LEXICAL_DETECTED",
+        "WAKE_WORD_ACTIVATION_DIAGNOSTIC"
+      ]
+    },
+    "WakeWordActivationData": {
+      "description": "Wake-word activation telemetry data: activation phase, stable event code, command-presence flag, and optional transcript dimensions.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordActivationPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordActivationEventCode"
+        },
+        "command_text_present": {
+          "type": "boolean"
+        },
+        "transcript_text_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "command_text_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "confidence_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "command_text_present",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "WakeWordFallbackPhase": {
+      "description": "Normative wake-word lexical fallback publication phase vocabulary mirrored from IWakeWordTelemetrySink.",
+      "type": "string",
+      "enum": [
+        "Published",
+        "PublishFailed"
+      ]
+    },
+    "WakeWordFallbackEventCode": {
+      "description": "Stable event-code vocabulary for wake-word lexical fallback telemetry.",
+      "type": "string",
+      "enum": [
+        "WAKE_WORD_FALLBACK_PUBLISHED",
+        "WAKE_WORD_FALLBACK_PUBLISH_FAILED"
+      ]
+    },
+    "WakeWordFallbackData": {
+      "description": "Wake-word lexical fallback telemetry data: fallback phase, stable event code, optional reason code, and optional exception type.",
+      "type": "object",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/WakeWordFallbackPhase"
+        },
+        "event_code": {
+          "$ref": "#/$defs/WakeWordFallbackEventCode"
+        },
+        "reason_code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "exception_type": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/IdentifyingText",
+          "maxLength": 256
+        },
+        "canonical_transitions": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalTransitionList"
+        }
+      },
+      "required": [
+        "phase",
+        "event_code",
+        "canonical_transitions"
+      ],
+      "additionalProperties": false
+    },
+    "TaskStartEvent": {
+      "description": "Event: task begins, establishes telemetry baseline.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "task_start"
+            },
+            "data": {
+              "$ref": "#/$defs/TaskStartData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "TaskEndEvent": {
+      "description": "Event: task completes, records final state and validity.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "task_end"
+            },
+            "data": {
+              "$ref": "#/$defs/TaskEndData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "NavigationChangedEvent": {
+      "description": "Event: navigation between fields, captures new position.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "navigation_changed"
+            },
+            "data": {
+              "$ref": "#/$defs/NavigationChangedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "FieldRelevanceChangedEvent": {
+      "description": "Event: field visibility change, records field and group context.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "field_relevance_changed"
+            },
+            "data": {
+              "$ref": "#/$defs/FieldRelevanceChangedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "FieldCompletionChangedEvent": {
+      "description": "Event: field completion status change, records transition.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "field_completion_changed"
+            },
+            "data": {
+              "$ref": "#/$defs/FieldCompletionChangedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "FieldGroupRelevanceChangedEvent": {
+      "description": "Event: field group visibility change, records group transition.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "field_group_relevance_changed"
+            },
+            "data": {
+              "$ref": "#/$defs/FieldGroupRelevanceChangedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "FieldGroupCompletionChangedEvent": {
+      "description": "Event: field group completion change, records transition.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "field_group_completion_changed"
+            },
+            "data": {
+              "$ref": "#/$defs/FieldGroupCompletionChangedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "StatusSnapshotEvent": {
+      "description": "Event: captures complete form navigation and progress state.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "status_snapshot"
+            },
+            "data": {
+              "$ref": "#/$defs/StatusSnapshotData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "ValidationErrorOpenedEvent": {
+      "description": "Event: validation error appears, records error details and context.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "validation_error_opened"
+            },
+            "data": {
+              "$ref": "#/$defs/ValidationErrorOpenedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "ValidationErrorClearedEvent": {
+      "description": "Event: validation error resolved, records previously active error.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "validation_error_cleared"
+            },
+            "data": {
+              "$ref": "#/$defs/ValidationErrorClearedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "NavigationErrorEvent": {
+      "description": "Event: navigation or form logic error, records system failure.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "navigation_error"
+            },
+            "data": {
+              "$ref": "#/$defs/NavigationErrorData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "SttErrorEvent": {
+      "description": "Event: speech recognition failure, records STT error details.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "stt_error"
+            },
+            "data": {
+              "$ref": "#/$defs/SttErrorData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "IntentRecognizedEvent": {
+      "description": "Event: voice intent recognized, records the stable intent ID.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "intent_recognized"
+            },
+            "data": {
+              "$ref": "#/$defs/IntentRecognizedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "CommandRecognitionFailedEvent": {
+      "description": "Event: a spoken command was not accepted, records the failure reason and optional command context.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "command_recognition_failed"
+            },
+            "data": {
+              "$ref": "#/$defs/CommandRecognitionFailedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "NoSpeechDetectedEvent": {
+      "description": "Event: a turn produced no usable transcript, optionally records the field ID.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "no_speech_detected"
+            },
+            "data": {
+              "$ref": "#/$defs/NoSpeechDetectedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "SystemFeedbackEvent": {
+      "description": "Event: system provides feedback, records type (audio/visual/haptic).",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "system_feedback"
+            },
+            "data": {
+              "$ref": "#/$defs/SystemFeedbackData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "FocusChangeEvent": {
+      "description": "Event: input focus change, records the target field ID.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "focus_change"
+            },
+            "data": {
+              "$ref": "#/$defs/FocusChangeData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "ValueChangeEvent": {
+      "description": "Event: field value change, records the field ID and optional STT confidence percentage.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "value_change"
+            },
+            "data": {
+              "$ref": "#/$defs/ValueChangeData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "ManualStepEvent": {
+      "description": "Event: observer-recorded manual step with exactly one fully determined canonical field or field-group transition and an optional bounded technical note.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "manual_step"
+            },
+            "data": {
+              "$ref": "#/$defs/ManualStepData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "AmbiguityResolvedEvent": {
+      "description": "Event: ambiguous input resolved, records type, strategy, and action.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "ambiguity_resolved"
+            },
+            "data": {
+              "$ref": "#/$defs/AmbiguityResolvedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "InputModeChangedEvent": {
+      "description": "Event: input mode change, records new mode and trigger.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "input_mode_changed"
+            },
+            "data": {
+              "$ref": "#/$defs/InputModeChangedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "DestructiveCommandResolvedEvent": {
+      "description": "Event: destructive command (cancel/submit), records confirmation result.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "destructive_command_resolved"
+            },
+            "data": {
+              "$ref": "#/$defs/DestructiveCommandResolvedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "BargeInEvent": {
+      "description": "Event: user interrupts system prompt, records barge-in occurrence.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "barge_in"
+            },
+            "data": {
+              "$ref": "#/$defs/BargeInData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "ConversationalPacingSignalEvent": {
+      "description": "Event: voice-only conversational pacing signal, records bounded struggle/fluency metadata for future adaptive pacing.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "conversational_pacing_signal"
+            },
+            "data": {
+              "$ref": "#/$defs/ConversationalPacingSignalData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "LanguageDetectedEvent": {
+      "description": "Event: conversational STT language signal, records detected and hinted language codes for a turn.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "language_detected"
+            },
+            "data": {
+              "$ref": "#/$defs/LanguageDetectedData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordListenerSetupEvent": {
+      "description": "Event: wake-word listener setup reports setup phases and model inventory dimensions.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_listener_setup"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordListenerSetupData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordAcousticDetectionEvent": {
+      "description": "Event: wake-word acoustic detection reports detector outcomes and fallback reasons.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_acoustic_detection"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordAcousticDetectionData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordCaptureLoopEvent": {
+      "description": "Event: wake-word capture loop reports retry and capture-failure phases.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_capture_loop"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordCaptureLoopData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordTranscriptionRejectionEvent": {
+      "description": "Event: wake-word transcription worker rejects or dispatches a transcription attempt.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_transcription_rejection"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordTranscriptionRejectionData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeStitchEvent": {
+      "description": "Event: wake-stitch owner reports one stitch outcome with stable phase/code telemetry.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_stitch"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeStitchData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordMissEvent": {
+      "description": "Event: wake-word miss reports no-match, no-speech, recovery-feedback, and cleanup outcomes.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_miss"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordMissData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordActivationEvent": {
+      "description": "Event: wake-word activation reports lexical activation and post-wake diagnostic dimensions.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_activation"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordActivationData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "WakeWordFallbackEvent": {
+      "description": "Event: wake-word listener publishes or fails to publish lexical fallback state.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/BaseEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "const": "wake_word_fallback"
+            },
+            "data": {
+              "$ref": "#/$defs/WakeWordFallbackData"
+            }
+          },
+          "required": [
+            "event",
+            "data"
+          ]
+        }
+      ]
+    },
+    "TelemetryEventVariants": {
+      "description": "Open union of all telemetry event types. Deliberately not closed: the two shapes below close it, one per direction, and a member added here would otherwise be accepted by both.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/TaskStartEvent"
+        },
+        {
+          "$ref": "#/$defs/TaskEndEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigationChangedEvent"
+        },
+        {
+          "$ref": "#/$defs/FieldRelevanceChangedEvent"
+        },
+        {
+          "$ref": "#/$defs/FieldCompletionChangedEvent"
+        },
+        {
+          "$ref": "#/$defs/FieldGroupRelevanceChangedEvent"
+        },
+        {
+          "$ref": "#/$defs/FieldGroupCompletionChangedEvent"
+        },
+        {
+          "$ref": "#/$defs/StatusSnapshotEvent"
+        },
+        {
+          "$ref": "#/$defs/ValidationErrorOpenedEvent"
+        },
+        {
+          "$ref": "#/$defs/ValidationErrorClearedEvent"
+        },
+        {
+          "$ref": "#/$defs/NavigationErrorEvent"
+        },
+        {
+          "$ref": "#/$defs/SttErrorEvent"
+        },
+        {
+          "$ref": "#/$defs/IntentRecognizedEvent"
+        },
+        {
+          "$ref": "#/$defs/CommandRecognitionFailedEvent"
+        },
+        {
+          "$ref": "#/$defs/NoSpeechDetectedEvent"
+        },
+        {
+          "$ref": "#/$defs/SystemFeedbackEvent"
+        },
+        {
+          "$ref": "#/$defs/FocusChangeEvent"
+        },
+        {
+          "$ref": "#/$defs/ValueChangeEvent"
+        },
+        {
+          "$ref": "#/$defs/ManualStepEvent"
+        },
+        {
+          "$ref": "#/$defs/AmbiguityResolvedEvent"
+        },
+        {
+          "$ref": "#/$defs/InputModeChangedEvent"
+        },
+        {
+          "$ref": "#/$defs/DestructiveCommandResolvedEvent"
+        },
+        {
+          "$ref": "#/$defs/BargeInEvent"
+        },
+        {
+          "$ref": "#/$defs/ConversationalPacingSignalEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordListenerSetupEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordAcousticDetectionEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordCaptureLoopEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordTranscriptionRejectionEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeStitchEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordMissEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordActivationEvent"
+        },
+        {
+          "$ref": "#/$defs/WakeWordFallbackEvent"
+        },
+        {
+          "$ref": "#/$defs/LanguageDetectedEvent"
+        }
+      ]
+    },
+    "TelemetryEvent": {
+      "description": "The sent shape: one variant of the union, without the receipt time. A sender that states record_received_at is refused, because the value would then be the sender's and not the server's measurement.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/TelemetryEventVariants"
+        },
+        {
+          "description": "A task-bound envelope carries the existing evaluation-task ID as session_id. Modeled outside-task diagnostics use the placeholder application A00 and task T00 together and must not carry session_id: their storage key is the event, not a task run. The sent shape also refuses record_received_at.",
+          "type": "object",
+          "properties": {
+            "record_received_at": false
+          },
+          "if": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "const": "A00"
+              },
+              "task_id": {
+                "const": "T00"
+              }
+            },
+            "required": [
+              "application_id",
+              "task_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "session_id": false,
+              "client_offset_ms": false
+            }
+          },
+          "else": {
+            "required": [
+              "session_id",
+              "client_offset_ms"
+            ]
+          }
+        }
+      ]
+    },
+    "TelemetryEventRecord": {
+      "description": "The stored shape: the sent shape plus the receipt time the server measured when it accepted the line.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/TelemetryEventVariants"
+        },
+        {
+          "description": "Stored lines keep the same session_id rule as the sent shape and require the server receipt time.",
+          "type": "object",
+          "required": [
+            "record_received_at"
+          ],
+          "if": {
+            "type": "object",
+            "properties": {
+              "application_id": {
+                "const": "A00"
+              },
+              "task_id": {
+                "const": "T00"
+              }
+            },
+            "required": [
+              "application_id",
+              "task_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "session_id": false,
+              "client_offset_ms": false
+            }
+          },
+          "else": {
+            "required": [
+              "session_id",
+              "client_offset_ms"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "$ref": "#/$defs/TelemetryEvent"
+}

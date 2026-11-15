@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/open-error-identity.schema.json",
+  "title": "Open-error identity truth table",
+  "description": "The authored truth table both channels are pinned to when they decide what ONE open error is. Model.md section 13.1.2.3 states the counting unit once, but each channel projects it in its own runtime. The unit has two halves and this table carries both: 'cases' asks when two reported violations are the SAME open error, and 'openRuleAtOneFieldCases' asks which of the rules one field breaks is its open one. The second half decides which severity and which error code the reported line carries, and severity decides whether the line falls into the error rate at all.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifactId",
+    "cases",
+    "openRuleAtOneFieldCases"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../schemas/open-error-identity.schema.json"
+    },
+    "artifactId": {
+      "type": "string",
+      "const": "open-error-identity"
+    },
+    "description": {
+      "type": "string"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "violations",
+          "expectedOpenErrors"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "violations": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "#/$defs/reportedViolation"
+            },
+            "description": "Violations as the validator reports them, each with a case-local id."
+          },
+          "expectedOpenErrors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "The violations grouped by the open error they are. Every id from 'violations' appears exactly once; two ids in one group are the same open error, two groups are two."
+          }
+        }
+      },
+      "description": "When two reported violations are the SAME open error."
+    },
+    "openRuleAtOneFieldCases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Which of the rules one field breaks is its open error. Every violation of a case is reported at the same field; exactly one of them is open.",
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "violations",
+          "expectedOpenViolationId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "violations": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/reportedViolation"
+                },
+                {
+                  "required": [
+                    "constraintId"
+                  ]
+                }
+              ]
+            },
+            "description": "The rules this one field breaks, each with a case-local id and each carrying its constraintId."
+          },
+          "expectedOpenViolationId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The id of the violation that is the field's open error. The others are behind it and are not yet something the person can act on."
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "reportedViolation": {
+      "type": "object",
+      "required": [
+        "id",
+        "scope",
+        "code",
+        "severity"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Case-local name of this reported violation, used by 'expectedOpenErrors'."
+        },
+        "scope": {
+          "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintScope"
+        },
+        "code": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ErrorCode"
+        },
+        "severity": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/Severity"
+        },
+        "fieldId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The field the violation was reported at. Always present: the validator reaches every violation through a field, including those no single field owns."
+        },
+        "fieldGroupId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The field group that field belongs to. It is what a violation without a single owning field belongs to."
+        },
+        "constraintId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The unique rule instance. It is the tiebreak when two rules of one field carry the same severity: the order in which a runtime happens to run its checks is a property of one source file and does not exist in the other runtime."
+        }
+      }
+    }
+  }
+}

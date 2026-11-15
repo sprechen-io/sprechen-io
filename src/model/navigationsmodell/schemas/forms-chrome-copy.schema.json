@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/forms-chrome-copy.schema.json",
+  "title": "FormsChromeCopyCatalog",
+  "description": "The forms chrome copy catalog: the typed (HTML) surface's chrome vocabulary (navigation, buttons, labels, study labels, validation fallbacks) as id + per-language texts, mirroring the voice-resource-catalog shape. The model owns this vocabulary; the forms app consumes the embedded reference contract through a fail-fast loader and the navigation text-map generator reads the same file. User-facing localized text uses correct orthography (JSON-escaped where non-ASCII).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalogId",
+    "catalogVersion",
+    "supportedLanguages",
+    "defaultLanguage",
+    "entries"
+  ],
+  "properties": {
+    "catalogId": {
+      "$ref": "#/$defs/Id"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "description": "The chrome's display languages in fallback order; the first is the fallback. Every entry's texts must cover exactly this set (asserted key-by-key in the loader and the sync guards)."
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ChromeCopyEntry"
+      }
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ChromeCopyEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "texts"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "texts": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    }
+  }
+}

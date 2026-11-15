@@ -1,0 +1,194 @@
+@inject ISpeechCaptureSilenceDebounceSettings SilenceDebounceSettings
+@inject ISpeechCaptureAmplitudeThresholdSettings AmplitudeThresholdSettings
+
+<section class="card card-body mt-3">
+    <h2 class="h5">@Copy.SpeechCapture.GetTitle(PreferredIsoCode)</h2>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert alert-warning mt-3 mb-0" role="alert">@_error</div>
+    }
+
+    @if (!_loaded)
+    {
+        <div class="text-body-secondary small mt-3">@Copy.General.GetLoadingText(PreferredIsoCode)</div>
+    }
+    else
+    {
+        <div class="mt-3">
+            <div class="fw-semibold">@Copy.SpeechCapture.GetSilenceDebounceLabel(PreferredIsoCode)</div>
+            <div class="text-body-secondary small mb-2">
+                @_silenceDebounceMs ms
+            </div>
+
+            <input type="range"
+                   class="form-range"
+                   min="@SilenceDebounceSettings.SilenceDebounceMsMin"
+                   max="@SilenceDebounceSettings.SilenceDebounceMsMax"
+                   step="@SilenceDebounceSettings.SilenceDebounceMsStep"
+                   value="@_silenceDebounceMs"
+                   aria-label="@Copy.SpeechCapture.GetSilenceDebounceAriaLabel(PreferredIsoCode)"
+                   @onchange="OnSilenceDebounceChangedAsync" />
+
+            <div class="d-flex justify-content-between small text-body-secondary">
+                <span>@SilenceDebounceSettings.SilenceDebounceMsMin ms</span>
+                <span>@SilenceDebounceSettings.SilenceDebounceMsMid ms</span>
+                <span>@SilenceDebounceSettings.SilenceDebounceMsMax ms</span>
+            </div>
+
+            <div class="mt-4">
+                <div class="fw-semibold">@Copy.SpeechCapture.GetSpeechAmplitudeThresholdLabel(PreferredIsoCode)</div>
+                <div class="text-body-secondary small mb-2">
+                    @_speechAmplitudeThreshold
+                </div>
+
+                <input type="range"
+                       class="form-range"
+                       min="@AmplitudeThresholdSettings.SpeechAmplitudeThresholdMin"
+                       max="@AmplitudeThresholdSettings.SpeechAmplitudeThresholdMax"
+                       step="@AmplitudeThresholdSettings.SpeechAmplitudeThresholdStep"
+                       value="@_speechAmplitudeThreshold"
+                       aria-label="@Copy.SpeechCapture.GetSpeechAmplitudeThresholdAriaLabel(PreferredIsoCode)"
+                       @onchange="OnSpeechAmplitudeThresholdChangedAsync" />
+
+                <div class="d-flex justify-content-between small text-body-secondary">
+                    <span>@AmplitudeThresholdSettings.SpeechAmplitudeThresholdMin</span>
+                    <span>@AmplitudeThresholdSettings.SpeechAmplitudeThresholdMid</span>
+                    <span>@AmplitudeThresholdSettings.SpeechAmplitudeThresholdMax</span>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        @onclick="ResetAsync">
+                    @Copy.SpeechCapture.GetResetButton(PreferredIsoCode)
+                </button>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public string? PreferredIsoCode { get; set; }
+
+    private bool _loaded;
+    private string? _error;
+    private int _silenceDebounceMs;
+    private int _speechAmplitudeThreshold;
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _silenceDebounceMs = SilenceDebounceSettings.SilenceDebounceMsMid;
+        _speechAmplitudeThreshold = AmplitudeThresholdSettings.SpeechAmplitudeThresholdMid;
+        await LoadAsync(CancellationToken.None);
+    }
+
+    private async Task LoadAsync(CancellationToken cancellationToken)
+    {
+        _error = null;
+
+        try
+        {
+            var stored = await SilenceDebounceSettings.GetSilenceDebounceMsAsync(cancellationToken);
+
+            // Ohne gespeicherten positiven Wert zeigt der Regler die modellierte Untergrenze an.
+            // Ein gespeicherter positiver Wert wird hier unverändert übernommen.
+            _silenceDebounceMs = stored > 0
+                ? stored
+                : SilenceDebounceSettings.SilenceDebounceMsMin;
+
+            var storedThreshold = await AmplitudeThresholdSettings.GetSpeechAmplitudeThresholdAsync(cancellationToken);
+            _speechAmplitudeThreshold = storedThreshold > 0
+                ? storedThreshold
+                : AmplitudeThresholdSettings.SpeechAmplitudeThresholdMid;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loaded = true;
+        }
+    }
+
+    private async Task OnSilenceDebounceChangedAsync(ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        if (!int.TryParse(args.Value?.ToString(), out var value))
+        {
+            _error = Copy.SpeechCapture.GetInvalidValue(PreferredIsoCode);
+            return;
+        }
+
+        _silenceDebounceMs = value;
+
+        try
+        {
+            await SilenceDebounceSettings.SetSilenceDebounceMsAsync(_silenceDebounceMs, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task OnSpeechAmplitudeThresholdChangedAsync(ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        if (!int.TryParse(args.Value?.ToString(), out var value))
+        {
+            _error = Copy.SpeechCapture.GetInvalidValue(PreferredIsoCode);
+            return;
+        }
+
+        _speechAmplitudeThreshold = value;
+
+        try
+        {
+            await AmplitudeThresholdSettings.SetSpeechAmplitudeThresholdAsync(_speechAmplitudeThreshold, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task ResetAsync()
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        try
+        {
+            await SilenceDebounceSettings.ResetSilenceDebounceMsAsync(CancellationToken.None);
+            await AmplitudeThresholdSettings.ResetSpeechAmplitudeThresholdAsync(CancellationToken.None);
+            await LoadAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}
+
+

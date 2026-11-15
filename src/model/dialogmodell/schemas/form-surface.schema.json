@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/form-surface.schema.json",
+  "title": "FormSurface",
+  "description": "Readonly live surface snapshot for a speech-driven form session. The embedded formProjection is a derived projection from FormContract. A future ReferenceForm JSON example, if present, is only an illustrative instance of that embedded projection and not a separate root contract boundary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "isoCode",
+    "applicationId",
+    "applicationDisplayName",
+    "formId",
+    "formDisplayName",
+    "formProjection",
+    "fieldValuesById",
+    "fieldStatusesById",
+    "fieldGroupStatusesById"
+  ],
+  "properties": {
+    "stage": {
+      "$ref": "#/$defs/FormSurfaceStage"
+    },
+    "isoCode": {
+      "$ref": "localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "applicationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "applicationDisplayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "formId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "formDisplayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "formProjection": {
+      "$ref": "#/$defs/FormSurfaceDefinition"
+    },
+    "fieldValuesById": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/FormSurfaceFieldValue"
+      }
+    },
+    "focusedFieldId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fieldStatusesById": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/FormSurfaceFieldStatus"
+      }
+    },
+    "fieldGroupStatusesById": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/FormSurfaceFieldGroupStatus"
+      }
+    }
+  },
+  "$defs": {
+    "FormSurfaceFieldValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "publicValue",
+            "storedEntryPresence"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "publicValue"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "storedEntryPresence"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "FormSurfaceStage": {
+      "type": "string",
+      "enum": [
+        "active",
+        "submitted",
+        "cancelled",
+        "abandoned"
+      ]
+    },
+    "FormSurfaceDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entryFieldGroupId",
+        "fieldGroupsById",
+        "fields"
+      ],
+      "properties": {
+        "entryFieldGroupId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Resolved entry field-group ID of the embedded readonly projection."
+        },
+        "fieldGroupsById": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/FormSurfaceFieldGroupInfo"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FormSurfaceField"
+          }
+        }
+      }
+    },
+    "FormSurfaceFieldGroupInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldGroupId",
+        "title"
+      ],
+      "properties": {
+        "fieldGroupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "voiceSummary": {
+          "type": "string"
+        }
+      }
+    },
+    "FormSurfaceOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "label"
+      ],
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "FormSurfaceField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldId",
+        "fieldGroupId",
+        "label",
+        "valueTypeKind",
+        "codeStyle",
+        "inputType",
+        "required",
+        "isUserEditable",
+        "isReadOnlyDisplay",
+        "variableId"
+      ],
+      "properties": {
+        "fieldId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fieldGroupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueTypeKind": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "boolean",
+            "date",
+            "time",
+            "enum",
+            "set"
+          ]
+        },
+        "codeStyle": {
+          "type": "boolean"
+        },
+        "inputType": {
+          "type": "string",
+          "enum": [
+            "text",
+            "number",
+            "date",
+            "time",
+            "email",
+            "tel",
+            "select",
+            "checkbox",
+            "textarea"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "isUserEditable": {
+          "type": "boolean"
+        },
+        "isReadOnlyDisplay": {
+          "type": "boolean",
+          "description": "True exactly for declared readOnly fields: the web surface renders a display element (role=note) instead of an input control. computed and unknown editability keep isReadOnlyDisplay=false and render their existing input controls."
+        },
+        "helpText": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "autocomplete": {
+          "type": "string"
+        },
+        "inputMode": {
+          "$ref": "field-definitions.schema.json#/$defs/InputMode"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "minLength": {
+          "type": "integer"
+        },
+        "maxLength": {
+          "type": "integer"
+        },
+        "min": {
+          "type": "string",
+          "description": "The lower bound the surface carries, as the text the browser reads there. It is the narrower of the bounds the field's blocking rules state, and it is text rather than a number because a bound of a magnitude may be a calendar day."
+        },
+        "max": {
+          "type": "string",
+          "description": "The upper bound the surface carries, as the text the browser reads there. It is the narrower of the bounds the field's blocking rules state, and it is text rather than a number because a bound of a magnitude may be a calendar day."
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FormSurfaceOption"
+          }
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accessibleDescription": {
+          "type": "string"
+        },
+        "variableId": {
+          "type": "string"
+        }
+      }
+    },
+    "FormSurfaceFieldStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldId",
+        "fieldGroupId",
+        "relevant",
+        "required",
+        "completed",
+        "blockingErrorCodes"
+      ],
+      "properties": {
+        "fieldId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fieldGroupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relevant": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "blockingErrorCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "FormSurfaceFieldGroupStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldGroupId",
+        "relevant",
+        "completed",
+        "openGroupErrorCodes"
+      ],
+      "properties": {
+        "fieldGroupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relevant": {
+          "type": "boolean"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "openGroupErrorCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,371 @@
+@implements IDisposable
+@inject Sprechen.Contracts.MdaFormAccess.IFormsCatalogDataClient FormsCatalogDataClient
+@inject Sprechen.Speech.App.Contracts.Services.IBrowserDebugConsole BrowserDebugConsole
+@inject Sprechen.Speech.LanguageContracts.IUserLanguageState UserLanguageState
+@inject Sprechen.Speech.App.Contracts.Services.IVoiceDialogSettingsOverrideStore VoiceDialogSettingsOverrideStore
+
+<section class="card card-body mt-3">
+    <h2 class="h5">@Copy.VoiceDialog.GetTitle(ResolveDisplayLanguage())</h2>
+
+    <p class="text-body-secondary mb-0">
+        @Copy.VoiceDialog.GetIntro(ResolveDisplayLanguage())
+    </p>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert alert-warning mt-3 mb-0" role="alert">@_error</div>
+    }
+
+    @if (!_loaded)
+    {
+        <div class="text-body-secondary small mt-3">@Copy.General.GetLoadingText(ResolveDisplayLanguage())</div>
+    }
+    else
+    {
+        <div class="mt-3">
+            <h3 class="h6">@Copy.VoiceDialog.GetDeviceOverrideTitle(ResolveDisplayLanguage())</h3>
+            <p class="text-body-secondary small mb-2">
+                @Copy.VoiceDialog.GetDeviceOverrideHelp(ResolveDisplayLanguage())
+            </p>
+
+            <select id="voice-dialog-device-override"
+                    class="form-select"
+                    value="@FormatOverrideValue(_deviceAllowBargeInOverride)"
+                    @onchange="OnDeviceOverrideChangedAsync">
+                <option value="">@Copy.VoiceDialog.GetUseApplicationSetting(ResolveDisplayLanguage())</option>
+                <option value="true">@Copy.VoiceDialog.GetAlwaysEnable(ResolveDisplayLanguage())</option>
+                <option value="false">@Copy.VoiceDialog.GetAlwaysDisable(ResolveDisplayLanguage())</option>
+            </select>
+        </div>
+
+        <div class="mt-4">
+            <h3 class="h6">@Copy.VoiceDialog.GetAutoAdvanceDeviceOverrideTitle(ResolveDisplayLanguage())</h3>
+            <p class="text-body-secondary small mb-2">
+                @Copy.VoiceDialog.GetAutoAdvanceDeviceOverrideHelp(ResolveDisplayLanguage())
+            </p>
+
+            <select id="voice-dialog-auto-advance-device-override"
+                    class="form-select"
+                    value="@FormatOverrideValue(_deviceAutoAdvanceAfterCommitOverride)"
+                    @onchange="OnAutoAdvanceDeviceOverrideChangedAsync">
+                <option value="">@Copy.VoiceDialog.GetUseApplicationSetting(ResolveDisplayLanguage())</option>
+                <option value="true">@Copy.VoiceDialog.GetAlwaysEnable(ResolveDisplayLanguage())</option>
+                <option value="false">@Copy.VoiceDialog.GetAlwaysDisable(ResolveDisplayLanguage())</option>
+            </select>
+        </div>
+
+        <div class="mt-4">
+            <h3 class="h6">@Copy.VoiceDialog.GetBrowserDebugTitle(ResolveDisplayLanguage())</h3>
+            <p class="text-body-secondary small mb-2">
+                @Copy.VoiceDialog.GetBrowserDebugHelp(ResolveDisplayLanguage())
+            </p>
+
+            <div class="form-check form-switch">
+                <input id="browser-debug-enabled"
+                       class="form-check-input"
+                       type="checkbox"
+                       checked="@_browserDebugEnabled"
+                       @onchange="OnBrowserDebugChangedAsync" />
+                <label class="form-check-label" for="browser-debug-enabled">
+                    @Copy.VoiceDialog.GetEnableBrowserDebug(ResolveDisplayLanguage())
+                </label>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h3 class="h6">@Copy.ApplicationOverrides.GetTitle(ResolveDisplayLanguage())</h3>
+            <p class="text-body-secondary small mb-2">
+                @Copy.ApplicationOverrides.GetHelp(ResolveDisplayLanguage())
+            </p>
+
+            @if (_catalog is null || _catalog.Applications.Count == 0)
+            {
+                <div class="text-body-secondary small">@Copy.ApplicationOverrides.GetNoApplications(ResolveDisplayLanguage())</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">@Copy.ApplicationOverrides.GetApplicationColumn(ResolveDisplayLanguage())</th>
+                                <th scope="col">@Copy.ApplicationOverrides.GetCatalogDefaultColumn(ResolveDisplayLanguage())</th>
+                                <th scope="col">@Copy.ApplicationOverrides.GetLocalOverrideColumn(ResolveDisplayLanguage())</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var application in _catalog.Applications)
+                            {
+                                var applicationId = application.ApplicationId?.Trim() ?? string.Empty;
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@GetDisplayName(application)</div>
+                                        <div class="small text-body-secondary">@applicationId</div>
+                                    </td>
+                                    <td data-testid="@($"voice-dialog-catalog-default-{applicationId}")">
+                                        @FormatState(GetCatalogAllowBargeIn(application))
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm"
+                                                data-application-id="@applicationId"
+                                                value="@GetApplicationOverrideValue(applicationId)"
+                                                @onchange="args => OnApplicationOverrideChangedAsync(applicationId, args)">
+                                            <option value="">@Copy.ApplicationOverrides.GetUseCatalogDefault(ResolveDisplayLanguage())</option>
+                                            <option value="true">@Copy.VoiceDialog.GetAlwaysEnable(ResolveDisplayLanguage())</option>
+                                            <option value="false">@Copy.VoiceDialog.GetAlwaysDisable(ResolveDisplayLanguage())</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public string? PreferredIsoCode { get; set; }
+
+    private CancellationTokenSource? _loadCts;
+    private bool _loaded;
+    private string? _error;
+    private Sprechen.Mda.Contracts.V1.Catalog.FormsCatalog? _catalog;
+    private bool? _deviceAllowBargeInOverride;
+    private bool? _deviceAutoAdvanceAfterCommitOverride;
+    private bool _browserDebugEnabled;
+    private Dictionary<string, bool> _applicationAllowBargeInOverrides = new(StringComparer.OrdinalIgnoreCase);
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loadCts = new CancellationTokenSource();
+        UserLanguageState.SelectedLanguageChanged += OnSelectedLanguageChanged;
+        await LoadAsync(_loadCts.Token);
+    }
+
+    private async Task LoadAsync(CancellationToken cancellationToken)
+    {
+        _error = null;
+
+        try
+        {
+            var catalogTask = FormsCatalogDataClient.GetFormsCatalogAsync(cancellationToken);
+            var browserDebugEnabledTask = BrowserDebugConsole.GetEnabledAsync(cancellationToken).AsTask();
+            var deviceOverrideTask = VoiceDialogSettingsOverrideStore.GetDeviceAllowBargeInOverrideAsync(cancellationToken).AsTask();
+            var applicationOverridesTask = VoiceDialogSettingsOverrideStore.GetApplicationAllowBargeInOverridesAsync(cancellationToken).AsTask();
+            var autoAdvanceDeviceOverrideTask = VoiceDialogSettingsOverrideStore.GetDeviceAutoAdvanceAfterCommitOverrideAsync(cancellationToken).AsTask();
+
+            await Task.WhenAll(catalogTask, browserDebugEnabledTask, deviceOverrideTask, applicationOverridesTask, autoAdvanceDeviceOverrideTask);
+
+            _catalog = await catalogTask;
+            _browserDebugEnabled = await browserDebugEnabledTask;
+            _deviceAllowBargeInOverride = await deviceOverrideTask;
+            _deviceAutoAdvanceAfterCommitOverride = await autoAdvanceDeviceOverrideTask;
+            _applicationAllowBargeInOverrides = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            foreach (var entry in await applicationOverridesTask)
+            {
+                _applicationAllowBargeInOverrides[entry.Key] = entry.Value;
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loaded = true;
+        }
+    }
+
+    private async Task OnDeviceOverrideChangedAsync(ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        var previous = _deviceAllowBargeInOverride;
+        _deviceAllowBargeInOverride = ParseOverrideValue(args.Value?.ToString());
+
+        try
+        {
+            await VoiceDialogSettingsOverrideStore.SetDeviceAllowBargeInOverrideAsync(
+                _deviceAllowBargeInOverride,
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _deviceAllowBargeInOverride = previous;
+            _error = ex.Message;
+        }
+    }
+
+    private async Task OnAutoAdvanceDeviceOverrideChangedAsync(ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        var previous = _deviceAutoAdvanceAfterCommitOverride;
+        _deviceAutoAdvanceAfterCommitOverride = ParseOverrideValue(args.Value?.ToString());
+
+        try
+        {
+            await VoiceDialogSettingsOverrideStore.SetDeviceAutoAdvanceAfterCommitOverrideAsync(
+                _deviceAutoAdvanceAfterCommitOverride,
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _deviceAutoAdvanceAfterCommitOverride = previous;
+            _error = ex.Message;
+        }
+    }
+
+    private async Task OnBrowserDebugChangedAsync(ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        var previous = _browserDebugEnabled;
+        _browserDebugEnabled = args.Value is bool value && value;
+
+        try
+        {
+            await BrowserDebugConsole.SetEnabledAsync(_browserDebugEnabled, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _browserDebugEnabled = previous;
+            _error = ex.Message;
+        }
+    }
+
+    private async Task OnApplicationOverrideChangedAsync(string applicationId, ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        var previous = _applicationAllowBargeInOverrides.TryGetValue(applicationId, out var previousValue)
+            ? previousValue
+            : (bool?)null;
+        var next = ParseOverrideValue(args.Value?.ToString());
+
+        if (next is null)
+        {
+            _applicationAllowBargeInOverrides.Remove(applicationId);
+        }
+        else
+        {
+            _applicationAllowBargeInOverrides[applicationId] = next.Value;
+        }
+
+        try
+        {
+            await VoiceDialogSettingsOverrideStore.SetApplicationAllowBargeInOverrideAsync(
+                applicationId,
+                next,
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            if (previous is null)
+            {
+                _applicationAllowBargeInOverrides.Remove(applicationId);
+            }
+            else
+            {
+                _applicationAllowBargeInOverrides[applicationId] = previous.Value;
+            }
+
+            _error = ex.Message;
+        }
+    }
+
+    private bool GetCatalogAllowBargeIn(Sprechen.Mda.Contracts.V1.Catalog.ApplicationDescriptor application)
+    {
+        ArgumentNullException.ThrowIfNull(application);
+
+        var settings = (application.VoiceDialogSettings ?? new Sprechen.Mda.Contracts.V1.Catalog.VoiceDialogSettings())
+            .MergeWith(_catalog?.VoiceDialogSettings);
+
+        return settings.GetAllowBargeIn();
+    }
+
+    private string GetApplicationOverrideValue(string applicationId)
+    {
+        return _applicationAllowBargeInOverrides.TryGetValue(applicationId, out var allowBargeIn)
+            ? FormatOverrideValue(allowBargeIn)
+            : string.Empty;
+    }
+
+    private string GetDisplayName(Sprechen.Mda.Contracts.V1.Catalog.ApplicationDescriptor application)
+    {
+        ArgumentNullException.ThrowIfNull(application);
+
+        return new Sprechen.Mda.Contracts.V1.Catalog.FormsCatalogTextResolver().ResolveApplicationDisplayName(
+            application,
+            ResolveDisplayLanguage());
+    }
+
+    private string FormatState(bool allowBargeIn)
+        => allowBargeIn
+            ? Copy.General.GetEnabledText(ResolveDisplayLanguage())
+            : Copy.General.GetDisabledText(ResolveDisplayLanguage());
+
+    private static string FormatOverrideValue(bool? allowBargeIn)
+    {
+        return allowBargeIn switch
+        {
+            true => "true",
+            false => "false",
+            _ => string.Empty
+        };
+    }
+
+    private static bool? ParseOverrideValue(string? rawValue)
+    {
+        return rawValue switch
+        {
+            "true" => true,
+            "false" => false,
+            _ => null
+        };
+    }
+
+    public void Dispose()
+    {
+        UserLanguageState.SelectedLanguageChanged -= OnSelectedLanguageChanged;
+        _loadCts?.Cancel();
+        _loadCts?.Dispose();
+    }
+
+    private void OnSelectedLanguageChanged(string ignoredIsoCode)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private string ResolveDisplayLanguage()
+    {
+        return Copy.Languages.ResolveDisplayLanguage(PreferredIsoCode ?? UserLanguageState.SelectedIsoCode);
+    }
+}

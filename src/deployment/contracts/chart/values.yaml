@@ -1,0 +1,53 @@
+unitName: ""
+
+namespace: ""
+
+image:
+  repository: ""
+  tag: latest
+  pullPolicy: IfNotPresent
+
+sourceRevision: ""
+
+imagePullSecrets:
+  - name: registry-credentials
+
+service:
+  port: 80
+  targetPort: 8090
+  healthPort: 8091
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+
+issuer:
+  enabled: true
+  email: ""
+  name: letsencrypt-prod
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 384Mi
+
+probes:
+  readinessPath: /healthz/ready
+  livenessPath: /healthz/live
+
+replicaCount: 1
+
+terminationGracePeriodSeconds: 30
+
+networkPolicy:
+  enabled: true
+  webNamespace: ""
+  webPodSelector:
+    app: ""
+  formsNamespace: ""
+  additionalIngressNamespaces:
+    - kube-system

@@ -1,0 +1,58 @@
+@if (Schema.HasConstraints())
+{
+    <div class="d-flex flex-wrap gap-1 mt-1 ms-3">
+        @if (Schema.MinLength is not null)
+        {
+            <span class="badge bg-secondary-subtle text-dark" style="font-size:0.65rem">
+                min: @Schema.MinLength
+            </span>
+        }
+        @if (Schema.MaxLength is not null)
+        {
+            <span class="badge bg-secondary-subtle text-dark" style="font-size:0.65rem">
+                max: @Schema.MaxLength
+            </span>
+        }
+        @if (Schema.Minimum is not null)
+        {
+            <span class="badge bg-secondary-subtle text-dark" style="font-size:0.65rem">
+                ≥ @Schema.Minimum
+            </span>
+        }
+        @if (Schema.Maximum is not null)
+        {
+            <span class="badge bg-secondary-subtle text-dark" style="font-size:0.65rem">
+                ≤ @Schema.Maximum
+            </span>
+        }
+        @if (Schema.Pattern is not null)
+        {
+            <span class="badge bg-warning-subtle text-dark" style="font-size:0.65rem"
+                  title="@Schema.Pattern">
+                pattern
+            </span>
+        }
+        @if (Schema.Format is not null)
+        {
+            <span class="badge bg-info-subtle text-dark" style="font-size:0.65rem">
+                @Schema.Format
+            </span>
+        }
+        @if (Schema.MinItems is not null)
+        {
+            <span class="badge bg-secondary-subtle text-dark" style="font-size:0.65rem">
+                min items: @Schema.MinItems
+            </span>
+        }
+        @if (Schema.MaxItems is not null)
+        {
+            <span class="badge bg-secondary-subtle text-dark" style="font-size:0.65rem">
+                max items: @Schema.MaxItems
+            </span>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+}

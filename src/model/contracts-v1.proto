@@ -1,0 +1,1057 @@
+syntax = "proto3";
+
+package sprechenio.contracts.v1;
+option csharp_namespace = "Sprechen.Mda.Proto.V1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/wrappers.proto";
+
+// CANONICALITY
+// ------------
+// For JSON payloads the normative validation contract is the JSON Schema in src/model/**/schemas/*.schema.json.
+// This file is not compiled by any project and is not a validation source. It is the reservation
+// ledger: removed field numbers and names stay reserved here so a future transport can never reuse
+// a slot with a different meaning. Change it to append reservations, not to mirror schema shapes.
+
+// NOTE ABOUT LOCALIZED TEXTS
+// --------------------------
+// All localized text objects in the JSON contracts (for example FormContractDocument, FieldDefinitions, VariableDefinitions,
+// FormsCatalogDocument, and ApplicationSelectionDialog) are represented as google.protobuf.Struct here.
+// Convention: Struct keys are language tags and values are strings.
+// - In this thesis/prototype, supported_languages values are ISO 639-1 codes (two-letter, lowercase),
+//   e.g. "de", "en", "fr", "es", "it".
+// - LocalizedText keys MAY additionally include region variants (BCP-47 subset, e.g. "de-CH") to enable finer localization; runtimes SHOULD fall back
+//   to the base language when a region variant is requested but only the base language exists.
+//
+// Example JSON:
+//   "label": { "de": "Land", "en": "Country" }
+//
+// Example Proto (conceptual):
+//   field.label.fields["de"].string_value = "Land";
+//   field.label.fields["en"].string_value = "Country";
+//
+// NOTE ABOUT EXTENSIONS
+// ---------------------
+// The FormContract JSON contract uses "extensions" as an open object with namespaced keys.
+// In Proto we represent extensions as google.protobuf.Struct to keep the same flexibility.
+//
+// NOTE ABOUT IDS
+// --------------
+// The JSON Schemas enforce patterns for some identifiers (e.g. contract_version/catalog_version).
+// For other IDs the schemas currently only require "non-empty"; additional invariants (uniqueness, reachability, etc.)
+// are enforced by runtime preflight.
+// Proto does not enforce these constraints; validate at the schema/preflight level.
+
+// ============================================================================
+// FormsCatalog (Discovery Layer)
+// ============================================================================
+
+message ApplicationSelectionDialogReference {
+  string selection_dialog_model_id = 1;
+  string model_version = 2;
+}
+
+message ApplicationSelectionDialogProfileReference {
+  string profile_id = 1;
+  string profile_version = 2;
+}
+
+// Canonical wire-format discovery document.
+message FormsCatalogDocument {
+  string schema_version = 1;   // format version (breaking changes), e.g. "1"
+  string catalog_version = 2;  // content version (non-breaking content updates)
+
+  // Optional metadata timestamp in RFC3339 / ISO-8601 (e.g. "2025-12-30T12:34:56Z").
+  // Metadata only (not an operational parameter).
+  string generated_at = 3;
+
+  ApplicationSelectionDialogReference selection_dialog_model = 4;
+  ApplicationSelectionDialogProfileReference selection_dialog_profile = 5;
+  repeated ApplicationDescriptorDocument applications = 6;
+  reserved 30;
+  reserved "extensions";
+}
+
+message ApplicationDescriptorDocument {
+  // Stable technical identifier (validated by JSON Schema; additional invariants via preflight).
+  string application_id = 1;
+
+  google.protobuf.Struct display_name = 2; // LocalizedText
+  google.protobuf.Struct description = 3;  // LocalizedText
+
+  // Optional tags for search/filter.
+  repeated string tags = 4;
+
+  // ISO 639-1 subset (e.g. "de", "en", "fr", "es", "it").
+  repeated string supported_languages = 5;
+
+  // Default language (must be contained in supported_languages).
+  string default_language = 6;
+
+  // Optional icon identifier or URI (metadata only).
+  string icon = 7;
+
+  ApplicationSelectionDialogProfileReference selection_dialog_profile = 8;
+  repeated FormDescriptor forms = 9;
+  reserved 30;
+  reserved "extensions";
+}
+
+message FormDescriptor {
+  string form_id = 1;
+
+  google.protobuf.Struct display_name = 2; // LocalizedText
+  google.protobuf.Struct description = 3;  // LocalizedText
+
+  // Versioning as strings (ordering rules are not part of the model).
+  string latest_contract_version = 4;
+  repeated string available_contract_versions = 5;
+
+  google.protobuf.Int32Value sequence = 8;
+  repeated string prerequisite_forms = 9;
+  repeated string shared_variables = 10;
+
+  reserved 6;
+  reserved "entry_field_group_id";
+  reserved 7;
+  reserved "capabilities";
+  reserved 30;
+  reserved "extensions";
+}
+
+enum ConfirmationPolicy {
+  CONFIRMATION_POLICY_UNSPECIFIED = 0;
+  CONFIRMATION_POLICY_ALWAYS = 1;
+  CONFIRMATION_POLICY_AMBIGUOUS = 2;
+  CONFIRMATION_POLICY_NEVER = 3;
+}
+
+enum PolitenessLevel {
+  POLITENESS_LEVEL_UNSPECIFIED = 0;
+  POLITENESS_LEVEL_FORMAL = 1;
+  POLITENESS_LEVEL_INFORMAL = 2;
+}
+
+enum ProgressCalculationBasis {
+  PROGRESS_CALCULATION_BASIS_UNSPECIFIED = 0;
+  PROGRESS_CALCULATION_BASIS_ALL_FIELDS = 1;
+  PROGRESS_CALCULATION_BASIS_REQUIRED_FIELDS_ONLY = 2;
+  PROGRESS_CALCULATION_BASIS_FIELD_GROUP_BASED = 3;
+}
+
+enum CatalogVoiceIntentId {
+  CATALOG_VOICE_INTENT_ID_UNSPECIFIED = 0;
+  CATALOG_VOICE_INTENT_ID_CONFIRM_YES = 1;
+  CATALOG_VOICE_INTENT_ID_CONFIRM_NO = 2;
+  CATALOG_VOICE_INTENT_ID_CANCEL = 3;
+  CATALOG_VOICE_INTENT_ID_CHANGE_LANGUAGE = 4;
+  CATALOG_VOICE_INTENT_ID_REPEAT = 5;
+  CATALOG_VOICE_INTENT_ID_HELP = 6;
+  CATALOG_VOICE_INTENT_ID_LIST = 7;
+  CATALOG_VOICE_INTENT_ID_SELECT_BY_NUMBER = 8;
+  CATALOG_VOICE_INTENT_ID_SEARCH = 9;
+  CATALOG_VOICE_INTENT_ID_DESCRIBE = 10;
+  CATALOG_VOICE_INTENT_ID_OPEN_CANDIDATE = 11;
+}
+
+enum CatalogVoiceIntentMatchMode {
+  CATALOG_VOICE_INTENT_MATCH_MODE_UNSPECIFIED = 0;
+  CATALOG_VOICE_INTENT_MATCH_MODE_PHRASE = 1;
+  CATALOG_VOICE_INTENT_MATCH_MODE_PREFIX = 2;
+}
+
+message CatalogVoicePrompt {
+  string prompt_id = 1;
+  google.protobuf.Struct text = 2; // LocalizedText
+}
+
+message CatalogVoiceIntent {
+  CatalogVoiceIntentId intent_id = 1;
+  CatalogVoiceIntentMatchMode match_mode = 2;
+  repeated google.protobuf.Struct utterances = 3; // repeated LocalizedText
+}
+
+message CatalogVoiceNumberWord {
+  int32 value = 1;
+  repeated google.protobuf.Struct utterances = 2; // repeated LocalizedText
+}
+
+message ApplicationSelectionDialog {
+  string schema_version = 1;
+  string model_version = 2;
+  string selection_dialog_model_id = 3;
+  repeated string supported_languages = 4;
+  bool strict_localization = 5;
+  string default_language = 6;
+  repeated CatalogVoicePrompt prompts = 7;
+  repeated CatalogVoiceIntent intents = 8;
+  repeated CatalogVoiceNumberWord number_words = 9;
+}
+
+message VoiceDialogSettings {
+  google.protobuf.Int32Value no_input_timeout_ms = 1;
+  google.protobuf.Int32Value max_retries = 2;
+  ConfirmationPolicy confirmation_policy = 3;
+  google.protobuf.DoubleValue speech_rate = 4;
+  google.protobuf.Int32Value pause_between_items_ms = 5;
+  PolitenessLevel politeness_level = 6;
+  ProgressCalculationBasis progress_calculation_basis = 7;
+  google.protobuf.BoolValue allow_barge_in = 8;
+  google.protobuf.Int32Value cancel_refractory_ms = 9;
+}
+
+message ApplicationSelectionDialogProfile {
+  string schema_version = 1;
+  string profile_version = 2;
+  string profile_id = 3;
+  google.protobuf.Int32Value no_input_timeout_ms = 4;
+  google.protobuf.Int32Value max_retries = 5;
+  ConfirmationPolicy confirmation_policy = 6;
+  google.protobuf.DoubleValue speech_rate = 7;
+  google.protobuf.Int32Value pause_between_items_ms = 8;
+  google.protobuf.BoolValue allow_barge_in = 9;
+  PolitenessLevel politeness_level = 10;
+  ProgressCalculationBasis progress_calculation_basis = 11;
+  google.protobuf.Int32Value cancel_refractory_ms = 12;
+}
+
+// Effective resolved runtime view after local document/model/profile resolution.
+message FormsCatalog {
+  string schema_version = 1;   // format version (breaking changes), e.g. "1"
+  string catalog_version = 2;  // content version (non-breaking content updates)
+  string generated_at = 3;
+  repeated ApplicationDescriptor applications = 4;
+  VoiceDialogSettings voice_dialog_settings = 5;
+  ApplicationSelectionDialog selection_dialog = 6;
+  reserved 30;
+  reserved "extensions";
+}
+
+message ApplicationDescriptor {
+  string application_id = 1;
+  google.protobuf.Struct display_name = 2; // LocalizedText
+  google.protobuf.Struct description = 3;  // LocalizedText
+  repeated string tags = 4;
+  repeated string supported_languages = 5;
+  string default_language = 6;
+  string icon = 7;
+  repeated FormDescriptor forms = 8;
+  VoiceDialogSettings voice_dialog_settings = 9;
+  reserved 30;
+  reserved "extensions";
+}
+
+// ============================================================================
+// FormContract (Semantic Contract)
+// ============================================================================
+
+message FieldDefinitionsReference {
+  string field_model_id = 1;
+  string catalog_version = 2;
+}
+
+message VariableDefinitionsReference {
+  string variable_model_id = 1;
+  string catalog_version = 2;
+}
+
+message FormVariableBindingDefinition {
+  reserved 3;
+  reserved "binding";
+  string variable_id = 1;
+  string variable_definition_id = 2;
+  google.protobuf.Value initial_value = 4;
+  repeated ConstraintDefinition invariant_constraints = 5;
+  TraceInfo trace = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+message FormFieldBindingDefinition {
+  string field_id = 1;
+  string variable_id = 2;
+  string field_definition_id = 3;
+  TraceInfo trace = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+// Canonical wire-format form document.
+message FormContractDocument {
+  string schema_version = 1;   // e.g. "1"
+  string contract_version = 2; // e.g. "1"
+
+  string application_id = 3;
+  string form_id = 4;
+
+  // ISO 639-1 subset (e.g. "de", "en", "fr", "es", "it").
+  repeated string supported_languages = 5;
+
+  string entry_field_group_id = 6;
+  bool strict_localization = 7;
+
+  // Optional default language for deterministic LocalizedText fallback (must be in supported_languages).
+  string default_language = 8;
+
+  // Optional contract metadata (useful even without an FormsCatalog).
+  google.protobuf.Struct display_name = 9; // LocalizedText
+  google.protobuf.Struct description = 16;  // LocalizedText
+
+  repeated FormVariableBindingDefinition variables = 10;
+  repeated FormFieldBindingDefinition fields = 11;
+  repeated FieldGroupDefinition field_groups = 12;
+  repeated RuleDefinition rules = 13;
+  repeated ConstraintDefinition constraints = 14;
+  FieldDefinitionsReference field_catalog = 17;
+  VariableDefinitionsReference variable_catalog = 18;
+
+  ContractProjectionsDocument projections = 20;
+
+  google.protobuf.Struct extensions = 30;
+}
+
+// Effective resolved runtime view after local document/catalog resolution.
+message FormContract {
+  string schema_version = 1;   // e.g. "1"
+  string contract_version = 2; // e.g. "1"
+
+  string application_id = 3;
+  string form_id = 4;
+
+  repeated string supported_languages = 5;
+  string entry_field_group_id = 6;
+  bool strict_localization = 7;
+  string default_language = 8;
+  google.protobuf.Struct display_name = 9; // LocalizedText
+  repeated VariableDefinition variables = 10;
+  repeated FieldDefinition fields = 11;
+  repeated FieldGroupDefinition field_groups = 12;
+  repeated RuleDefinition rules = 13;
+  repeated ConstraintDefinition constraints = 14;
+  google.protobuf.Struct description = 16;  // LocalizedText
+  FieldDefinitionsReference field_catalog = 17;
+  VariableDefinitionsReference variable_catalog = 18;
+  ContractProjections projections = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+message TraceInfo {
+  repeated string rq_ids = 1;
+  repeated string sources = 2;
+  string rationale = 3;
+}
+
+message FieldDefinitions {
+  string schema_version = 1;
+  string catalog_version = 2;
+  string field_model_id = 3;
+  repeated string supported_languages = 4;
+  bool strict_localization = 5;
+  string default_language = 6;
+  repeated ReusableFieldDefinition definitions = 7;
+}
+
+message VariableDefinitions {
+  string schema_version = 1;
+  string catalog_version = 2;
+  string variable_model_id = 3;
+  repeated string supported_languages = 4;
+  bool strict_localization = 5;
+  string default_language = 6;
+  repeated ReusableVariableDefinition definitions = 7;
+}
+
+enum PrivacyClass {
+  PRIVACY_CLASS_UNSPECIFIED = 0;
+  PUBLIC = 1;
+  PERSONAL = 2;
+  SENSITIVE = 3;
+  SECRET = 4;
+}
+
+message VariableDefinition {
+  reserved 11, 12;
+  reserved "binding", "data_handling";
+  string variable_id = 1;
+  string name = 2;
+
+  string semantic_tag = 3;
+  PrivacyClass privacy_class = 4;
+
+  ValueTypeDefinition value_type = 5;
+
+  repeated ConstraintDefinition invariant_constraints = 6;
+
+  google.protobuf.Value initial_value = 7;
+  google.protobuf.Struct description = 8; // LocalizedText
+
+  // Optional semantic metadata
+  string unit = 9;
+  repeated string normalization = 10;
+
+  // Sensitive data handling policy (optional, defaults based on privacy_class)
+  SensitiveDataPolicy sensitive_data_policy = 13;
+
+  TraceInfo trace = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+message ReusableVariableDefinition {
+  reserved 6;
+  reserved "data_handling";
+  string variable_definition_id = 1;
+  string name = 2;
+  google.protobuf.Struct description = 3; // LocalizedText
+  string unit = 4;
+  repeated string normalization = 5;
+  string semantic_tag = 7;
+  PrivacyClass privacy_class = 8;
+  SensitiveDataPolicy sensitive_data_policy = 9;
+  ValueTypeDefinition value_type = 10;
+}
+
+message EnumValue {
+  string code = 1;
+  google.protobuf.Struct display_name = 2; // LocalizedText
+  google.protobuf.Struct description = 3; // LocalizedText
+}
+
+message StringType {
+  int32 min_length = 1;
+  int32 max_length = 2;
+
+  enum FormatHint {
+    FORMAT_HINT_UNSPECIFIED = 0;
+    FORMAT_HINT_TEXT = 1;
+    FORMAT_HINT_EMAIL = 2;
+    FORMAT_HINT_PHONE = 3;
+    FORMAT_HINT_POSTAL_CODE = 4;
+    FORMAT_HINT_URL = 5;
+    FORMAT_HINT_IBAN = 6;
+    FORMAT_HINT_DIGITS = 7;
+    FORMAT_HINT_TEL = 8;
+    FORMAT_HINT_PIN = 9;
+    FORMAT_HINT_DATE = 10;
+    FORMAT_HINT_TIME = 11;
+    FORMAT_HINT_NUMBER = 12;
+  }
+
+  FormatHint format_hint = 3;
+}
+
+message IntegerType {
+  google.protobuf.Int32Value min = 1;
+  google.protobuf.Int32Value max = 2;
+}
+
+message DecimalType {
+  google.protobuf.DoubleValue min = 1;
+  google.protobuf.DoubleValue max = 2;
+
+  google.protobuf.Int32Value precision = 3;
+  google.protobuf.Int32Value scale = 4;
+}
+
+message BooleanType {}
+
+message DateType {}
+message TimeType {}
+message DateTimeType {}
+
+message EnumType {
+  repeated EnumValue values = 1;
+}
+
+message SetType {
+  repeated EnumValue values = 1;
+  google.protobuf.Int32Value min_selected = 2;
+  google.protobuf.Int32Value max_selected = 3;
+}
+
+message ObjectProperty {
+  string property_name = 1;
+
+  oneof binding {
+    string variable_id = 2;
+    ValueTypeDefinition inline_type = 3;
+  }
+}
+
+message ObjectType {
+  repeated ObjectProperty properties = 1;
+}
+
+message ListType {
+  ValueTypeDefinition item_type = 1;
+  google.protobuf.Int32Value min_items = 2;
+  google.protobuf.Int32Value max_items = 3;
+}
+
+message CustomType {
+  string custom_type_name = 1;
+  google.protobuf.Struct custom_schema = 2;
+}
+
+message ValueTypeDefinition {
+  oneof kind {
+    StringType string_type = 1;
+    IntegerType integer_type = 2;
+    DecimalType decimal_type = 3;
+    BooleanType boolean_type = 4;
+    DateType date_type = 5;
+    TimeType time_type = 6;
+    DateTimeType date_time_type = 7;
+    EnumType enum_type = 8;
+    SetType set_type = 9;
+    ObjectType object_type = 10;
+    ListType list_type = 11;
+    CustomType custom_type = 12;
+  }
+}
+
+enum Editability {
+  EDITABILITY_UNSPECIFIED = 0;
+  USER_EDITABLE = 1;
+  SYSTEM_MANAGED = 2;
+  COMPUTED = 3;
+}
+
+enum InputMode {
+  INPUT_MODE_UNSPECIFIED = 0;
+  VOICE = 1;
+  KEYBOARD = 2;
+  SPELLING = 3;
+  DIGITS = 4;
+  LITERAL = 5;
+}
+
+// Policy enums for sensitive data handling
+enum VoiceInputPolicy {
+  VOICE_INPUT_POLICY_UNSPECIFIED = 0;
+  VOICE_INPUT_FORBIDDEN = 1;
+  VOICE_INPUT_OPTIONAL = 2;
+  VOICE_INPUT_RECOMMENDED = 3;
+}
+
+enum ReadbackPolicy {
+  READBACK_POLICY_UNSPECIFIED = 0;
+  READBACK_NEVER = 1;
+  READBACK_OPT_IN_REQUIRED = 2;
+  READBACK_ALWAYS = 3;
+}
+
+enum SilentInputFallback {
+  SILENT_INPUT_FALLBACK_UNSPECIFIED = 0;
+  SILENT_INPUT_KEYBOARD = 1;
+  SILENT_INPUT_BRAILLE = 2;
+  SILENT_INPUT_ANY = 3;
+}
+
+// Policy for handling sensitive data input and output
+message SensitiveDataPolicy {
+  VoiceInputPolicy voice_input_policy = 1;
+  ReadbackPolicy readback_policy = 2;
+  SilentInputFallback silent_input_fallback = 3;
+}
+
+// Global command identifiers for voice navigation
+enum GlobalCommandId {
+  GLOBAL_COMMAND_UNSPECIFIED = 0;
+  GLOBAL_COMMAND_NEXT = 1;
+  GLOBAL_COMMAND_BACK = 2;
+  GLOBAL_COMMAND_REPEAT = 3;
+  GLOBAL_COMMAND_HELP = 4;
+  GLOBAL_COMMAND_STATUS = 5;
+  GLOBAL_COMMAND_SUMMARY = 6;
+  GLOBAL_COMMAND_JUMP_TO = 7;
+  GLOBAL_COMMAND_CANCEL = 8;
+  GLOBAL_COMMAND_SUBMIT = 9;
+  GLOBAL_COMMAND_NEXT_ERROR = 10;
+  GLOBAL_COMMAND_FORM_LIST = 11;
+  GLOBAL_COMMAND_FORM_STATUS = 12;
+  GLOBAL_COMMAND_SWITCH_FORM = 13;
+  GLOBAL_COMMAND_BACK_TO_FORM_SELECTION = 14;
+  GLOBAL_COMMAND_BACK_TO_APP_SELECTION = 15;
+  GLOBAL_COMMAND_INPUT_MODE_SPELLING = 16;
+  GLOBAL_COMMAND_INPUT_MODE_VOICE = 17;
+  GLOBAL_COMMAND_INPUT_MODE_DIGITS = 18;
+  GLOBAL_COMMAND_INPUT_MODE_KEYBOARD = 19;
+  GLOBAL_COMMAND_INPUT_MODE_LITERAL = 20;
+  GLOBAL_COMMAND_INPUT_MODE_LITERAL_OFF = 21;
+  GLOBAL_COMMAND_EDIT_VALUE = 22;
+}
+
+message PresentationHints {
+  // JSON schema uses: { multilinePreferred?: bool }
+  // This proto keeps the same semantics in a transport-friendly shape.
+  reserved 1;
+  reserved "compact";
+  bool multiline_preferred = 2;
+}
+
+message VoiceFieldProjection {
+  google.protobuf.Struct names = 1; // LocalizedText
+  repeated google.protobuf.Struct synonyms = 2; // repeated LocalizedText
+
+  enum ConfirmationStyle {
+    CONFIRMATION_STYLE_UNSPECIFIED = 0;
+    CONFIRMATION_STYLE_DEFAULT = 1;
+    CONFIRMATION_STYLE_NONE = 2;
+    CONFIRMATION_STYLE_REPEAT_BACK = 3;
+    CONFIRMATION_STYLE_SPELL_OUT = 4;
+    CONFIRMATION_STYLE_SUMMARIZE = 5;
+  }
+
+  ConfirmationStyle confirmation_style = 3;
+
+  reserved 4;
+  reserved "sensitive_policy";
+}
+
+message HtmlFieldProjection {
+  string autocomplete = 1;
+  google.protobuf.Struct accessible_name = 2; // LocalizedText
+  google.protobuf.Struct accessible_description = 4; // LocalizedText
+
+  enum HtmlInputMode {
+    HTML_INPUT_MODE_UNSPECIFIED = 0;
+    TEXT = 1;
+    NUMERIC = 2;
+    DECIMAL = 3;
+    TEL = 4;
+    EMAIL = 5;
+    URL = 6;
+    SEARCH = 7;
+  }
+
+  HtmlInputMode input_mode = 3;
+}
+
+message FieldProjections {
+  HtmlFieldProjection html = 1;
+  VoiceFieldProjection voice = 2;
+}
+
+message ReusableFieldDefinition {
+  string field_definition_id = 1;
+  google.protobuf.Struct label = 2;      // LocalizedText
+  google.protobuf.Struct help_text = 3;  // LocalizedText
+  google.protobuf.Struct placeholder = 4; // LocalizedText
+  repeated google.protobuf.Struct examples = 5; // LocalizedText[]
+  Editability editability = 6;
+  bool code_style = 7;
+  repeated InputMode preferred_input_modes = 8;
+  repeated ConstraintDefinition field_constraints = 9;
+  PresentationHints presentation_hints = 10;
+  FieldProjections projections = 11;
+  TraceInfo trace = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+message FieldDefinition {
+  string field_id = 1;
+  string variable_id = 2;
+
+  google.protobuf.Struct label = 3;      // LocalizedText
+  google.protobuf.Struct help_text = 4;  // LocalizedText
+  google.protobuf.Struct placeholder = 5; // LocalizedText
+  repeated google.protobuf.Struct examples = 12; // LocalizedText[]
+
+  Editability editability = 6;
+  bool code_style = 7;
+
+  repeated InputMode preferred_input_modes = 8;
+
+  repeated ConstraintDefinition field_constraints = 9;
+
+  PresentationHints presentation_hints = 10;
+  FieldProjections projections = 11;
+  string field_definition_id = 15;
+
+  TraceInfo trace = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+message FieldGroupMember {
+  oneof kind {
+    string field_id = 1;
+    string field_group_id = 2;
+  }
+}
+
+message FieldGroupDefinition {
+  string field_group_id = 1;
+
+  google.protobuf.Struct title = 2;       // LocalizedText
+  google.protobuf.Struct description = 3; // LocalizedText
+  repeated FieldGroupMember members = 4;
+
+  google.protobuf.Struct voice_summary = 5; // LocalizedText
+
+  reserved 6;
+  reserved "presentation_hints";
+
+  TraceInfo trace = 20;
+  google.protobuf.Struct extensions = 30;
+}
+
+// ============================================================================
+// Expressions
+// ============================================================================
+
+message ValueExpression {
+  oneof kind {
+    VarExpression var = 1;
+    ConstExpression const_value = 2;
+  }
+}
+
+message VarExpression { string variable_id = 1; }
+message ConstExpression { google.protobuf.Value value = 1; }
+
+message Expression {
+  oneof kind {
+    AndExpression and_expr = 1;
+    OrExpression or_expr = 2;
+    NotExpression not_expr = 3;
+
+    EqualsExpression equals_expr = 10;
+    NotEqualsExpression not_equals_expr = 11;
+
+    CompareExpression compare_expr = 12;
+
+    InExpression in_expr = 20;
+    ContainsExpression contains_expr = 21;
+    StartsWithExpression starts_with_expr = 22;
+
+    IsSetExpression is_set = 30;
+    IsNotSetExpression is_not_set = 31;
+    IsEmptyExpression is_empty = 32;
+    IsNotEmptyExpression is_not_empty = 33;
+
+    CustomExpression custom = 99;
+  }
+}
+
+message AndExpression { repeated Expression expressions = 1; }
+message OrExpression { repeated Expression expressions = 1; }
+message NotExpression { Expression expression = 1; }
+
+message EqualsExpression { ValueExpression left = 1; ValueExpression right = 2; }
+message NotEqualsExpression { ValueExpression left = 1; ValueExpression right = 2; }
+
+message CompareExpression {
+  enum CompareOperator {
+    COMPARE_OPERATOR_UNSPECIFIED = 0;
+    EQ = 1;
+    NEQ = 2;
+    GT = 3;
+    GTE = 4;
+    LT = 5;
+    LTE = 6;
+  }
+
+  CompareOperator operator = 1;
+  ValueExpression left = 2;
+  ValueExpression right = 3;
+}
+
+message InExpression {
+  ValueExpression value = 1;
+  repeated ValueExpression set = 2;
+}
+
+message ContainsExpression {
+  ValueExpression text = 1;
+  ValueExpression substring = 2;
+}
+
+message StartsWithExpression {
+  ValueExpression text = 1;
+  ValueExpression prefix = 2;
+}
+
+message IsSetExpression { string variable_id = 1; }
+message IsNotSetExpression { string variable_id = 1; }
+message IsEmptyExpression { string variable_id = 1; }
+message IsNotEmptyExpression { string variable_id = 1; }
+
+message CustomExpression {
+  string custom_name = 1;
+  google.protobuf.Struct payload = 2;
+}
+
+// ============================================================================
+// Rules
+// ============================================================================
+
+enum RuleScope {
+  RULE_SCOPE_UNSPECIFIED = 0;
+  ON_INIT = 1;
+  ON_VALUE_CHANGED = 2;
+  ON_ENTER_FIELD_GROUP = 3;
+  ON_SUBMIT_ATTEMPT = 4;
+}
+
+message RuleDefinition {
+  string rule_id = 1;
+  RuleScope scope = 2;
+  int32 priority = 3;
+
+  Expression when = 4;
+
+  repeated RuleAction then = 5;
+  repeated RuleAction else = 6 [json_name = "else"];
+
+  TraceInfo trace = 20;
+}
+
+message VisibilityTargetRef {
+  oneof kind {
+    string field_id = 1;
+    string field_group_id = 2;
+  }
+}
+
+message RuleAction {
+  reserved 41;
+  reserved "play_earcon";
+
+  oneof kind {
+    SetVisibleAction set_visible = 10;
+    SetEnabledAction set_enabled = 11;
+    SetReadOnlyAction set_read_only = 12;
+
+    SetValueAction set_value = 20;
+    ClearValueAction clear_value = 21;
+    CopyValueAction copy_value = 22;
+
+    NavigateToFieldGroupAction navigate_to_field_group = 30;
+    FocusFieldAction focus_field = 31;
+
+    SpeakAction speak = 40;
+
+    CustomAction custom_action = 99;
+  }
+}
+
+message SetVisibleAction { VisibilityTargetRef target = 1; bool value = 2; }
+message SetEnabledAction { string field_id = 1; bool value = 2; }
+message SetReadOnlyAction { string field_id = 1; bool value = 2; }
+
+message SetValueAction { string variable_id = 1; google.protobuf.Value value = 2; }
+message ClearValueAction { string variable_id = 1; }
+message CopyValueAction { string from_variable_id = 1; string to_variable_id = 2; }
+
+message NavigateToFieldGroupAction { string field_group_id = 1; }
+message FocusFieldAction { string field_id = 1; }
+
+message SpeakAction { string prompt_id = 1; }
+
+message CustomAction {
+  string custom_action_name = 1;
+  google.protobuf.Struct payload = 2;
+}
+
+// ============================================================================
+// Constraints
+// ============================================================================
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  ERROR = 1;
+  WARNING = 2;
+  INFO = 3;
+}
+
+enum ConstraintScope {
+  CONSTRAINT_SCOPE_UNSPECIFIED = 0;
+  CONSTRAINT_SCOPE_FIELD = 1;
+  CONSTRAINT_SCOPE_FIELD_GROUP = 2;
+  CONSTRAINT_SCOPE_CROSS_GROUP = 3;
+  CONSTRAINT_SCOPE_FORM = 4;
+}
+
+message ConstraintTargetRef {
+  oneof kind {
+    string field_id = 1;
+    string variable_id = 2;
+    bool form = 3; // if true, target kind is "form"
+  }
+}
+
+message ConstraintDefinition {
+  string constraint_id = 1;
+  ConstraintTargetRef target = 2;
+
+  Expression when = 3;
+
+  Severity severity = 4;
+  string code = 5;
+  google.protobuf.Struct message = 6; // LocalizedText
+  google.protobuf.Struct remediation = 7; // LocalizedText
+  ConstraintScope scope = 8;
+
+  oneof kind {
+    RequiredConstraint required = 10;
+    PatternConstraint pattern = 11;
+
+    MinLengthConstraint min_length = 12;
+    MaxLengthConstraint max_length = 13;
+
+    MinConstraint min = 14;
+    MaxConstraint max = 15;
+    RangeConstraint range = 16;
+
+    DateMinConstraint date_min = 20;
+    DateMaxConstraint date_max = 21;
+    DateRangeConstraint date_range = 22;
+
+    EqualsConstraint equals = 30;
+    NotEqualsConstraint not_equals = 31;
+    OneOfConstraint one_of = 32;
+
+    AllOrNoneConstraint all_or_none = 40;
+    CompareVariablesConstraint compare_variables = 41;
+
+    CustomConstraint custom_constraint = 99;
+  }
+
+  TraceInfo trace = 50;
+}
+
+message RequiredConstraint {}
+
+message PatternConstraint { string pattern = 1; }
+message MinLengthConstraint { int32 min_length = 1; }
+message MaxLengthConstraint { int32 max_length = 1; }
+
+message MinConstraint { double min = 1; }
+message MaxConstraint { double max = 1; }
+message RangeConstraint { double min = 1; double max = 2; }
+
+message DateMinConstraint { string min_date = 1; }
+message DateMaxConstraint { string max_date = 1; }
+message DateRangeConstraint { string min_date = 1; string max_date = 2; }
+
+message EqualsConstraint { google.protobuf.Value value = 1; }
+message NotEqualsConstraint { google.protobuf.Value value = 1; }
+message OneOfConstraint { repeated google.protobuf.Value values = 1; }
+
+message AllOrNoneConstraint { repeated string variable_ids = 1; }
+
+message CompareVariablesConstraint {
+  CompareExpression.CompareOperator operator = 1;
+  string left_variable_id = 2;
+  string right_variable_id = 3;
+}
+
+message CustomConstraint {
+  string custom_constraint_name = 1;
+  google.protobuf.Struct payload = 2;
+}
+
+// ============================================================================
+// Projections (PSM)
+// ============================================================================
+
+message HtmlProjection {
+  enum Profile {
+    PROFILE_UNSPECIFIED = 0;
+    A11Y_FIRST = 1;
+  }
+
+  Profile profile = 1;
+}
+
+message PromptDefinition {
+  string prompt_id = 1;
+  google.protobuf.Struct text = 2; // LocalizedText
+
+  reserved 3;
+  reserved "style_hints";
+}
+
+message FormVoiceProfileReference {
+  string form_voice_profile_id = 1;
+  string profile_version = 2;
+}
+
+message FormVoiceProfile {
+  string schema_version = 1;
+  string profile_version = 2;
+  string form_voice_profile_id = 3;
+  bool allow_barge_in = 4;
+  google.protobuf.Int32Value no_input_timeout_ms = 5;
+  google.protobuf.Int32Value no_input_max_retries = 6;
+  google.protobuf.Int32Value stt_min_confidence_to_accept = 7;
+  google.protobuf.Int32Value stt_min_confidence_to_confirm = 8;
+  google.protobuf.DoubleValue speech_rate = 9;
+  DiacriticsStrategy diacritics_strategy = 10;
+  google.protobuf.Int32Value pause_after_prompt_ms = 11;
+}
+
+message IntentDefinition {
+  string intent_id = 1;
+
+  // Utterances are localized; each utterance element is a LocalizedText (map),
+  // allowing different utterances per language.
+  repeated google.protobuf.Struct utterances = 2;
+
+  reserved 3;
+  reserved "maps_to_action";
+}
+
+message SynonymSet {
+  google.protobuf.Struct primary_name = 1; // LocalizedText
+  repeated google.protobuf.Struct synonyms = 2; // repeated LocalizedText
+}
+
+message GlobalCommandDefinition {
+  GlobalCommandId command_id = 1;
+  repeated google.protobuf.Struct utterances = 2; // repeated LocalizedText
+  bool enabled = 3;
+}
+
+// Hint for how diacritics should be handled/canonicalized in voice-first flows.
+// Default: if UNSPECIFIED, runtimes SHOULD treat this as PRESERVE.
+enum DiacriticsStrategy {
+  DIACRITICS_STRATEGY_UNSPECIFIED = 0;
+  PRESERVE = 1;
+  PREFER_DIACRITICS = 2;
+  PREFER_ASCII = 3;
+}
+
+message VoiceHintsDefinition {
+  repeated PromptDefinition prompts = 1;
+  repeated IntentDefinition intents = 2;
+
+  map<string, SynonymSet> field_name_synonyms = 3; // key: fieldId
+
+  reserved 4;
+  reserved "earcons";
+
+  // Extended voice hints (added for schema parity)
+  repeated GlobalCommandDefinition global_commands = 5;
+  // Optional reference to a standalone voice command model.
+  string command_model_id = 6;
+}
+
+message VoiceProjectionDocument {
+  VoiceHintsDefinition hints = 1;
+  FormVoiceProfileReference form_voice_profile = 2;
+}
+
+message ContractProjectionsDocument {
+  HtmlProjection html = 1;
+  VoiceProjectionDocument voice = 2;
+}
+
+message VoiceProjection {
+  VoiceHintsDefinition hints = 1;
+  FormVoiceProfile form_voice_profile = 2;
+}
+
+message ContractProjections {
+  HtmlProjection html = 1;
+  VoiceProjection voice = 2;
+}
+

@@ -1,0 +1,32 @@
+{{- $unitName := required "unitName is required" .Values.unitName -}}
+{{- if .Values.networkPolicy.enabled }}
+{{- $webPodSelector := required "networkPolicy.webPodSelector.app is required" .Values.networkPolicy.webPodSelector.app }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $unitName }}-allow-ingress
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ $unitName }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ required "networkPolicy.webNamespace is required" .Values.networkPolicy.webNamespace | quote }}
+          podSelector:
+            matchLabels:
+{{- toYaml .Values.networkPolicy.webPodSelector | nindent 14 }}
+{{ range $ns := .Values.networkPolicy.additionalIngressNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $ns | quote }}
+{{ end }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.targetPort }}
+{{- end }}

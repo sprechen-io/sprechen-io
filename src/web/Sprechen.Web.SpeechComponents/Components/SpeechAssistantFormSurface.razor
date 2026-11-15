@@ -1,0 +1,261 @@
+@implements IDisposable
+@inject IFormSurfacePresenter SurfacePresenter
+@inject ISpeechAssistantFormSurfaceState SurfaceState
+@inject ISpeechAssistantSilentInputController SilentInputController
+
+<section class="speech-form-surface" aria-live="polite" aria-atomic="false">
+    @if (_presentation is null)
+    {
+        <div class="speech-form-surface-empty">
+            <p class="surface-kicker">@Copy.EmptyState.Kicker</p>
+            <h2>@Copy.EmptyState.Title</h2>
+            <p>@Copy.EmptyState.Description</p>
+        </div>
+    }
+    else
+    {
+        <header class="speech-form-surface-header">
+            <div>
+                <p class="surface-kicker">@_presentation.ApplicationDisplayName</p>
+                <h2>@_presentation.FormDisplayName</h2>
+                <p class="surface-meta">
+                    <span>@Copy.Language.GetSummary(_presentation.IsoCode)</span>
+                    @if (!string.IsNullOrWhiteSpace(_presentation.FocusedFieldId))
+                    {
+                        <span>@Copy.Language.GetFocusedFieldSummary(_presentation.FocusedFieldLabel, _presentation.IsoCode)</span>
+                    }
+                </p>
+            </div>
+
+            <span class="surface-stage @GetStageCssClass(_presentation.Stage)">@GetStageLabel(_presentation.Stage, _presentation.IsoCode)</span>
+        </header>
+
+        @foreach (var fieldGroup in _presentation.FieldGroups)
+        {
+            <section class="speech-form-group @GetFieldGroupCssClass(fieldGroup)"
+                     data-field-group-id="@fieldGroup.FieldGroup.FieldGroupId">
+                <header class="speech-form-group-header">
+                    <div>
+                        <h3>@fieldGroup.FieldGroup.Title</h3>
+                        @if (!string.IsNullOrWhiteSpace(fieldGroup.FieldGroup.Description))
+                        {
+                            <p>@fieldGroup.FieldGroup.Description</p>
+                        }
+                    </div>
+                    <span class="speech-form-group-status">@GetFieldGroupStatusLabel(fieldGroup, _presentation.IsoCode)</span>
+                </header>
+
+                <div class="speech-form-fields">
+                    @foreach (var field in fieldGroup.Fields)
+                    {
+                        <article class="speech-form-field @GetFieldCssClass(_presentation.Stage, field)"
+                                 data-field-id="@field.Field.FieldId">
+                            <header class="speech-form-field-header">
+                                <div>
+                                    <h4>@field.Field.Label</h4>
+                                    @if (!string.IsNullOrWhiteSpace(field.Field.HelpText))
+                                    {
+                                        <p>@field.Field.HelpText</p>
+                                    }
+                                </div>
+                                <span class="speech-form-field-status">@GetFieldStatusLabel(_presentation.Stage, field, _presentation.IsoCode)</span>
+                            </header>
+
+                            <div class="speech-form-field-value">
+                                @GetFieldValue(field, _presentation.IsoCode)
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (ShouldRenderSilentInputEditor())
+        {
+            <form class="speech-form-silent-input" data-silent-input="editing" @onsubmit="SubmitSilentInputAsync">
+                <label for="silent-input-control">@GetSilentInputLabel()</label>
+                @if (SurfaceState.Current!.Interaction.ControlKind == SpeechAssistantSilentInputControlKind.MultilineText)
+                {
+                    <textarea id="silent-input-control" rows="4" @bind="_draft"></textarea>
+                }
+                else
+                {
+                    <input id="silent-input-control" type="@GetSilentInputType()" autocomplete="off" @bind="_draft" />
+                }
+                <button type="submit">Submit</button>
+                <button type="button" @onclick="ClearSilentInputAsync">Clear</button>
+                <button type="button" @onclick="CancelSilentInputAsync">Cancel</button>
+            </form>
+        }
+    }
+</section>
+
+@code {
+    private FormSurfacePresentation? _presentation;
+    private string _draft = string.Empty;
+    private SpeechAssistantFormSurfaceCopy Copy { get; } = new();
+
+    protected override void OnInitialized()
+    {
+        _presentation = CreatePresentation(SurfaceState.Current?.Snapshot);
+        SurfaceState.Changed += OnSurfaceChanged;
+    }
+
+    public void Dispose()
+    {
+        SurfaceState.Changed -= OnSurfaceChanged;
+    }
+
+    private void OnSurfaceChanged()
+    {
+        _presentation = CreatePresentation(SurfaceState.Current?.Snapshot);
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private FormSurfacePresentation? CreatePresentation(FormSurfaceSnapshot? snapshot)
+    {
+        return snapshot is null ? null : SurfacePresenter.Present(snapshot);
+    }
+
+    private string GetFieldValue(FormFieldPresentation field, string isoCode)
+    {
+        return Copy.Fields.GetValue(field, isoCode);
+    }
+
+    private static string GetFieldCssClass(FormSurfaceStage stage, FormFieldPresentation field)
+    {
+        if (field.IsFocused && stage == FormSurfaceStage.Active)
+        {
+            return "is-focused";
+        }
+
+        if (field.Status is null)
+        {
+            return "is-idle";
+        }
+
+        if (!field.Status.Relevant)
+        {
+            return "is-muted";
+        }
+
+        return field.Status.Completed ? "is-complete" : "is-pending";
+    }
+
+    private string GetFieldStatusLabel(FormSurfaceStage stage, FormFieldPresentation field, string isoCode)
+    {
+        return Copy.Fields.GetStatusLabel(stage, field, isoCode);
+    }
+
+    private static string GetFieldGroupCssClass(FormFieldGroupPresentation fieldGroup)
+    {
+        if (fieldGroup.Status is null)
+        {
+            return "is-idle";
+        }
+
+        if (!fieldGroup.Status.Relevant)
+        {
+            return "is-muted";
+        }
+
+        return fieldGroup.Status.Completed ? "is-complete" : "is-pending";
+    }
+
+    private string GetFieldGroupStatusLabel(FormFieldGroupPresentation fieldGroup, string isoCode)
+    {
+        return Copy.FieldGroups.GetStatusLabel(fieldGroup, isoCode);
+    }
+
+    private static string GetStageCssClass(FormSurfaceStage stage)
+    {
+        return stage switch
+        {
+            FormSurfaceStage.Submitted => "is-submitted",
+            FormSurfaceStage.Cancelled => "is-cancelled",
+            FormSurfaceStage.Abandoned => "is-abandoned",
+            _ => "is-active"
+        };
+    }
+
+    private string GetStageLabel(FormSurfaceStage stage, string isoCode)
+    {
+        return Copy.Stages.GetLabel(stage, isoCode);
+    }
+
+    private bool ShouldRenderSilentInputEditor()
+    {
+        var current = SurfaceState.Current;
+        return current is
+        {
+            ActionIdentity: not null,
+            Interaction:
+            {
+                Phase: SpeechAssistantSilentInputPhase.Editing or SpeechAssistantSilentInputPhase.Repair,
+                ControlKind: not null
+            }
+        };
+    }
+
+    private async Task SubmitSilentInputAsync()
+    {
+        if (SurfaceState.Current?.ActionIdentity is not { } identity)
+        {
+            return;
+        }
+
+        await SilentInputController.SubmitAsync(identity, _draft, CancellationToken.None);
+    }
+
+    private async Task ClearSilentInputAsync()
+    {
+        if (SurfaceState.Current?.ActionIdentity is not { } identity)
+        {
+            return;
+        }
+
+        await SilentInputController.ClearAsync(identity, CancellationToken.None);
+    }
+
+    private async Task CancelSilentInputAsync()
+    {
+        if (SurfaceState.Current?.ActionIdentity is not { } identity)
+        {
+            return;
+        }
+
+        await SilentInputController.CancelAsync(identity, CancellationToken.None);
+    }
+
+    private string GetSilentInputLabel()
+    {
+        var fieldId = SurfaceState.Current?.Interaction.FieldId;
+        if (fieldId is null || _presentation is null)
+        {
+            return Copy.EmptyState.Title;
+        }
+
+        foreach (var fieldGroup in _presentation.FieldGroups)
+        {
+            foreach (var field in fieldGroup.Fields)
+            {
+                if (string.Equals(field.Field.FieldId.Value, fieldId, StringComparison.Ordinal))
+                {
+                    return field.Field.Label;
+                }
+            }
+        }
+
+        return fieldId;
+    }
+
+    private string GetSilentInputType()
+    {
+        return SurfaceState.Current?.Interaction.ControlKind switch
+        {
+            SpeechAssistantSilentInputControlKind.Email => "email",
+            SpeechAssistantSilentInputControlKind.Telephone => "tel",
+            _ => "text"
+        };
+    }
+}

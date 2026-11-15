@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="coverlet.collector" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.analyzers" Version="1.27.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\contracts\Sprechen.Contracts.FormSurfaces\Sprechen.Contracts.FormSurfaces.csproj" />
+    <ProjectReference Include="..\..\contracts\Sprechen.Contracts.MdaFormAccess\Sprechen.Contracts.MdaFormAccess.csproj" />
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Contracts\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Runtime\Sprechen.Speech.App.Runtime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.DialogRuntime.Contracts\Sprechen.Speech.DialogRuntime.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.ModelRuntime\Sprechen.Speech.ModelRuntime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.State\Sprechen.Speech.State.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.FormEngine\Sprechen.VoiceAssistant.FormEngine.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.VoiceInteraction\Sprechen.VoiceAssistant.VoiceInteraction.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.Orchestration\Sprechen.VoiceAssistant.Orchestration.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.SelectionDialogRuntime\Sprechen.VoiceAssistant.SelectionDialogRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.SelectionRuntime\Sprechen.VoiceAssistant.SelectionRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.WakeRuntime\Sprechen.VoiceAssistant.WakeRuntime.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Using Include="Sprechen.Speech.WakeWord.Contracts" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TestDoubles\Sprechen.Speech.TestDoubles.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sprechen.VoiceAssistant.Behavior.FileSystem.Tests" />
+  </ItemGroup>
+</Project>

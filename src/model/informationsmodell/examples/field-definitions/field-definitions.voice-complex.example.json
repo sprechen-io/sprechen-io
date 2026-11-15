@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "fieldDefinitionsId": "sample.voice-complex.fields",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": false,
+  "definitions": [
+    {
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.cityField",
+      "label": {
+        "de": "Ort",
+        "en": "City"
+      },
+      "editability": "userEditable",
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.emailField",
+      "label": {
+        "de": "E-Mail",
+        "en": "Email"
+      },
+      "editability": "userEditable",
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.notesField",
+      "label": {
+        "de": "Hinweise",
+        "en": "Notes"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Optional: weitere Hinweise fuer den Rueckruf.",
+        "en": "Optional: additional notes for callback."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.phoneField",
+      "label": {
+        "de": "Telefonnummer",
+        "en": "Phone number"
+      },
+      "editability": "userEditable",
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.postalCodeField",
+      "label": {
+        "de": "Postleitzahl",
+        "en": "Postal code"
+      },
+      "editability": "userEditable",
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.streetField",
+      "label": {
+        "de": "Strasse und Hausnummer",
+        "en": "Street and number"
+      },
+      "editability": "userEditable",
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    }
+  ],
+  "defaultLanguage": "de"
+}
+

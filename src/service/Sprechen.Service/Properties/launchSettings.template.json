@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "Sprechen.Service.Service": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "https://localhost:55309;http://localhost:8080",
+        "Language__SttProvider": "Deepgram",
+        "Language__TtsProvider": "Deepgram",
+        "Deepgram__ApiKey": "",
+        "Deepgram__Endpoint": "https://api.eu.deepgram.com/",
+        "Deepgram__TtsEndpoint": "https://api.eu.deepgram.com/",
+        "Deepgram__SttModel": "nova-3-general",
+        "ServiceAuth__ApiKey": "",
+        "Application__Version": "local-dev"
+      },
+      "applicationUrl": "https://localhost:55309;http://localhost:8080"
+    }
+  }
+}

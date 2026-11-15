@@ -1,0 +1,162 @@
+@implements IDisposable
+@inject ISessionSetupSettingsWorkflow SessionSetupSettingsWorkflow
+@inject IUserLanguageState UserLanguageState
+
+<section class="card card-body mt-3">
+    <h2 class="h5">@Copy.SessionSetup.GetTitle(EffectiveDisplayIsoCode)</h2>
+
+    <p class="text-body-secondary mb-0">
+        @Copy.SessionSetup.GetIntro(EffectiveDisplayIsoCode)
+    </p>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert alert-warning mt-3 mb-0" role="alert">@_error</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_status))
+    {
+        <div class="alert alert-success mt-3 mb-0" role="status">@_status</div>
+    }
+
+    <div class="mt-3">
+        <label class="form-label" for="session-setup-language">@Copy.SessionSetup.GetLanguageLabel(EffectiveDisplayIsoCode)</label>
+        <select id="session-setup-language"
+                class="form-select"
+                @bind="_selectedIsoCode"
+                @bind:after="OnSelectedIsoCodeChanged">
+            @foreach (var language in SupportedLanguages)
+            {
+                <option value="@language">@Copy.Languages.GetEndonym(language)</option>
+            }
+        </select>
+        <div class="form-text">
+            @Copy.SessionSetup.GetLanguageHelp(EffectiveDisplayIsoCode)
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <h3 class="h6">@Copy.SessionSetup.GetAddressingModeTitle(EffectiveDisplayIsoCode)</h3>
+
+        @if (HasPolitenessProfile)
+        {
+            <label class="form-label" for="session-setup-politeness">@Copy.Politeness.GetLabel(EffectiveDisplayIsoCode)</label>
+            <select id="session-setup-politeness"
+                    class="form-select"
+                    @bind="_selectedPolitenessValue">
+                <option value="formal">@Copy.Politeness.GetFormal(EffectiveDisplayIsoCode)</option>
+                <option value="informal">@Copy.Politeness.GetInformal(EffectiveDisplayIsoCode)</option>
+            </select>
+            <div class="form-text">
+                @Copy.Politeness.GetHelp(EffectiveDisplayIsoCode)
+            </div>
+        }
+        else
+        {
+            <div class="text-body-secondary small">
+                @Copy.Politeness.GetNoProfile(EffectiveDisplayIsoCode)
+            </div>
+        }
+    </div>
+
+    <div class="mt-3">
+        <h3 class="h6">@Copy.SessionSetup.GetEffectiveTargetTitle(EffectiveDisplayIsoCode)</h3>
+        <div class="small text-body-secondary">
+            <div>@Copy.SessionSetup.GetSavedLanguageSummary(EffectiveDisplayIsoCode, _selectedIsoCode)</div>
+            @if (HasPolitenessProfile)
+            {
+                <div>@Copy.Politeness.GetSummary(EffectiveDisplayIsoCode, _selectedPolitenessValue)</div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+        <button type="button"
+                class="btn btn-primary"
+                @onclick="SaveAsync">
+            @Copy.SessionSetup.GetSaveButton(EffectiveDisplayIsoCode)
+        </button>
+    </div>
+</section>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public Microsoft.AspNetCore.Components.EventCallback<string> SelectedIsoCodeChanged { get; set; }
+
+    private SessionSetupSettingsState _state = new(VoiceInterfaceModelCatalog.DefaultLanguage, string.Empty, false);
+    private string _selectedIsoCode = VoiceInterfaceModelCatalog.DefaultLanguage;
+    private string _selectedPolitenessValue = string.Empty;
+    private string? _error;
+    private string? _status;
+
+    private IReadOnlyList<string> SupportedLanguages => SessionSetupSettingsWorkflow.SupportedLanguages;
+
+    private bool HasPolitenessProfile => _state.HasPolitenessProfile;
+
+    private string EffectiveDisplayIsoCode => _selectedIsoCode;
+
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserLanguageState.SelectedLanguageChanged += OnSelectedLanguageChanged;
+        ApplyState(SessionSetupSettingsWorkflow.GetSessionSetupState());
+        await NotifySelectedIsoCodeChangedAsync();
+    }
+
+    private async Task OnSelectedIsoCodeChanged()
+    {
+        ApplyState(SessionSetupSettingsWorkflow.SelectSessionLanguage(_selectedIsoCode, _selectedPolitenessValue));
+        await NotifySelectedIsoCodeChangedAsync();
+    }
+
+    private async Task SaveAsync()
+    {
+        _error = null;
+        _status = null;
+
+        try
+        {
+            ApplyState(
+                await SessionSetupSettingsWorkflow
+                    .SaveSessionSetupAsync(_selectedIsoCode, _selectedPolitenessValue, CancellationToken.None)
+                    .ConfigureAwait(false));
+            await NotifySelectedIsoCodeChangedAsync();
+
+            _status = Copy.SessionSetup.GetSaveSuccess(EffectiveDisplayIsoCode);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private void ApplyState(SessionSetupSettingsState state)
+    {
+        _state = state ?? throw new ArgumentNullException(nameof(state));
+        _selectedIsoCode = state.SelectedIsoCode;
+        _selectedPolitenessValue = state.SelectedPolitenessValue;
+    }
+
+    private void OnSelectedLanguageChanged(string ignoredIsoCode)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            ApplyState(SessionSetupSettingsWorkflow.GetSessionSetupState());
+            await NotifySelectedIsoCodeChangedAsync();
+            StateHasChanged();
+        });
+    }
+
+    private Task NotifySelectedIsoCodeChangedAsync()
+    {
+        return SelectedIsoCodeChanged.HasDelegate
+            ? SelectedIsoCodeChanged.InvokeAsync(_selectedIsoCode)
+            : Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        UserLanguageState.SelectedLanguageChanged -= OnSelectedLanguageChanged;
+    }
+}

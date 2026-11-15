@@ -1,0 +1,11 @@
+{
+  "name": "forms",
+  "private": true,
+  "devDependencies": {
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "build:ts": "tsc -p tsconfig.json",
+    "build": "npm run build:ts --silent"
+  }
+}

@@ -1,0 +1,1437 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "resourceModelId": "default.voiceResources",
+  "resources": [
+    {
+      "id": "formSurface.emptyState.kicker",
+      "texts": {
+        "de": "Schreibgesch\u00FCtzte Formularansicht",
+        "en": "Readonly form mirror",
+        "fr": "Miroir de formulaire en lecture seule",
+        "es": "Vista de formulario de solo lectura",
+        "it": "Specchio del modulo in sola lettura"
+      }
+    },
+    {
+      "id": "formSurface.emptyState.title",
+      "texts": {
+        "de": "Warten auf gesprochenen Formularablauf",
+        "en": "Waiting for spoken form flow",
+        "fr": "En attente du flux formulaire parl\u00E9",
+        "es": "Esperando el flujo de formulario por voz",
+        "it": "In attesa del flusso del modulo vocale"
+      }
+    },
+    {
+      "id": "formSurface.emptyState.description",
+      "texts": {
+        "de": "Starten Sie den Sprachassistenten und \u00F6ffnen Sie eine Anwendung per Sprache. Das aktive Formular und die gesprochenen Feldwerte erscheinen hier.",
+        "en": "Start the voice assistant and open an application by speech. The active form and the spoken field values will appear here.",
+        "fr": "D\u00E9marrez l'assistant vocal et ouvrez une application \u00E0 la voix. Le formulaire actif et les valeurs de champ dict\u00E9es appara\u00EEtront ici.",
+        "es": "Inicia el asistente de voz y abre una aplicaci\u00F3n por voz. El formulario activo y los valores de campo hablados aparecer\u00E1n aqu\u00ED.",
+        "it": "Avvia l'assistente vocale e apri un'applicazione con la voce. Il modulo attivo e i valori dei campi pronunciati appariranno qui."
+      }
+    },
+    {
+      "id": "formSurface.summary.language",
+      "texts": {
+        "de": "Sprache: {languageName}",
+        "en": "Language: {languageName}",
+        "fr": "Langue : {languageName}",
+        "es": "Idioma: {languageName}",
+        "it": "Lingua: {languageName}"
+      }
+    },
+    {
+      "id": "formSurface.summary.focusedField",
+      "texts": {
+        "de": "Fokussiertes Feld: {fieldLabel}",
+        "en": "Focused field: {fieldLabel}",
+        "fr": "Champ cibl\u00E9 : {fieldLabel}",
+        "es": "Campo enfocado: {fieldLabel}",
+        "it": "Campo attivo: {fieldLabel}"
+      }
+    },
+    {
+      "id": "formSurface.fieldValue.notCaptured",
+      "texts": {
+        "de": "Noch nicht erfasst",
+        "en": "Not captured yet",
+        "fr": "Pas encore saisi",
+        "es": "A\u00FAn no capturado",
+        "it": "Non ancora acquisito"
+      }
+    },
+    {
+      "id": "formSurface.fieldStatus.listening",
+      "texts": {
+        "de": "H\u00F6rt zu",
+        "en": "Listening",
+        "fr": "\u00C0 l'\u00E9coute",
+        "es": "Escuchando",
+        "it": "In ascolto"
+      }
+    },
+    {
+      "id": "formSurface.fieldStatus.pending",
+      "texts": {
+        "de": "Ausstehend",
+        "en": "Pending",
+        "fr": "En attente",
+        "es": "Pendiente",
+        "it": "In sospeso"
+      }
+    },
+    {
+      "id": "formSurface.fieldStatus.optional",
+      "texts": {
+        "de": "Optional",
+        "en": "Optional",
+        "fr": "Facultatif",
+        "es": "Opcional",
+        "it": "Opzionale"
+      }
+    },
+    {
+      "id": "formSurface.fieldStatus.notRelevant",
+      "texts": {
+        "de": "Nicht relevant",
+        "en": "Not relevant",
+        "fr": "Non pertinent",
+        "es": "No relevante",
+        "it": "Non rilevante"
+      }
+    },
+    {
+      "id": "formSurface.fieldStatus.completed",
+      "texts": {
+        "de": "Abgeschlossen",
+        "en": "Completed",
+        "fr": "Termin\u00E9",
+        "es": "Completado",
+        "it": "Completato"
+      }
+    },
+    {
+      "id": "formSurface.fieldStatus.required",
+      "texts": {
+        "de": "Erforderlich",
+        "en": "Required",
+        "fr": "Obligatoire",
+        "es": "Obligatorio",
+        "it": "Obbligatorio"
+      }
+    },
+    {
+      "id": "formSurface.fieldGroupStatus.pending",
+      "texts": {
+        "de": "Ausstehend",
+        "en": "Pending",
+        "fr": "En attente",
+        "es": "Pendiente",
+        "it": "In sospeso"
+      }
+    },
+    {
+      "id": "formSurface.fieldGroupStatus.notRelevant",
+      "texts": {
+        "de": "Nicht relevant",
+        "en": "Not relevant",
+        "fr": "Non pertinent",
+        "es": "No relevante",
+        "it": "Non rilevante"
+      }
+    },
+    {
+      "id": "formSurface.fieldGroupStatus.completed",
+      "texts": {
+        "de": "Abgeschlossen",
+        "en": "Completed",
+        "fr": "Termin\u00E9",
+        "es": "Completado",
+        "it": "Completato"
+      }
+    },
+    {
+      "id": "formSurface.fieldGroupStatus.inProgress",
+      "texts": {
+        "de": "In Bearbeitung",
+        "en": "In progress",
+        "fr": "En cours",
+        "es": "En curso",
+        "it": "In corso"
+      }
+    },
+    {
+      "id": "formSurface.stage.live",
+      "texts": {
+        "de": "Live",
+        "en": "Live",
+        "fr": "En direct",
+        "es": "En vivo",
+        "it": "Attivo"
+      }
+    },
+    {
+      "id": "formSurface.stage.submitted",
+      "texts": {
+        "de": "Eingereicht",
+        "en": "Submitted",
+        "fr": "Soumis",
+        "es": "Enviado",
+        "it": "Inviato"
+      }
+    },
+    {
+      "id": "formSurface.stage.cancelled",
+      "texts": {
+        "de": "Abgebrochen",
+        "en": "Cancelled",
+        "fr": "Annul\u00E9",
+        "es": "Cancelado",
+        "it": "Annullato"
+      }
+    },
+    {
+      "id": "formSurface.stage.abandoned",
+      "texts": {
+        "de": "Verlassen",
+        "en": "Abandoned",
+        "fr": "Abandonn\u00E9",
+        "es": "Abandonado",
+        "it": "Abbandonato"
+      }
+    },
+    {
+      "id": "sessionSetup.earconsIntro",
+      "texts": {
+        "de": "Ich erkl\u00E4re nun die Signalt\u00F6ne (Earcons). Nach jeder kurzen Erkl\u00E4rung h\u00F6ren Sie den Ton.",
+        "en": "I will now explain the signal sounds (earcons). After each short explanation, you will hear the sound.",
+        "fr": "Je vais maintenant expliquer les sons de signalisation (earcons). Apr\u00E8s chaque courte explication, vous entendrez le son.",
+        "es": "Ahora explicar\u00E9 los sonidos de se\u00F1al (earcons); despu\u00E9s de cada breve explicaci\u00F3n, oir\u00E1s el sonido.",
+        "it": "Ora spiegher\u00F2 i suoni di segnalazione (earcon). Dopo ogni breve spiegazione sentirai il suono."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.flowListening",
+      "texts": {
+        "de": "Zuh\u00F6ren: Das System wartet auf Ihre Eingabe.",
+        "en": "Listening: The system is ready and waiting for your input.",
+        "fr": "\u00C9coute : le syst\u00E8me attend votre entr\u00E9e.",
+        "es": "Escuchando: el sistema espera tu respuesta.",
+        "it": "In ascolto: il sistema attende la tua risposta."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.flowProcessing",
+      "texts": {
+        "de": "Verarbeiten: Einen Moment bitte.",
+        "en": "Processing: One moment, please.",
+        "fr": "Traitement : un instant, s'il vous pla\u00EEt.",
+        "es": "Procesando: un momento, por favor.",
+        "it": "Elaborazione: un momento, per favore."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.validationSuccess",
+      "texts": {
+        "de": "Erfolg: Die Eingabe wurde \u00FCbernommen.",
+        "en": "Success: Your input was accepted.",
+        "fr": "Succ\u00E8s : votre entr\u00E9e a \u00E9t\u00E9 accept\u00E9e.",
+        "es": "\u00C9xito: tu respuesta fue aceptada.",
+        "it": "Successo: la tua risposta \u00E8 stata accettata."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.validationNotOk",
+      "texts": {
+        "de": "Problem bei der Verarbeitung einer Eingabe oder bei der Sprachausgabe.",
+        "en": "Problem processing an input or playing speech.",
+        "fr": "Probl\u00e8me lors du traitement d\u2019une saisie ou de la restitution vocale.",
+        "es": "Problema al procesar una entrada o reproducir la voz.",
+        "it": "Problema nell\u2019elaborazione di un input o nella riproduzione vocale."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.structureStepTransition",
+      "texts": {
+        "de": "Schrittwechsel: Eine neue Feldgruppe beginnt.",
+        "en": "Step change: A new field group starts.",
+        "fr": "Changement d'\u00E9tape : un nouveau groupe de champs commence.",
+        "es": "Cambio de paso: comienza un nuevo grupo de campos.",
+        "it": "Cambio di passo: inizia un nuovo gruppo di campi."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.structureBoundary",
+      "texts": {
+        "de": "Grenze: Hier geht es nicht weiter.",
+        "en": "Boundary: You can't go further in that direction.",
+        "fr": "Limite : vous ne pouvez pas aller plus loin.",
+        "es": "L\u00EDmite: no puedes ir m\u00E1s all\u00E1.",
+        "it": "Limite: non puoi andare oltre."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.modePrivacyChange",
+      "texts": {
+        "de": "Moduswechsel: Buchstabieren oder Datenschutz wurde umgeschaltet.",
+        "en": "Mode change: spelling or privacy mode changed.",
+        "fr": "Changement de mode : le mode \u00E9pellation ou confidentialit\u00E9 a chang\u00E9.",
+        "es": "Cambio de modo: cambi\u00F3 el modo de deletreo o privacidad.",
+        "it": "Cambio modalit\u00E0: \u00E8 cambiata la modalit\u00E0 di spelling o privacy."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.confirmationRequired",
+      "texts": {
+        "de": "Best\u00E4tigung: Eine sensible Aktion ben\u00F6tigt Ja oder Nein.",
+        "en": "Confirmation: A sensitive action requires yes or no.",
+        "fr": "Confirmation : une action sensible n\u00E9cessite oui ou non.",
+        "es": "Confirmaci\u00F3n: una acci\u00F3n sensible requiere s\u00ED o no.",
+        "it": "Conferma: un'azione sensibile richiede s\u00EC o no."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.voiceInputMicOff",
+      "texts": {
+        "de": "Spracheingabe pausiert: Der Sprachbutton pausiert das lokale Zuh\u00F6ren.",
+        "en": "Voice input paused: The voice button pauses local listening.",
+        "fr": "Saisie vocale en pause : le bouton vocal met l'\u00E9coute locale en pause.",
+        "es": "Entrada de voz pausada: el bot\u00F3n de voz pausa la escucha local.",
+        "it": "Input vocale in pausa: il pulsante vocale mette in pausa l'ascolto locale."
+      }
+    },
+    {
+      "id": "sessionSetup.earcon.voiceInputMicOn",
+      "texts": {
+        "de": "Spracheingabe fortgesetzt: Der Sprachbutton nimmt lokale Spracheingaben wieder an.",
+        "en": "Voice input resumed: The voice button accepts local speech input again.",
+        "fr": "Saisie vocale reprise : le bouton vocal accepte de nouveau la voix locale.",
+        "es": "Entrada de voz reanudada: el bot\u00F3n de voz vuelve a aceptar voz local.",
+        "it": "Input vocale ripreso: il pulsante vocale accetta di nuovo la voce locale."
+      }
+    },
+    {
+      "id": "sessionSetup.wakeWords.prompt",
+      "texts": {
+        "de": "Die Aktivierungsformen sind: {wakeWords}. M\u00F6chten Sie sie \u00E4ndern? Sagen Sie: \"{yes}\" oder \"{no}\".",
+        "en": "Your activation forms are: {wakeWords}. Do you want to change them? Say: \"{yes}\" or \"{no}\".",
+        "fr": "Vos formes d'activation sont : {wakeWords}. Voulez-vous les modifier ? Dites : \"{yes}\" ou \"{no}\".",
+        "es": "Tus formas de activaci\u00F3n son: {wakeWords}. \u00BFQuieres cambiarlas? Di: \"{yes}\" o \"{no}\".",
+        "it": "Le forme di attivazione sono: {wakeWords}. Vuoi cambiarle? Di: \"{yes}\" o \"{no}\"."
+      }
+    },
+    {
+      "id": "sessionSetup.wakeWords.askNew",
+      "texts": {
+        "de": "Bitte sagen Sie jetzt die neuen Aktivierungsformen.",
+        "en": "Please say the new activation forms now.",
+        "fr": "Veuillez dire maintenant les nouvelles formes d'activation.",
+        "es": "Ahora di las nuevas formas de activaci\u00F3n.",
+        "it": "Ora di' le nuove forme di attivazione."
+      }
+    },
+    {
+      "id": "sessionSetup.wakeWords.notRecognized",
+      "texts": {
+        "de": "Entschuldigung, ich habe keine Aktivierungsformen verstanden.",
+        "en": "Sorry, I did not understand any activation forms.",
+        "fr": "D\u00E9sol\u00E9, je n'ai compris aucune forme d'activation.",
+        "es": "Lo siento, no he entendido ninguna forma de activaci\u00F3n.",
+        "it": "Mi dispiace, non ho capito nessuna forma di attivazione."
+      }
+    },
+    {
+      "id": "sessionSetup.wakeWords.confirm",
+      "texts": {
+        "de": "Ich habe verstanden: {wakeWords}. Ist das richtig? Sagen Sie: \"{yes}\" oder \"{no}\".",
+        "en": "I heard: {wakeWords}. Is that correct? Say: \"{yes}\" or \"{no}\".",
+        "fr": "J'ai compris : {wakeWords}. Est-ce correct ? Dites : \"{yes}\" ou \"{no}\".",
+        "es": "He entendido: {wakeWords}. \u00BFEs correcto? Di: \"{yes}\" o \"{no}\".",
+        "it": "Ho capito: {wakeWords}. \u00C8 corretto? Di: \"{yes}\" o \"{no}\"."
+      }
+    },
+    {
+      "id": "sessionSetup.wakeWords.saved",
+      "texts": {
+        "de": "Gespeichert. Sie k\u00F6nnen jetzt sagen: {wakeWords}.",
+        "en": "Saved. You can now say: {wakeWords}.",
+        "fr": "Enregistr\u00E9. Vous pouvez maintenant dire : {wakeWords}.",
+        "es": "Guardado. Ahora puedes decir: {wakeWords}.",
+        "it": "Salvato. Ora puoi dire: {wakeWords}."
+      }
+    },
+    {
+      "id": "voice.languageName.de",
+      "texts": {
+        "de": "Deutsch",
+        "en": "German",
+        "fr": "allemand",
+        "es": "alem\u00E1n",
+        "it": "tedesco"
+      }
+    },
+    {
+      "id": "voice.languageName.en",
+      "texts": {
+        "de": "Englisch",
+        "en": "English",
+        "fr": "anglais",
+        "es": "ingl\u00E9s",
+        "it": "inglese"
+      }
+    },
+    {
+      "id": "voice.languageName.fr",
+      "texts": {
+        "de": "Franz\u00F6sisch",
+        "en": "French",
+        "fr": "fran\u00E7ais",
+        "es": "franc\u00E9s",
+        "it": "francese"
+      }
+    },
+    {
+      "id": "voice.languageName.es",
+      "texts": {
+        "de": "Spanisch",
+        "en": "Spanish",
+        "fr": "espagnol",
+        "es": "espa\u00F1ol",
+        "it": "spagnolo"
+      }
+    },
+    {
+      "id": "voice.languageName.it",
+      "texts": {
+        "de": "Italienisch",
+        "en": "Italian",
+        "fr": "italien",
+        "es": "italiano",
+        "it": "italiano"
+      }
+    },
+    {
+      "id": "settings.title",
+      "texts": {
+        "de": "Einstellungen",
+        "en": "Settings",
+        "fr": "Param\u00E8tres",
+        "es": "Configuraci\u00F3n",
+        "it": "Impostazioni"
+      }
+    },
+    {
+      "id": "settings.loading",
+      "texts": {
+        "de": "Wird geladen.",
+        "en": "Loading.",
+        "fr": "Chargement.",
+        "es": "Cargando.",
+        "it": "Caricamento."
+      }
+    },
+    {
+      "id": "settings.enabled",
+      "texts": {
+        "de": "Aktiviert",
+        "en": "Enabled",
+        "fr": "Activ\u00E9",
+        "es": "Activado",
+        "it": "Attivato"
+      }
+    },
+    {
+      "id": "settings.disabled",
+      "texts": {
+        "de": "Deaktiviert",
+        "en": "Disabled",
+        "fr": "D\u00E9sactiv\u00E9",
+        "es": "Desactivado",
+        "it": "Disattivato"
+      }
+    },
+    {
+      "id": "settings.sessionLanguage.summary",
+      "texts": {
+        "de": "Sitzungssprache: {languageName}",
+        "en": "Session language: {languageName}",
+        "fr": "Langue de la session : {languageName}",
+        "es": "Idioma de la sesi\u00F3n: {languageName}",
+        "it": "Lingua della sessione: {languageName}"
+      }
+    },
+    {
+      "id": "settings.audio.title",
+      "texts": {
+        "de": "Audio",
+        "en": "Audio",
+        "fr": "Audio",
+        "es": "Audio",
+        "it": "Audio"
+      }
+    },
+    {
+      "id": "settings.audio.volume.label",
+      "texts": {
+        "de": "Lautst\u00E4rke",
+        "en": "Volume",
+        "fr": "Volume",
+        "es": "Volumen",
+        "it": "Volume"
+      }
+    },
+    {
+      "id": "settings.audio.volumeTest.start",
+      "texts": {
+        "de": "Lautst\u00E4rke-Test starten",
+        "en": "Start volume test",
+        "fr": "D\u00E9marrer le test de volume",
+        "es": "Iniciar prueba de volumen",
+        "it": "Avvia test del volume"
+      }
+    },
+    {
+      "id": "settings.audio.volumeTest.stop",
+      "texts": {
+        "de": "Lautst\u00E4rke-Test stoppen",
+        "en": "Stop volume test",
+        "fr": "Arr\u00EAter le test de volume",
+        "es": "Detener prueba de volumen",
+        "it": "Arresta test del volume"
+      }
+    },
+    {
+      "id": "settings.voice.title",
+      "texts": {
+        "de": "Sprache",
+        "en": "Voice",
+        "fr": "Voix",
+        "es": "Voz",
+        "it": "Voce"
+      }
+    },
+    {
+      "id": "settings.speechCapture.title",
+      "texts": {
+        "de": "Spracherfassung",
+        "en": "Speech capture",
+        "fr": "Capture vocale",
+        "es": "Captura de voz",
+        "it": "Acquisizione vocale"
+      }
+    },
+    {
+      "id": "settings.speechCapture.silenceDebounce.label",
+      "texts": {
+        "de": "Stille-Erkennung",
+        "en": "Silence debounce",
+        "fr": "Temporisation du silence",
+        "es": "Retardo de silencio",
+        "it": "Ritardo del silenzio"
+      }
+    },
+    {
+      "id": "settings.speechCapture.silenceDebounce.ariaLabel",
+      "texts": {
+        "de": "Stille-Erkennung in Millisekunden",
+        "en": "Silence debounce in milliseconds",
+        "fr": "Temporisation du silence en millisecondes",
+        "es": "Retardo de silencio en milisegundos",
+        "it": "Ritardo del silenzio in millisecondi"
+      }
+    },
+    {
+      "id": "settings.speechCapture.speechAmplitudeThreshold.label",
+      "texts": {
+        "de": "Wie leise darf ich sprechen",
+        "en": "How quietly I may speak",
+        "fr": "Jusqu'o\u00F9 je peux parler bas",
+        "es": "Qu\u00E9 tan bajo puedo hablar",
+        "it": "Quanto piano posso parlare"
+      }
+    },
+    {
+      "id": "settings.speechCapture.speechAmplitudeThreshold.ariaLabel",
+      "texts": {
+        "de": "Empfindlichkeit der Sprecherkennung",
+        "en": "Speech detection sensitivity",
+        "fr": "Sensibilit\u00E9 de la d\u00E9tection de la parole",
+        "es": "Sensibilidad de la detecci\u00F3n de voz",
+        "it": "Sensibilit\u00E0 del rilevamento della voce"
+      }
+    },
+    {
+      "id": "settings.speechCapture.reset.button",
+      "texts": {
+        "de": "Auf Standard zur\u00FCcksetzen",
+        "en": "Reset to default",
+        "fr": "R\u00E9tablir la valeur par d\u00E9faut",
+        "es": "Restablecer el valor predeterminado",
+        "it": "Ripristina valore predefinito"
+      }
+    },
+    {
+      "id": "settings.speechCapture.invalidValue",
+      "texts": {
+        "de": "Der Wert ist ung\u00FCltig.",
+        "en": "Value is invalid.",
+        "fr": "La valeur n'est pas valide.",
+        "es": "El valor no es v\u00E1lido.",
+        "it": "Il valore non \u00E8 valido."
+      }
+    },
+    {
+      "id": "speechCapture.transcriptSpeaking.failed",
+      "texts": {
+        "de": "Das Sprechen des Transkripts ist fehlgeschlagen.",
+        "en": "Speaking transcript failed.",
+        "fr": "La lecture vocale de la transcription a \u00E9chou\u00E9.",
+        "es": "Fall\u00F3 la lectura por voz de la transcripci\u00F3n.",
+        "it": "La lettura vocale della trascrizione non \u00E8 riuscita."
+      }
+    },
+    {
+      "id": "speechCapture.transcriptSpeaking.configurationFailed",
+      "texts": {
+        "de": "Das Sprechen des Transkripts ist fehlgeschlagen, weil die Sprachausgabe nicht konfiguriert ist.",
+        "en": "Speaking transcript failed because speech output is not configured.",
+        "fr": "La lecture vocale de la transcription a \u00E9chou\u00E9 car la sortie vocale n'est pas configur\u00E9e.",
+        "es": "Fall\u00F3 la lectura por voz de la transcripci\u00F3n porque la salida de voz no est\u00E1 configurada.",
+        "it": "La lettura vocale della trascrizione non \u00E8 riuscita perch\u00E9 l'uscita vocale non \u00E8 configurata."
+      }
+    },
+    {
+      "id": "speechCapture.transcriptSpeaking.languageUnavailable",
+      "texts": {
+        "de": "Das Sprechen des Transkripts ist fehlgeschlagen, weil die Transkriptsprache nicht verf\u00FCgbar ist.",
+        "en": "Speaking transcript failed because the transcript language is unavailable.",
+        "fr": "La lecture vocale de la transcription a \u00E9chou\u00E9 car la langue de la transcription n'est pas disponible.",
+        "es": "Fall\u00F3 la lectura por voz de la transcripci\u00F3n porque el idioma de la transcripci\u00F3n no est\u00E1 disponible.",
+        "it": "La lettura vocale della trascrizione non \u00E8 riuscita perch\u00E9 la lingua della trascrizione non \u00E8 disponibile."
+      }
+    },
+    {
+      "id": "speechCapture.transcriptSpeaking.audioOutputUnsupported",
+      "texts": {
+        "de": "Das Sprechen des Transkripts ist fehlgeschlagen, weil das Audioausgabeformat nicht unterst\u00FCtzt wird.",
+        "en": "Speaking transcript failed because the audio output format is unsupported.",
+        "fr": "La lecture vocale de la transcription a \u00E9chou\u00E9 car le format de sortie audio n'est pas pris en charge.",
+        "es": "Fall\u00F3 la lectura por voz de la transcripci\u00F3n porque el formato de salida de audio no es compatible.",
+        "it": "La lettura vocale della trascrizione non \u00E8 riuscita perch\u00E9 il formato di uscita audio non \u00E8 supportato."
+      }
+    },
+    {
+      "id": "speechCapture.transcriptSpeaking.rateLimited",
+      "texts": {
+        "de": "Das Sprechen des Transkripts ist fehlgeschlagen, weil die Sprachausgabe vor\u00FCbergehend gedrosselt ist.",
+        "en": "Speaking transcript failed because speech output is temporarily rate limited.",
+        "fr": "La lecture vocale de la transcription a \u00E9chou\u00E9 car la sortie vocale est temporairement limit\u00E9e.",
+        "es": "Fall\u00F3 la lectura por voz de la transcripci\u00F3n porque la salida de voz est\u00E1 temporalmente limitada.",
+        "it": "La lettura vocale della trascrizione non \u00E8 riuscita perch\u00E9 l'uscita vocale \u00E8 temporaneamente limitata."
+      }
+    },
+    {
+      "id": "speechCapture.failure.voiceCommandDialogFailed",
+      "texts": {
+        "de": "Das Formular wurde abgebrochen. Der Assistent kehrt zur Zuh\u00F6rbereitschaft zur\u00FCck.",
+        "en": "The form was aborted. The assistant is listening again.",
+        "fr": "Le formulaire a \u00E9t\u00E9 interrompu. L'assistant revient en mode \u00E9coute.",
+        "es": "El formulario se ha cancelado. El asistente vuelve a escuchar.",
+        "it": "Il modulo \u00E8 stato interrotto. L'assistente torna in ascolto."
+      }
+    },
+    {
+      "id": "speechCapture.failure.default",
+      "texts": {
+        "de": "Es ist ein Fehler aufgetreten. Der Assistent kehrt zur Zuh\u00F6rbereitschaft zur\u00FCck.",
+        "en": "Something went wrong. The assistant is listening again.",
+        "fr": "Une erreur est survenue. L'assistant revient en mode \u00E9coute.",
+        "es": "Se ha producido un error. El asistente vuelve a escuchar.",
+        "it": "Si \u00E8 verificato un errore. L'assistente torna in ascolto."
+      }
+    },
+    {
+      "id": "speechCapture.failure.permissionDenied",
+      "texts": {
+        "de": "Mikrofonzugriff verweigert. Bitte erlauben Sie den Mikrofonzugriff in den Browsereinstellungen und versuchen Sie es erneut.",
+        "en": "Microphone access was denied. Please allow microphone access in your browser settings and try again.",
+        "fr": "L'acc\u00E8s au microphone a \u00E9t\u00E9 refus\u00E9. Veuillez autoriser l'acc\u00E8s au microphone dans les param\u00E8tres du navigateur, puis r\u00E9essayez.",
+        "es": "Se deneg\u00F3 el acceso al micr\u00F3fono. Permite el acceso al micr\u00F3fono en la configuraci\u00F3n del navegador e int\u00E9ntalo de nuevo.",
+        "it": "Accesso al microfono negato. Consenti l'accesso al microfono nelle impostazioni del browser e riprova."
+      }
+    },
+    {
+      "id": "speechCapture.failure.microphoneUnavailable",
+      "texts": {
+        "de": "Es wurde kein Mikrofon gefunden oder es konnte nicht verwendet werden. Bitte schlie\u00DFen Sie andere Programme, die das Mikrofon nutzen, und versuchen Sie es erneut.",
+        "en": "No microphone was found or it could not be used. Please close other apps that use the microphone and try again.",
+        "fr": "Aucun microphone n'a \u00E9t\u00E9 trouv\u00E9 ou il n'a pas pu \u00EAtre utilis\u00E9. Veuillez fermer les autres applications qui utilisent le microphone, puis r\u00E9essayez.",
+        "es": "No se encontr\u00F3 ning\u00FAn micr\u00F3fono o no se pudo usar. Cierra otras aplicaciones que usen el micr\u00F3fono e int\u00E9ntalo de nuevo.",
+        "it": "Nessun microfono trovato o impossibile utilizzarlo. Chiudi le altre app che usano il microfono e riprova."
+      }
+    },
+    {
+      "id": "speechCapture.recovery.microphoneAvailable",
+      "texts": {
+        "de": "Das Mikrofon ist wieder verf\u00FCgbar. Der Sprachassistent h\u00F6rt wieder zu.",
+        "en": "The microphone is available again. The voice assistant is listening again.",
+        "fr": "Le microphone est de nouveau disponible. L'assistant vocal \u00E9coute de nouveau.",
+        "es": "El micr\u00F3fono vuelve a estar disponible. El asistente de voz vuelve a escuchar.",
+        "it": "Il microfono \u00E8 di nuovo disponibile. L'assistente vocale \u00E8 tornato in ascolto."
+      }
+    },
+    {
+      "id": "speechCapture.failure.generic",
+      "texts": {
+        "de": "Der Sprachassistent konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+        "en": "The voice assistant could not be started. Please try again.",
+        "fr": "L'assistant vocal n'a pas pu d\u00E9marrer. Veuillez r\u00E9essayer.",
+        "es": "No se pudo iniciar el asistente de voz. Int\u00E9ntalo de nuevo.",
+        "it": "Impossibile avviare l'assistente vocale. Riprova."
+      }
+    },
+    {
+      "id": "speechCapture.failure.ruleLoopGuardExceeded",
+      "texts": {
+        "de": "Ein interner Formularfehler ist aufgetreten. Fehlercode E_RULE_LOOP_MAX_ITERS. Der vorherige Formularzustand wurde wiederhergestellt. Sie k\u00F6nnen fortfahren.",
+        "en": "An internal form error occurred. Error code E_RULE_LOOP_MAX_ITERS. The previous form state was restored. You can continue.",
+        "fr": "Une erreur interne du formulaire est survenue. Code d'erreur E_RULE_LOOP_MAX_ITERS. L'\u00E9tat pr\u00E9c\u00E9dent du formulaire a \u00E9t\u00E9 restaur\u00E9. Vous pouvez continuer.",
+        "es": "Se ha producido un error interno del formulario. C\u00F3digo de error E_RULE_LOOP_MAX_ITERS. Se restaur\u00F3 el estado anterior del formulario. Puede continuar.",
+        "it": "Si \u00E8 verificato un errore interno del modulo. Codice di errore E_RULE_LOOP_MAX_ITERS. Lo stato precedente del modulo \u00E8 stato ripristinato. Puoi continuare."
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.listening",
+      "texts": {
+        "de": "Sprachassistent pausieren",
+        "en": "Pause voice assistant",
+        "fr": "Mettre l'assistant vocal en pause",
+        "es": "Pausar el asistente de voz",
+        "it": "Metti in pausa l'assistente vocale"
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.ready",
+      "texts": {
+        "de": "Sprachassistent pausieren",
+        "en": "Pause voice assistant",
+        "fr": "Mettre l'assistant vocal en pause",
+        "es": "Pausar el asistente de voz",
+        "it": "Metti in pausa l'assistente vocale"
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.readyFallback",
+      "texts": {
+        "de": "Sprachassistent pausieren (Weckwort-Erkennung kann langsamer reagieren)",
+        "en": "Pause voice assistant (wake-word detection may respond slower)",
+        "fr": "Mettre l'assistant vocal en pause (la d\u00E9tection du mot de r\u00E9veil peut \u00EAtre plus lente)",
+        "es": "Pausar el asistente de voz (la detecci\u00F3n de la palabra de activaci\u00F3n puede responder m\u00E1s lento)",
+        "it": "Metti in pausa l'assistente vocale (il rilevamento della parola di attivazione pu\u00F2 rispondere pi\u00F9 lentamente)"
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.starting",
+      "texts": {
+        "de": "Sprachassistent startet",
+        "en": "Voice assistant is starting",
+        "fr": "L'assistant vocal d\u00E9marre",
+        "es": "El asistente de voz se est\u00E1 iniciando",
+        "it": "L'assistente vocale si sta avviando"
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.paused",
+      "texts": {
+        "de": "Spracheingabe fortsetzen",
+        "en": "Resume voice input",
+        "fr": "Reprendre la saisie vocale",
+        "es": "Reanudar la entrada de voz",
+        "it": "Riprendi l'immissione vocale"
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.failed",
+      "texts": {
+        "de": "Sprachassistent erneut starten",
+        "en": "Start voice assistant again",
+        "fr": "Red\u00E9marrer l'assistant vocal",
+        "es": "Iniciar de nuevo el asistente de voz",
+        "it": "Avvia di nuovo l'assistente vocale"
+      }
+    },
+    {
+      "id": "speechCapture.ariaLabel.default",
+      "texts": {
+        "de": "Sprachassistent starten",
+        "en": "Start voice assistant",
+        "fr": "D\u00E9marrer l'assistant vocal",
+        "es": "Iniciar el asistente de voz",
+        "it": "Avvia l'assistente vocale"
+      }
+    },
+    {
+      "id": "speechCapture.status.listening",
+      "texts": {
+        "de": "Sprachassistent h\u00F6rt zu.",
+        "en": "Voice assistant is listening.",
+        "fr": "L'assistant vocal \u00E9coute.",
+        "es": "El asistente de voz est\u00E1 escuchando.",
+        "it": "L'assistente vocale \u00E8 in ascolto."
+      }
+    },
+    {
+      "id": "speechCapture.status.starting",
+      "texts": {
+        "de": "Sprachassistent startet.",
+        "en": "Voice assistant is starting.",
+        "fr": "L'assistant vocal d\u00E9marre.",
+        "es": "El asistente de voz se est\u00E1 iniciando.",
+        "it": "L'assistente vocale si sta avviando."
+      }
+    },
+    {
+      "id": "speechCapture.status.ready",
+      "texts": {
+        "de": "Sprachassistent ist bereit.",
+        "en": "Voice assistant is ready.",
+        "fr": "L'assistant vocal est pr\u00EAt.",
+        "es": "El asistente de voz est\u00E1 listo.",
+        "it": "L'assistente vocale \u00E8 pronto."
+      }
+    },
+    {
+      "id": "speechCapture.status.readyWithWakeWords",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Sagen Sie {wakeWords}, um zu beginnen. Nach dem Weckwort k\u00F6nnen Sie jederzeit hilfe sagen.",
+        "en": "Voice assistant is ready. Say {wakeWords} to begin. After the wake word you can say help at any time.",
+        "fr": "L'assistant vocal est pr\u00EAt. Dites {wakeWords} pour commencer. Apr\u00E8s le mot de r\u00E9veil, vous pouvez dire aide \u00E0 tout moment.",
+        "es": "El asistente de voz est\u00E1 listo. Di {wakeWords} para empezar. Despu\u00E9s de la palabra de activaci\u00F3n puedes decir ayuda en cualquier momento.",
+        "it": "L'assistente vocale \u00E8 pronto. Di {wakeWords} per iniziare. Dopo la parola di attivazione puoi dire aiuto in qualsiasi momento."
+      }
+    },
+    {
+      "id": "speechCapture.status.paused",
+      "texts": {
+        "de": "Spracheingabe ist pausiert.",
+        "en": "Voice input is paused.",
+        "fr": "La saisie vocale est en pause.",
+        "es": "La entrada de voz est\u00E1 en pausa.",
+        "it": "L'immissione vocale \u00E8 in pausa."
+      }
+    },
+    {
+      "id": "speechCapture.status.failed",
+      "texts": {
+        "de": "Sprachassistent konnte nicht gestartet werden. Erneut dr\u00FCcken, um es noch einmal zu versuchen.",
+        "en": "Voice assistant failed to start. Press again to retry.",
+        "fr": "L'assistant vocal n'a pas pu d\u00E9marrer. Appuyez de nouveau pour r\u00E9essayer.",
+        "es": "El asistente de voz no pudo iniciarse. Pulse de nuevo para reintentar.",
+        "it": "Avvio dell'assistente vocale non riuscito. Premi di nuovo per riprovare."
+      }
+    },
+    {
+      "id": "speechCapture.status.default",
+      "texts": {
+        "de": "Sprachassistent nicht gestartet.",
+        "en": "Voice assistant not started.",
+        "fr": "Assistant vocal non d\u00E9marr\u00E9.",
+        "es": "Asistente de voz no iniciado.",
+        "it": "Assistente vocale non avviato."
+      }
+    },
+    {
+      "id": "speechCapture.lexicalFallback.overrideIneligible",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Weil eigene Weckw\u00F6rter eingestellt sind, kann die Erkennung des Weckworts etwas langsamer reagieren.",
+        "en": "Voice assistant is ready. Because custom wake words are set, wake-word detection may respond a little slower.",
+        "fr": "L'assistant vocal est pr\u00EAt. Comme des mots de r\u00E9veil personnalis\u00E9s sont d\u00E9finis, la d\u00E9tection du mot de r\u00E9veil peut r\u00E9pondre un peu plus lentement.",
+        "es": "El asistente de voz est\u00E1 listo. Como hay palabras de activaci\u00F3n personalizadas, la detecci\u00F3n de la palabra de activaci\u00F3n puede responder un poco m\u00E1s lento.",
+        "it": "L'assistente vocale \u00E8 pronto. Poich\u00E9 sono impostate parole di attivazione personalizzate, il rilevamento della parola di attivazione pu\u00F2 rispondere un po' pi\u00F9 lentamente."
+      }
+    },
+    {
+      "id": "speechCapture.lexicalFallback.detectorUnavailable",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Die Erkennung des Weckworts kann gerade etwas langsamer reagieren.",
+        "en": "Voice assistant is ready. Wake-word detection may respond a little slower right now.",
+        "fr": "L'assistant vocal est pr\u00EAt. La d\u00E9tection du mot de r\u00E9veil peut r\u00E9pondre un peu plus lentement pour le moment.",
+        "es": "El asistente de voz est\u00E1 listo. La detecci\u00F3n de la palabra de activaci\u00F3n puede responder un poco m\u00E1s lento ahora mismo.",
+        "it": "L'assistente vocale \u00E8 pronto. Il rilevamento della parola di attivazione pu\u00F2 rispondere un po' pi\u00F9 lentamente in questo momento."
+      }
+    },
+    {
+      "id": "speechCapture.lexicalFallback.detectorWarmup",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Die Erkennung des Weckworts wird noch vorbereitet und reagiert kurz etwas langsamer.",
+        "en": "Voice assistant is ready. Wake-word detection is still getting ready and responds a little slower for a moment.",
+        "fr": "L'assistant vocal est pr\u00EAt. La d\u00E9tection du mot de r\u00E9veil se pr\u00E9pare encore et r\u00E9pond un peu plus lentement pendant un court instant.",
+        "es": "El asistente de voz est\u00E1 listo. La detecci\u00F3n de la palabra de activaci\u00F3n a\u00FAn se est\u00E1 preparando y responde un poco m\u00E1s lento por un momento.",
+        "it": "L'assistente vocale \u00E8 pronto. Il rilevamento della parola di attivazione si sta ancora preparando e risponde un po' pi\u00F9 lentamente per un momento."
+      }
+    },
+    {
+      "id": "speechCapture.lexicalFallback.detectorFailure",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Die Erkennung des Weckworts reagiert im Moment etwas langsamer.",
+        "en": "Voice assistant is ready. Wake-word detection is responding a little slower at the moment.",
+        "fr": "L'assistant vocal est pr\u00EAt. La d\u00E9tection du mot de r\u00E9veil r\u00E9pond un peu plus lentement en ce moment.",
+        "es": "El asistente de voz est\u00E1 listo. La detecci\u00F3n de la palabra de activaci\u00F3n est\u00E1 respondiendo un poco m\u00E1s lento en este momento.",
+        "it": "L'assistente vocale \u00E8 pronto. Il rilevamento della parola di attivazione sta rispondendo un po' pi\u00F9 lentamente al momento."
+      }
+    },
+    {
+      "id": "speechCapture.lexicalFallback.recognitionOnly",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Die Erkennung des Weckworts kann etwas langsamer reagieren.",
+        "en": "Voice assistant is ready. Wake-word detection may respond a little slower.",
+        "fr": "L'assistant vocal est pr\u00EAt. La d\u00E9tection du mot de r\u00E9veil peut r\u00E9pondre un peu plus lentement.",
+        "es": "El asistente de voz est\u00E1 listo. La detecci\u00F3n de la palabra de activaci\u00F3n puede responder un poco m\u00E1s lento.",
+        "it": "L'assistente vocale \u00E8 pronto. Il rilevamento della parola di attivazione pu\u00F2 rispondere un po' pi\u00F9 lentamente."
+      }
+    },
+    {
+      "id": "speechCapture.lexicalFallback.default",
+      "texts": {
+        "de": "Sprachassistent ist bereit. Die Erkennung des Weckworts kann zurzeit etwas langsamer reagieren.",
+        "en": "Voice assistant is ready. Wake-word detection may respond a little slower for now.",
+        "fr": "L'assistant vocal est pr\u00EAt. La d\u00E9tection du mot de r\u00E9veil peut r\u00E9pondre un peu plus lentement pour l'instant.",
+        "es": "El asistente de voz est\u00E1 listo. La detecci\u00F3n de la palabra de activaci\u00F3n puede responder un poco m\u00E1s lento por ahora.",
+        "it": "L'assistente vocale \u00E8 pronto. Il rilevamento della parola di attivazione pu\u00F2 rispondere un po' pi\u00F9 lentamente per ora."
+      }
+    },
+    {
+      "id": "settings.sessionSetup.title",
+      "texts": {
+        "de": "Sitzung einrichten",
+        "en": "Session setup",
+        "fr": "Pr\u00E9parer la session",
+        "es": "Preparar sesi\u00F3n",
+        "it": "Prepara sessione"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.intro",
+      "texts": {
+        "de": "Bereiten Sie Sprache und Anrede vor, bevor die Versuchsperson den Sprachablauf startet. Beim Speichern wird die n\u00E4chste Assistentensprache und das Anredeprofil festgelegt.",
+        "en": "Prepare language and social addressing before the participant starts the voice workflow. Saving session setup defines the next assistant language and addressing profile.",
+        "fr": "Pr\u00E9parez la langue et la forme d'adresse avant que la personne participante ne commence le flux vocal. L'enregistrement d'une pr\u00E9paration de session d\u00E9finit la prochaine langue de l'assistant et le profil d'adresse.",
+        "es": "Prepara el idioma y el trato social antes de que la persona participante inicie el flujo de voz. Al guardar, se define el siguiente idioma del asistente y el perfil de trato.",
+        "it": "Prepara lingua e forma di cortesia prima che la persona partecipante inizi il flusso vocale. Salvare la preparazione della sessione definisce la prossima lingua dell'assistente e il profilo di cortesia."
+      }
+    },
+    {
+      "id": "settings.sessionSetup.language.label",
+      "texts": {
+        "de": "Sprache",
+        "en": "Language",
+        "fr": "Langue",
+        "es": "Idioma",
+        "it": "Lingua"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.language.help",
+      "texts": {
+        "de": "Die gespeicherte Sprache wird beim n\u00E4chsten Assistentenstart angefordert.",
+        "en": "The saved language becomes the requested language for the next assistant start.",
+        "fr": "La langue enregistr\u00E9e sera demand\u00E9e au prochain d\u00E9marrage de l'assistant.",
+        "es": "El idioma guardado se solicitar\u00E1 en el siguiente inicio del asistente.",
+        "it": "La lingua salvata verr\u00E0 richiesta al prossimo avvio dell'assistente."
+      }
+    },
+    {
+      "id": "settings.sessionSetup.addressingMode.title",
+      "texts": {
+        "de": "Anredeform",
+        "en": "Addressing mode",
+        "fr": "Mode d'adresse",
+        "es": "Modo de trato",
+        "it": "Forma di cortesia"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.label",
+      "texts": {
+        "de": "H\u00F6flichkeit",
+        "en": "Politeness",
+        "fr": "Politesse",
+        "es": "Cortes\u00EDa",
+        "it": "Cortesia"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.formal",
+      "texts": {
+        "de": "Formell",
+        "en": "Formal",
+        "fr": "Formel",
+        "es": "Formal",
+        "it": "Formale"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.informal",
+      "texts": {
+        "de": "Informell",
+        "en": "Informal",
+        "fr": "Informel",
+        "es": "Informal",
+        "it": "Informale"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.help",
+      "texts": {
+        "de": "Die Einstellung beeinflusst Prompts mit formellen oder informellen Varianten.",
+        "en": "The setting affects prompts that offer formal or informal wording variants.",
+        "fr": "Ce r\u00E9glage influence les prompts proposant des variantes formelles ou informelles.",
+        "es": "Este ajuste afecta a los prompts que ofrecen variantes formales o informales.",
+        "it": "L'impostazione influenza i prompt che offrono varianti formali o informali."
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.none",
+      "texts": {
+        "de": "Die ausgew\u00E4hlte Sprache hat im aktuellen Sprachmodell kein eigenes H\u00F6flichkeitsprofil.",
+        "en": "The selected language does not expose a dedicated formal or informal profile in the current voice model.",
+        "fr": "La langue s\u00E9lectionn\u00E9e n'expose pas de profil formel ou informel d\u00E9di\u00E9 dans le mod\u00E8le vocal actuel.",
+        "es": "El idioma seleccionado no ofrece un perfil formal o informal propio en el modelo de voz actual.",
+        "it": "La lingua selezionata non espone un profilo di cortesia dedicato nel modello vocale corrente."
+      }
+    },
+    {
+      "id": "settings.sessionSetup.effectiveTarget.title",
+      "texts": {
+        "de": "Aktuelles Zielprofil",
+        "en": "Current effective target",
+        "fr": "Profil cible actuel",
+        "es": "Perfil de destino actual",
+        "it": "Profilo di destinazione attuale"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.savedLanguage.summary",
+      "texts": {
+        "de": "Gespeicherte Sprache: {languageName}",
+        "en": "Saved language: {languageName}",
+        "fr": "Langue enregistr\u00E9e : {languageName}",
+        "es": "Idioma guardado: {languageName}",
+        "it": "Lingua salvata: {languageName}"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.summary",
+      "texts": {
+        "de": "H\u00F6flichkeit: {politeness}",
+        "en": "Politeness: {politeness}",
+        "fr": "Politesse : {politeness}",
+        "es": "Cortes\u00EDa: {politeness}",
+        "it": "Cortesia: {politeness}"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.politeness.default",
+      "texts": {
+        "de": "Standard",
+        "en": "Default",
+        "fr": "Par d\u00E9faut",
+        "es": "Predeterminado",
+        "it": "Predefinito"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.save.button",
+      "texts": {
+        "de": "Sitzungseinrichtung speichern",
+        "en": "Save session setup",
+        "fr": "Enregistrer la pr\u00E9paration de session",
+        "es": "Guardar preparaci\u00F3n de la sesi\u00F3n",
+        "it": "Salva preparazione della sessione"
+      }
+    },
+    {
+      "id": "settings.sessionSetup.save.success",
+      "texts": {
+        "de": "Die Sitzungseinrichtung wurde f\u00FCr den n\u00E4chsten Assistentenstart gespeichert.",
+        "en": "Session setup saved for the next assistant start.",
+        "fr": "La pr\u00E9paration de session a \u00E9t\u00E9 enregistr\u00E9e pour le prochain d\u00E9marrage de l'assistant.",
+        "es": "La preparaci\u00F3n de la sesi\u00F3n se guard\u00F3 para el siguiente inicio del asistente.",
+        "it": "La preparazione della sessione \u00E8 stata salvata per il prossimo avvio dell'assistente."
+      }
+    },
+    {
+      "id": "settings.earconGuide.title",
+      "texts": {
+        "de": "Earcon-Leitfaden",
+        "en": "Earcon guide",
+        "fr": "Guide des earcons",
+        "es": "Gu\u00EDa de earcons",
+        "it": "Guida agli earcon"
+      }
+    },
+    {
+      "id": "settings.earconGuide.playCue",
+      "texts": {
+        "de": "Signal abspielen",
+        "en": "Play cue",
+        "fr": "Lire le signal",
+        "es": "Reproducir se\u00F1al",
+        "it": "Riproduci segnale"
+      }
+    },
+    {
+      "id": "settings.earconGuide.stopAll",
+      "texts": {
+        "de": "Alle Vorschauen stoppen",
+        "en": "Stop all previews",
+        "fr": "Arr\u00EAter toutes les pr\u00E9\u00E9coutes",
+        "es": "Detener todas las vistas previas",
+        "it": "Arresta tutte le anteprime"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.title",
+      "texts": {
+        "de": "Wake-Word-Konfiguration",
+        "en": "Wake word configuration",
+        "fr": "Configuration du mot d'\u00E9veil",
+        "es": "Configuraci\u00F3n de wake words",
+        "it": "Configurazione wake word"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.intro",
+      "texts": {
+        "de": "Wake Words werden nur auf der Startseite ausgewertet. Auf Wake-Word-gesch\u00FCtzten Fl\u00E4chen wird eine gesprochene Unterbrechung erst mit Wake-Word-Hinweisen zu einem echten Befehlsversuch.",
+        "en": "Wake words are only evaluated on the Home screen. On wake-word-gated surfaces, a spoken interruption only becomes a real command attempt when wake-word evidence is present.",
+        "fr": "Les mots d'\u00E9veil ne sont \u00E9valu\u00E9s que sur l'\u00E9cran d'accueil. Sur les surfaces prot\u00E9g\u00E9es par un mot d'\u00E9veil, une interruption parl\u00E9e ne devient une v\u00E9ritable tentative de commande que si un indice de mot d'\u00E9veil est pr\u00E9sent.",
+        "es": "Las wake words solo se eval\u00FAan en la pantalla de inicio. En superficies protegidas por wake words, una interrupci\u00F3n hablada solo se convierte en un intento de comando real cuando hay evidencia de wake word.",
+        "it": "Le wake word vengono valutate solo nella schermata iniziale. Nelle superfici protette da wake word, un'interruzione parlata diventa un vero tentativo di comando solo quando sono presenti indizi della wake word."
+      }
+    },
+    {
+      "id": "settings.voiceActivation.modeledDefaults.title",
+      "texts": {
+        "de": "Modellierte Standards",
+        "en": "Modeled defaults",
+        "fr": "Valeurs mod\u00E9lis\u00E9es",
+        "es": "Valores modelados",
+        "it": "Valori modellati"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.modeledDefaults.none",
+      "texts": {
+        "de": "F\u00FCr die aktuelle Sitzungssprache sind keine Wake Words modelliert.",
+        "en": "No wake words are modeled for the current session language.",
+        "fr": "Aucun mot d'\u00E9veil n'est mod\u00E9lis\u00E9 pour la langue de session actuelle.",
+        "es": "No hay wake words modeladas para el idioma actual de la sesi\u00F3n.",
+        "it": "Nessuna wake word \u00E8 modellata per la lingua di sessione corrente."
+      }
+    },
+    {
+      "id": "settings.voiceActivation.localOverride.title",
+      "texts": {
+        "de": "Lokale \u00DCberschreibung",
+        "en": "Local override",
+        "fr": "Surcharge locale",
+        "es": "Anulaci\u00F3n local",
+        "it": "Sovrascrittura locale"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.localOverride.help",
+      "texts": {
+        "de": "Eine Aktivierungsform pro Zeile.",
+        "en": "One activation form per line.",
+        "fr": "Une forme d'activation par ligne.",
+        "es": "Una forma de activaci\u00F3n por l\u00EDnea.",
+        "it": "Una forma di attivazione per riga."
+      }
+    },
+    {
+      "id": "settings.voiceActivation.save",
+      "texts": {
+        "de": "Speichern",
+        "en": "Save",
+        "fr": "Enregistrer",
+        "es": "Guardar",
+        "it": "Salva"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.reset",
+      "texts": {
+        "de": "Auf Organisationsstandard zur\u00FCcksetzen",
+        "en": "Reset to organization defaults",
+        "fr": "R\u00E9tablir les valeurs de l'organisation",
+        "es": "Restablecer a los valores de la organizaci\u00F3n",
+        "it": "Ripristina i valori dell'organizzazione"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.speechReview.title",
+      "texts": {
+        "de": "Sprachgest\u00FCtzte Pr\u00FCfung",
+        "en": "Speech-guided review",
+        "fr": "V\u00E9rification guid\u00E9e par la voix",
+        "es": "Revisi\u00F3n guiada por voz",
+        "it": "Revisione guidata dalla voce"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.speechReview.intro",
+      "texts": {
+        "de": "Dieselben modellierten Wake-Word-Semantiken k\u00F6nnen in einem sprachgef\u00FChrten Ablauf gepr\u00FCft werden.",
+        "en": "The same modeled wake-word semantics can be reviewed through a speech-guided reconfiguration flow.",
+        "fr": "La m\u00EAme s\u00E9mantique mod\u00E9lis\u00E9e des mots d'\u00E9veil peut \u00EAtre v\u00E9rifi\u00E9e par un flux de reconfiguration guid\u00E9 par la voix.",
+        "es": "La misma sem\u00E1ntica modelada de wake words puede revisarse mediante un flujo de reconfiguraci\u00F3n guiado por voz.",
+        "it": "La stessa semantica modellata delle wake word pu\u00F2 essere verificata tramite un flusso di riconfigurazione guidato dalla voce."
+      }
+    },
+    {
+      "id": "settings.voiceActivation.speechReview.run",
+      "texts": {
+        "de": "Sprachgest\u00FCtzte Pr\u00FCfung starten",
+        "en": "Run speech-guided review",
+        "fr": "Lancer la v\u00E9rification guid\u00E9e par la voix",
+        "es": "Iniciar revisi\u00F3n guiada por voz",
+        "it": "Avvia revisione guidata dalla voce"
+      }
+    },
+    {
+      "id": "settings.voiceActivation.save.success",
+      "texts": {
+        "de": "Die Wake-Word-\u00DCberschreibung wurde gespeichert.",
+        "en": "Wake word override saved.",
+        "fr": "La surcharge du mot d'\u00E9veil a \u00E9t\u00E9 enregistr\u00E9e.",
+        "es": "La anulaci\u00F3n de wake word se guard\u00F3.",
+        "it": "La sovrascrittura della wake word \u00E8 stata salvata."
+      }
+    },
+    {
+      "id": "settings.voiceActivation.reset.success",
+      "texts": {
+        "de": "Die Wake-Word-\u00DCberschreibung wurde auf die modellierten Standards zur\u00FCckgesetzt.",
+        "en": "Wake word override reset to modeled defaults.",
+        "fr": "La surcharge du mot d'\u00E9veil a \u00E9t\u00E9 r\u00E9initialis\u00E9e sur les valeurs mod\u00E9lis\u00E9es.",
+        "es": "La anulaci\u00F3n de wake word se restableci\u00F3 a los valores modelados.",
+        "it": "La sovrascrittura della wake word \u00E8 stata ripristinata ai valori modellati."
+      }
+    },
+    {
+      "id": "settings.voiceActivation.speechReview.success",
+      "texts": {
+        "de": "Die sprachgest\u00FCtzte Wake-Word-Pr\u00FCfung wurde abgeschlossen.",
+        "en": "Speech-guided wake word review finished.",
+        "fr": "La v\u00E9rification guid\u00E9e par la voix du mot d'\u00E9veil est termin\u00E9e.",
+        "es": "La revisi\u00F3n guiada por voz de la wake word finaliz\u00F3.",
+        "it": "La revisione guidata dalla voce della wake word \u00E8 terminata."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.title",
+      "texts": {
+        "de": "Verhalten des Sprachdialogs",
+        "en": "Voice dialog behavior",
+        "fr": "Comportement du dialogue vocal",
+        "es": "Comportamiento del di\u00E1logo de voz",
+        "it": "Comportamento del dialogo vocale"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.intro",
+      "texts": {
+        "de": "Wirksame Reihenfolge: Formularhinweis, Ger\u00E4te-\u00DCberschreibung, Anwendungs-\u00DCberschreibung, Katalog- oder Anwendungsstandard. Die Einstellung zum Unterbrechen per Sprache aktiviert nur die mechanische Unterbrechung; ob daraus ein echter Befehlsversuch wird, h\u00E4ngt weiter von der Aktivierungsregel der aktuellen Sprachoberfl\u00E4che ab.",
+        "en": "Effective precedence: form hint, device override, application override, catalog or application default. The voice interruption setting only enables mechanical interruption; whether an interruption becomes a real command attempt still depends on the activation rule of the current voice surface.",
+        "fr": "Pr\u00E9s\u00E9ance effective : indication du formulaire, surcharge de l'appareil, surcharge de l'application, valeur par d\u00E9faut du catalogue ou de l'application. Le r\u00E9glage d'interruption vocale active seulement l'interruption m\u00E9canique ; le fait qu'une interruption devienne une v\u00E9ritable tentative de commande d\u00E9pend toujours de la r\u00E8gle d'activation de la surface vocale actuelle.",
+        "es": "Precedencia efectiva: sugerencia del formulario, anulaci\u00F3n del dispositivo, anulaci\u00F3n de la aplicaci\u00F3n, valor predeterminado del cat\u00E1logo o de la aplicaci\u00F3n. El ajuste de interrupci\u00F3n por voz solo habilita la interrupci\u00F3n mec\u00E1nica; que una interrupci\u00F3n se convierta en un intento de comando real sigue dependiendo de la regla de activaci\u00F3n de la superficie de voz actual.",
+        "it": "Precedenza effettiva: suggerimento del modulo, sovrascrittura del dispositivo, sovrascrittura dell'applicazione, valore predefinito del catalogo o dell'applicazione. L'impostazione di interruzione vocale abilita solo l'interruzione meccanica; il fatto che un'interruzione diventi un vero tentativo di comando dipende ancora dalla regola di attivazione della superficie vocale corrente."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.deviceOverride.title",
+      "texts": {
+        "de": "Ger\u00E4te-\u00DCberschreibung",
+        "en": "Device override",
+        "fr": "Surcharge de l'appareil",
+        "es": "Anulaci\u00F3n del dispositivo",
+        "it": "Sovrascrittura del dispositivo"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.deviceOverride.help",
+      "texts": {
+        "de": "Gilt f\u00FCr alle Formulardialoge auf diesem Ger\u00E4t. Die Startseite bleibt auch dann wake-word-gesch\u00FCtzt, wenn Barge-in hier aktiviert ist.",
+        "en": "Applies to all form dialogs on this device. Home remains wake-word-gated even when barge-in is enabled here.",
+        "fr": "S'applique \u00E0 tous les dialogues de formulaire sur cet appareil. L'accueil reste prot\u00E9g\u00E9 par un mot d'\u00E9veil m\u00EAme lorsque le barge-in est activ\u00E9 ici.",
+        "es": "Se aplica a todos los di\u00E1logos de formularios de este dispositivo. La pantalla de inicio sigue protegida por wake words incluso cuando aqu\u00ED se habilita barge-in.",
+        "it": "Si applica a tutti i dialoghi del modulo su questo dispositivo. La schermata iniziale resta protetta da wake word anche quando qui \u00E8 abilitato il barge-in."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.autoAdvanceDeviceOverride.title",
+      "texts": {
+        "de": "Automatisch zum n\u00E4chsten Feld",
+        "en": "Auto-advance to next field",
+        "fr": "Avance automatique au champ suivant",
+        "es": "Avance autom\u00E1tico al siguiente campo",
+        "it": "Avanzamento automatico al campo successivo"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.autoAdvanceDeviceOverride.help",
+      "texts": {
+        "de": "Gilt f\u00FCr alle Formulardialoge auf diesem Ger\u00E4t. Wenn deaktiviert, bleibt der Fokus nach dem Speichern auf dem Feld und Sie steuern die Navigation mit weiter oder absenden.",
+        "en": "Applies to all form dialogs on this device. When disabled, focus stays on the field after saving and you drive navigation with next or submit.",
+        "fr": "S'applique \u00E0 tous les dialogues de formulaire sur cet appareil. Lorsque d\u00E9sactiv\u00E9, le focus reste sur le champ apr\u00E8s l'enregistrement et vous pilotez la navigation avec suivant ou envoyer.",
+        "es": "Se aplica a todos los di\u00E1logos de formularios de este dispositivo. Cuando est\u00E1 desactivado, el foco permanece en el campo tras guardar y usted controla la navegaci\u00F3n con siguiente o enviar.",
+        "it": "Si applica a tutti i dialoghi del modulo su questo dispositivo. Quando disattivato, il focus resta sul campo dopo il salvataggio e si controlla la navigazione con avanti o invia."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.deviceOverride.useApplication",
+      "texts": {
+        "de": "Anwendungseinstellung verwenden",
+        "en": "Use application setting",
+        "fr": "Utiliser le param\u00E8tre de l'application",
+        "es": "Usar la configuraci\u00F3n de la aplicaci\u00F3n",
+        "it": "Usa impostazione dell'applicazione"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.deviceOverride.alwaysEnable",
+      "texts": {
+        "de": "Barge-in immer aktivieren",
+        "en": "Always enable barge-in",
+        "fr": "Toujours activer le barge-in",
+        "es": "Activar siempre barge-in",
+        "it": "Abilita sempre il barge-in"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.deviceOverride.alwaysDisable",
+      "texts": {
+        "de": "Barge-in immer deaktivieren",
+        "en": "Always disable barge-in",
+        "fr": "Toujours d\u00E9sactiver le barge-in",
+        "es": "Desactivar siempre barge-in",
+        "it": "Disabilita sempre il barge-in"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.browserDebug.title",
+      "texts": {
+        "de": "Browser-Debug",
+        "en": "Browser debug",
+        "fr": "D\u00E9bogage du navigateur",
+        "es": "Depuraci\u00F3n del navegador",
+        "it": "Debug del browser"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.browserDebug.help",
+      "texts": {
+        "de": "Schreibt zus\u00E4tzliche Sprach- und Sitzungsdiagnosen f\u00FCr dieses Ger\u00E4t in die Browserkonsole. Sitzungsabschriften k\u00F6nnen im Protokoll erscheinen.",
+        "en": "Writes additional voice and session diagnostics to the browser console on this device. Session transcript text may appear in the log.",
+        "fr": "Inscrit des diagnostics suppl\u00E9mentaires de voix et de session dans la console du navigateur de cet appareil. Le texte de la transcription de session peut appara\u00EEtre dans le journal.",
+        "es": "Escribe diagn\u00F3sticos adicionales de voz y sesi\u00F3n en la consola del navegador de este dispositivo. El texto de la transcripci\u00F3n de la sesi\u00F3n puede aparecer en el registro.",
+        "it": "Scrive diagnosi aggiuntive di voce e sessione nella console del browser di questo dispositivo. Il testo della trascrizione della sessione pu\u00F2 comparire nel log."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.browserDebug.enable",
+      "texts": {
+        "de": "Browser-Debug-Protokollierung aktivieren",
+        "en": "Enable browser debug logging",
+        "fr": "Activer la journalisation de d\u00E9bogage du navigateur",
+        "es": "Activar el registro de depuraci\u00F3n del navegador",
+        "it": "Abilita il log di debug del browser"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.applicationOverrides.title",
+      "texts": {
+        "de": "Anwendungs-\u00DCberschreibungen",
+        "en": "Application overrides",
+        "fr": "Surcharges de l'application",
+        "es": "Anulaciones de la aplicaci\u00F3n",
+        "it": "Sovrascritture dell'applicazione"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.applicationOverrides.help",
+      "texts": {
+        "de": "Katalog- und Anwendungsstandards bleiben sichtbar; die \u00DCberschreibung wird nur in diesem Browser gespeichert.",
+        "en": "Catalog and application defaults remain visible; the override is stored only in this browser.",
+        "fr": "Les valeurs par d\u00E9faut du catalogue et de l'application restent visibles ; la surcharge n'est stock\u00E9e que dans ce navigateur.",
+        "es": "Los valores predeterminados del cat\u00E1logo y de la aplicaci\u00F3n siguen visibles; la anulaci\u00F3n solo se guarda en este navegador.",
+        "it": "I valori predefiniti del catalogo e dell'applicazione restano visibili; la sovrascrittura viene salvata solo in questo browser."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.applicationOverrides.none",
+      "texts": {
+        "de": "Keine Anwendungen verf\u00FCgbar.",
+        "en": "No applications available.",
+        "fr": "Aucune application disponible.",
+        "es": "No hay aplicaciones disponibles.",
+        "it": "Nessuna applicazione disponibile."
+      }
+    },
+    {
+      "id": "settings.voiceDialog.table.application",
+      "texts": {
+        "de": "Anwendung",
+        "en": "Application",
+        "fr": "Application",
+        "es": "Aplicaci\u00F3n",
+        "it": "Applicazione"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.table.catalogDefault",
+      "texts": {
+        "de": "Katalog- oder Anwendungsstandard",
+        "en": "Catalog or application default",
+        "fr": "Valeur par d\u00E9faut du catalogue ou de l'application",
+        "es": "Valor predeterminado del cat\u00E1logo o de la aplicaci\u00F3n",
+        "it": "Valore predefinito del catalogo o dell'applicazione"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.table.localOverride",
+      "texts": {
+        "de": "Lokale Anwendungs-\u00DCberschreibung",
+        "en": "Local application override",
+        "fr": "Surcharge locale de l'application",
+        "es": "Anulaci\u00F3n local de la aplicaci\u00F3n",
+        "it": "Sovrascrittura locale dell'applicazione"
+      }
+    },
+    {
+      "id": "settings.voiceDialog.table.useCatalogDefault",
+      "texts": {
+        "de": "Katalog- oder Anwendungsstandard verwenden",
+        "en": "Use catalog or application default",
+        "fr": "Utiliser la valeur par d\u00E9faut du catalogue ou de l'application",
+        "es": "Usar el valor predeterminado del cat\u00E1logo o de la aplicaci\u00F3n",
+        "it": "Usa il valore predefinito del catalogo o dell'applicazione"
+      }
+    },
+    {
+      "id": "settings.audio.volumeTest",
+      "texts": {
+        "de": "Dies ist ein Lautst\u00E4rke-Test. Bewegen Sie den Regler, um die Lautst\u00E4rke einzustellen. Dr\u00FCcken Sie die Taste erneut, um den Test zu beenden.",
+        "en": "This is a volume test. Move the slider to adjust the volume. Press the button again to stop the test.",
+        "fr": "Ceci est un test de volume. D\u00E9placez le curseur pour r\u00E9gler le volume. Appuyez de nouveau sur le bouton pour arr\u00EAter le test.",
+        "es": "Esta es una prueba de volumen. Mueve el control deslizante para ajustar el volumen. Pulsa el bot\u00F3n de nuevo para detener la prueba.",
+        "it": "Questo \u00E8 un test del volume. Sposta il cursore per regolare il volume. Premi di nuovo il pulsante per interrompere il test."
+      }
+    }
+  ]
+}

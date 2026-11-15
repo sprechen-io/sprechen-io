@@ -1,0 +1,1423 @@
+{
+  "schemaVersion": "1",
+  "modelVersion": "5",
+  "selectionDialogId": "sample.application-selection-dialog",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "es",
+    "fr",
+    "it"
+  ],
+  "strictLocalization": true,
+  "defaultLanguage": "de",
+  "prompts": [
+    {
+      "promptId": "catalog.app.announcing.single",
+      "text": {
+        "de": "Ganz wichtig: Geben Sie auf keinen Fall echte oder pers\u00F6nliche Daten ein. Es gibt eine Anwendung, sie hei\u00DFt {{name}}. Sagen Sie den Namen oder Hilfe.",
+        "de@informal": "Ganz wichtig: Gib auf keinen Fall echte oder pers\u00F6nliche Daten ein. Es gibt eine Anwendung, sie hei\u00DFt {{name}}. Sag den Namen oder Hilfe.",
+        "en": "Important: Do not enter any real or personal data under any circumstances. There is one application: {{name}}. Say the name or help.",
+        "fr": "Important : ne saisissez en aucun cas des donn\u00E9es r\u00E9elles ou personnelles. Il y a une application : {{name}}. Dites le nom ou l'aide.",
+        "fr@informal": "Important : ne saisis en aucun cas des donn\u00E9es r\u00E9elles ou personnelles. Il y a une application : {{name}}. Dis le nom ou l'aide.",
+        "es": "Importante: no introduzca en ning\u00FAn caso datos reales o personales. Hay una aplicaci\u00F3n: {{name}}. Diga el nombre o ayuda.",
+        "es@informal": "Importante: no introduzcas en ning\u00FAn caso datos reales o personales. Hay una aplicaci\u00F3n: {{name}}. Di el nombre o ayuda.",
+        "it": "Importante: non inserisca in nessun caso dati reali o personali. C'\u00E8 un'applicazione: {{name}}. Dica il nome o aiuto.",
+        "it@informal": "Importante: non inserire in nessun caso dati reali o personali. C'\u00E8 un'applicazione: {{name}}. Di' il nome o aiuto."
+      }
+    },
+    {
+      "promptId": "catalog.app.announcing.multiple",
+      "text": {
+        "de@formal": "Ganz wichtig: Geben Sie auf keinen Fall echte oder pers\u00F6nliche Daten ein. Es gibt {{count}} Anwendungen.",
+        "de@informal": "Ganz wichtig: Gib auf keinen Fall echte oder pers\u00F6nliche Daten ein. Es gibt {{count}} Anwendungen.",
+        "en": "Important: Do not enter any real or personal data under any circumstances. There are {{count}} applications.",
+        "fr": "Important : ne saisissez en aucun cas des donn\u00E9es r\u00E9elles ou personnelles. Il y a {{count}} applications.",
+        "fr@informal": "Important : ne saisis en aucun cas des donn\u00E9es r\u00E9elles ou personnelles. Il y a {{count}} applications.",
+        "es": "Importante: no introduzca en ning\u00FAn caso datos reales o personales. Hay {{count}} aplicaciones.",
+        "es@informal": "Importante: no introduzcas en ning\u00FAn caso datos reales o personales. Hay {{count}} aplicaciones.",
+        "it": "Importante: non inserisca in nessun caso dati reali o personali. Ci sono {{count}} applicazioni.",
+        "it@informal": "Importante: non inserire in nessun caso dati reali o personali. Ci sono {{count}} applicazioni."
+      }
+    },
+    {
+      "promptId": "catalog.app.ambiguity.short.intro",
+      "text": {
+        "de": "Ich habe {{count}} passende Anwendungen gefunden.",
+        "en": "I found {{count}} matching applications.",
+        "fr": "J'ai trouv\u00E9 {{count}} applications correspondantes.",
+        "es": "He encontrado {{count}} aplicaciones que coinciden.",
+        "it": "Ho trovato {{count}} applicazioni corrispondenti."
+      }
+    },
+    {
+      "promptId": "catalog.app.ambiguity.refineOrList",
+      "text": {
+        "de@formal": "Ich habe {{count}} passende Anwendungen gefunden. Nennen Sie einen genaueren Teil des Namens, sagen Sie \u201Ealle Anwendungen\u201C f\u00FCr die vollst\u00E4ndige Liste oder \u201Eabbrechen\u201C.",
+        "de@informal": "Ich habe {{count}} passende Anwendungen gefunden. Nenne einen genaueren Teil des Namens, sag \u201Ealle Anwendungen\u201C f\u00FCr die vollst\u00E4ndige Liste oder \u201Eabbrechen\u201C.",
+        "en": "I found {{count}} matching applications. Say a more specific part of the name, \u201Call applications\u201D for the full list, or \u201Ccancel\u201D.",
+        "fr": "J'ai trouv\u00E9 {{count}} applications correspondantes. Dites une partie plus pr\u00E9cise du nom, \u00AB toutes les applications \u00BB pour la liste compl\u00E8te ou \u00AB annuler \u00BB.",
+        "fr@informal": "J'ai trouv\u00E9 {{count}} applications correspondantes. Dis une partie plus pr\u00E9cise du nom, \u00AB toutes les applications \u00BB pour la liste compl\u00E8te ou \u00AB annuler \u00BB.",
+        "es": "He encontrado {{count}} aplicaciones que coinciden. Diga una parte m\u00E1s precisa del nombre, \u00AB todas las aplicaciones \u00BB para la lista completa o \u00AB cancelar \u00BB.",
+        "es@informal": "He encontrado {{count}} aplicaciones que coinciden. Di una parte m\u00E1s precisa del nombre, \u00AB todas las aplicaciones \u00BB para la lista completa o \u00AB cancelar \u00BB.",
+        "it": "Ho trovato {{count}} applicazioni corrispondenti. Dica una parte pi\u00F9 precisa del nome, \u00AB tutte le applicazioni \u00BB per l'elenco completo oppure \u00AB annulla \u00BB.",
+        "it@informal": "Ho trovato {{count}} applicazioni corrispondenti. Di' una parte pi\u00F9 precisa del nome, \u00AB tutte le applicazioni \u00BB per l'elenco completo oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.list.intro",
+      "text": {
+        "de": "Es sind {{count}} Anwendungen verf\u00FCgbar.",
+        "en": "Available applications: {{count}}.",
+        "fr": "Applications disponibles: {{count}}.",
+        "es": "Aplicaciones disponibles: {{count}}.",
+        "it": "Applicazioni disponibili: {{count}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.list.item",
+      "text": {
+        "de": "Nummer {{number}} ist {{name}}.",
+        "en": "Number {{number}}: {{name}}.",
+        "fr": "Num\u00E9ro {{number}}: {{name}}.",
+        "es": "N\u00FAmero {{number}}: {{name}}.",
+        "it": "Numero {{number}}: {{name}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.list.selectPrompt",
+      "text": {
+        "de@formal": "Sagen Sie die Nummer, den Namen, \u201EHilfe\u201C oder \u201Eabbrechen\u201C.",
+        "de@informal": "Sag die Nummer, den Namen, \u201EHilfe\u201C oder \u201Eabbrechen\u201C.",
+        "en": "Say the number, name, \u201Chelp\u201D, or \u201Ccancel\u201D.",
+        "fr": "Dites le num\u00E9ro, le nom, \u00AB aide \u00BB ou \u00AB annuler \u00BB.",
+        "fr@informal": "Dis le num\u00E9ro, le nom, \u00AB aide \u00BB ou \u00AB annuler \u00BB.",
+        "es": "Diga el n\u00FAmero, el nombre, \u00AB ayuda \u00BB o \u00AB cancelar \u00BB.",
+        "es@informal": "Di el n\u00FAmero, el nombre, \u00AB ayuda \u00BB o \u00AB cancelar \u00BB.",
+        "it": "Dica il numero, il nome, \u00AB aiuto \u00BB o \u00AB annulla \u00BB.",
+        "it@informal": "Di' il numero, il nome, \u00AB aiuto \u00BB o \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.search.results.intro",
+      "text": {
+        "de": "Gefunden wurden {{count}} Anwendungen f\u00FCr {{query}}.",
+        "en": "Found {{count}} applications for {{query}}.",
+        "fr": "Trouv\u00E9 : {{count}} applications pour {{query}}.",
+        "es": "Encontrado: {{count}} aplicaciones para {{query}}.",
+        "it": "Trovato: {{count}} applicazioni per {{query}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.search.results.item",
+      "text": {
+        "de": "Nummer {{number}} ist {{name}}.",
+        "en": "Number {{number}}: {{name}}.",
+        "fr": "Num\u00E9ro {{number}}: {{name}}.",
+        "es": "N\u00FAmero {{number}}: {{name}}.",
+        "it": "Numero {{number}}: {{name}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation",
+      "text": {
+        "de": "Gemeint ist {{name}}. Ist das richtig?",
+        "en": "{{name}}. Is that correct?",
+        "fr": "{{name}}. Est-ce correct ?",
+        "es": "{{name}}. \u00BFEs correcto?",
+        "it": "{{name}}. \u00C8 corretto?"
+      }
+    },
+    {
+      "promptId": "catalog.app.lowConfidence.confirm",
+      "text": {
+        "de": "Ich habe {{name}} verstanden. Ist das richtig?",
+        "en": "I understood {{name}}. Is that correct?",
+        "fr": "J'ai compris {{name}}. Est-ce correct ?",
+        "es": "He entendido {{name}}. \u00BFEs correcto?",
+        "it": "Ho capito {{name}}. \u00C8 corretto?"
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.repeat",
+      "text": {
+        "de": "Bitte sagen Sie ja oder nein.",
+        "de@informal": "Bitte sag ja oder nein.",
+        "en": "Please say yes or no.",
+        "fr": "Dites oui ou non.",
+        "fr@informal": "Dis oui ou non.",
+        "es": "Diga s\u00ED o no.",
+        "es@informal": "Di s\u00ED o no.",
+        "it": "Dica s\u00EC o no.",
+        "it@informal": "Di' s\u00EC o no."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.explicitAuthorization",
+      "text": {
+        "de@formal": "Ich habe Ihr \u201EJa\u201C verstanden, aber nicht sicher genug, um {{name}} zu \u00F6ffnen. Sagen Sie bitte noch einmal \u201Eja\u201C. Alternativ sagen Sie \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C. Sie k\u00F6nnen auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "de@informal": "Ich habe dein \u201EJa\u201C verstanden, aber nicht sicher genug, um {{name}} zu \u00F6ffnen. Sag bitte noch einmal \u201Eja\u201C. Alternativ sag \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C. Du kannst auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "en": "I heard your \u201Cyes\u201D, but not clearly enough to open {{name}}. Please say \u201Cyes\u201D again. Alternatively, say \u201Copen {{name}}\u201D or \u201Cnumber {{number}}\u201D. You can also say \u201Cno\u201D or \u201Ccancel\u201D.",
+        "fr": "J'ai compris votre \u00AB oui \u00BB, mais pas assez clairement pour ouvrir {{name}}. Dites encore \u00AB oui \u00BB, s'il vous pla\u00EEt. Vous pouvez aussi dire \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "fr@informal": "J'ai compris ton \u00AB oui \u00BB, mais pas assez clairement pour ouvrir {{name}}. Dis encore \u00AB oui \u00BB, s'il te pla\u00EEt. Tu peux aussi dire \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "es": "He entendido su \u00AB s\u00ED \u00BB, pero no con suficiente claridad para abrir {{name}}. Diga de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puede decir \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "es@informal": "He entendido tu \u00AB s\u00ED \u00BB, pero no con suficiente claridad para abrir {{name}}. Di de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puedes decir \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "it": "Ho capito il suo \u00AB s\u00EC \u00BB, ma non abbastanza chiaramente da aprire {{name}}. Dica di nuovo \u00AB s\u00EC \u00BB, per favore. Pu\u00F2 anche dire \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB.",
+        "it@informal": "Ho capito il tuo \u00AB s\u00EC \u00BB, ma non abbastanza chiaramente da aprire {{name}}. Di' di nuovo \u00AB s\u00EC \u00BB, per favore. Puoi anche dire \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.verificationUnavailable",
+      "text": {
+        "de@formal": "Ich habe Ihr \u201EJa\u201C verstanden, konnte die Erkennung aber technisch nicht sicher pr\u00FCfen. Sagen Sie bitte noch einmal \u201Eja\u201C. Alternativ sagen Sie \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C. Sie k\u00F6nnen auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "de@informal": "Ich habe dein \u201EJa\u201C verstanden, konnte die Erkennung aber technisch nicht sicher pr\u00FCfen. Sag bitte noch einmal \u201Eja\u201C. Alternativ sag \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C. Du kannst auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "en": "I heard your \u201Cyes\u201D, but could not verify the recognition reliably. Please say \u201Cyes\u201D again. Alternatively, say \u201Copen {{name}}\u201D or \u201Cnumber {{number}}\u201D. You can also say \u201Cno\u201D or \u201Ccancel\u201D.",
+        "fr": "J'ai compris votre \u00AB oui \u00BB, mais je n'ai pas pu v\u00E9rifier la reconnaissance de fa\u00E7on fiable. Dites encore \u00AB oui \u00BB, s'il vous pla\u00EEt. Vous pouvez aussi dire \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "fr@informal": "J'ai compris ton \u00AB oui \u00BB, mais je n'ai pas pu v\u00E9rifier la reconnaissance de fa\u00E7on fiable. Dis encore \u00AB oui \u00BB, s'il te pla\u00EEt. Tu peux aussi dire \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "es": "He entendido su \u00AB s\u00ED \u00BB, pero no he podido verificar el reconocimiento de forma fiable. Diga de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puede decir \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "es@informal": "He entendido tu \u00AB s\u00ED \u00BB, pero no he podido verificar el reconocimiento de forma fiable. Di de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puedes decir \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "it": "Ho capito il suo \u00AB s\u00EC \u00BB, ma non ho potuto verificare il riconoscimento in modo affidabile. Dica di nuovo \u00AB s\u00EC \u00BB, per favore. Pu\u00F2 anche dire \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB.",
+        "it@informal": "Ho capito il tuo \u00AB s\u00EC \u00BB, ma non ho potuto verificare il riconoscimento in modo affidabile. Di' di nuovo \u00AB s\u00EC \u00BB, per favore. Puoi anche dire \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.help.initial",
+      "text": {
+        "de@formal": "Sie best\u00E4tigen die Anwendung {{name}}. Sagen Sie \u201Eja\u201C, um diese Auswahl zu best\u00E4tigen, \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "de@informal": "Du best\u00E4tigst die Anwendung {{name}}. Sag \u201Eja\u201C, um diese Auswahl zu best\u00E4tigen, \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "en": "You are confirming the application {{name}}. Say \u201Cyes\u201D to confirm this choice, \u201Cno\u201D to return to selection, or \u201Ccancel\u201D.",
+        "fr": "Vous confirmez l'application {{name}}. Dites \u00AB oui \u00BB pour confirmer ce choix, \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "fr@informal": "Tu confirmes l'application {{name}}. Dis \u00AB oui \u00BB pour confirmer ce choix, \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "es": "Est\u00E1 confirmando la aplicaci\u00F3n {{name}}. Diga \u00AB s\u00ED \u00BB para confirmar esta elecci\u00F3n, \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "es@informal": "Est\u00E1s confirmando la aplicaci\u00F3n {{name}}. Di \u00AB s\u00ED \u00BB para confirmar esta elecci\u00F3n, \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "it": "Sta confermando l'applicazione {{name}}. Dica \u00AB s\u00EC \u00BB per confermare questa scelta, \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB.",
+        "it@informal": "Stai confermando l'applicazione {{name}}. Di' \u00AB s\u00EC \u00BB per confermare questa scelta, \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.help.explicitAuthorization",
+      "text": {
+        "de@formal": "Sie best\u00E4tigen die Anwendung {{name}}. Sagen Sie \u201Eja\u201C, \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C, um sie zu \u00F6ffnen. Sagen Sie \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "de@informal": "Du best\u00E4tigst die Anwendung {{name}}. Sag \u201Eja\u201C, \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C, um sie zu \u00F6ffnen. Sag \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "en": "You are confirming the application {{name}}. Say \u201Cyes\u201D, \u201Copen {{name}}\u201D, or \u201Cnumber {{number}}\u201D to open it. Say \u201Cno\u201D to return to selection, or \u201Ccancel\u201D.",
+        "fr": "Vous confirmez l'application {{name}}. Dites \u00AB oui \u00BB, \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour l'ouvrir. Dites \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "fr@informal": "Tu confirmes l'application {{name}}. Dis \u00AB oui \u00BB, \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour l'ouvrir. Dis \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "es": "Est\u00E1 confirmando la aplicaci\u00F3n {{name}}. Diga \u00AB s\u00ED \u00BB, \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrirla. Diga \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "es@informal": "Est\u00E1s confirmando la aplicaci\u00F3n {{name}}. Di \u00AB s\u00ED \u00BB, \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrirla. Di \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "it": "Sta confermando l'applicazione {{name}}. Dica \u00AB s\u00EC \u00BB, \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprirla. Dica \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB.",
+        "it@informal": "Stai confermando l'applicazione {{name}}. Di' \u00AB s\u00EC \u00BB, \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprirla. Di' \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.help.confidenceFaultRetry",
+      "text": {
+        "de@formal": "Die Erkennung konnte Ihr \u201EJa\u201C nicht sicher pr\u00FCfen. Sagen Sie \u201Eja\u201C, \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C, um die Anwendung zu \u00F6ffnen. Sagen Sie \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "de@informal": "Die Erkennung konnte dein \u201EJa\u201C nicht sicher pr\u00FCfen. Sag \u201Eja\u201C, \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C, um die Anwendung zu \u00F6ffnen. Sag \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "en": "Recognition could not reliably verify your \u201Cyes\u201D. Say \u201Cyes\u201D, \u201Copen {{name}}\u201D, or \u201Cnumber {{number}}\u201D to open the application. Say \u201Cno\u201D to return to selection, or \u201Ccancel\u201D.",
+        "fr": "La reconnaissance n'a pas pu v\u00E9rifier votre \u00AB oui \u00BB de fa\u00E7on fiable. Dites \u00AB oui \u00BB, \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour ouvrir l'application. Dites \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "fr@informal": "La reconnaissance n'a pas pu v\u00E9rifier ton \u00AB oui \u00BB de fa\u00E7on fiable. Dis \u00AB oui \u00BB, \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour ouvrir l'application. Dis \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "es": "El reconocimiento no pudo verificar de forma fiable su \u00AB s\u00ED \u00BB. Diga \u00AB s\u00ED \u00BB, \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrir la aplicaci\u00F3n. Diga \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "es@informal": "El reconocimiento no pudo verificar de forma fiable tu \u00AB s\u00ED \u00BB. Di \u00AB s\u00ED \u00BB, \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrir la aplicaci\u00F3n. Di \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "it": "Il riconoscimento non ha potuto verificare in modo affidabile il suo \u00AB s\u00EC \u00BB. Dica \u00AB s\u00EC \u00BB, \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprire l'applicazione. Dica \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB.",
+        "it@informal": "Il riconoscimento non ha potuto verificare in modo affidabile il tuo \u00AB s\u00EC \u00BB. Di' \u00AB s\u00EC \u00BB, \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprire l'applicazione. Di' \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.notOpenedReselect",
+      "text": {
+        "de@formal": "Die Anwendung {{name}} wurde nicht ge\u00F6ffnet. W\u00E4hlen Sie erneut per Name oder Nummer, oder sagen Sie \u201Eabbrechen\u201C.",
+        "de@informal": "Die Anwendung {{name}} wurde nicht ge\u00F6ffnet. W\u00E4hle erneut per Name oder Nummer, oder sag \u201Eabbrechen\u201C.",
+        "en": "The application {{name}} was not opened. Choose again by name or number, or say \u201Ccancel\u201D.",
+        "fr": "L'application {{name}} n'a pas \u00E9t\u00E9 ouverte. Choisissez \u00E0 nouveau par nom ou num\u00E9ro, ou dites \u00AB annuler \u00BB.",
+        "fr@informal": "L'application {{name}} n'a pas \u00E9t\u00E9 ouverte. Choisis \u00E0 nouveau par nom ou num\u00E9ro, ou dis \u00AB annuler \u00BB.",
+        "es": "La aplicaci\u00F3n {{name}} no se abri\u00F3. Elija de nuevo por nombre o n\u00FAmero, o diga \u00AB cancelar \u00BB.",
+        "es@informal": "La aplicaci\u00F3n {{name}} no se abri\u00F3. Elige de nuevo por nombre o n\u00FAmero, o di \u00AB cancelar \u00BB.",
+        "it": "L'applicazione {{name}} non \u00E8 stata aperta. Scelga di nuovo per nome o numero, oppure dica \u00AB annulla \u00BB.",
+        "it@informal": "L'applicazione {{name}} non \u00E8 stata aperta. Scegli di nuovo per nome o numero, oppure di' \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.verificationFailedTerminal",
+      "text": {
+        "de": "Best\u00E4tigungen k\u00F6nnen derzeit nicht zuverl\u00E4ssig gepr\u00FCft werden. Die Anwendung {{name}} wurde nicht ge\u00F6ffnet. Die Anwendungsauswahl ist beendet.",
+        "en": "Confirmations cannot be verified reliably right now. The application {{name}} was not opened. Application selection has ended.",
+        "fr": "Les confirmations ne peuvent pas \u00EAtre v\u00E9rifi\u00E9es de mani\u00E8re fiable pour le moment. L'application {{name}} n'a pas \u00E9t\u00E9 ouverte. La s\u00E9lection d'application est termin\u00E9e.",
+        "es": "Ahora no es posible verificar las confirmaciones de forma fiable. La aplicaci\u00F3n {{name}} no se abri\u00F3. La selecci\u00F3n de aplicaci\u00F3n ha terminado.",
+        "it": "Al momento non \u00E8 possibile verificare le conferme in modo affidabile. L'applicazione {{name}} non \u00E8 stata aperta. La selezione dell'applicazione \u00E8 terminata."
+      }
+    },
+    {
+      "promptId": "catalog.app.confirmation.repairExhaustedTerminal",
+      "text": {
+        "de": "Die Anwendung {{name}} konnte nicht eindeutig best\u00E4tigt werden und wurde nicht ge\u00F6ffnet. Die Anwendungsauswahl ist beendet.",
+        "en": "The application {{name}} could not be confirmed unambiguously and was not opened. Application selection has ended.",
+        "fr": "L'application {{name}} n'a pas pu \u00EAtre confirm\u00E9e sans ambigu\u00EFt\u00E9 et n'a pas \u00E9t\u00E9 ouverte. La s\u00E9lection d'application est termin\u00E9e.",
+        "es": "La aplicaci\u00F3n {{name}} no se pudo confirmar sin ambig\u00FCedad y no se abri\u00F3. La selecci\u00F3n de aplicaci\u00F3n ha terminado.",
+        "it": "Non \u00E8 stato possibile confermare l'applicazione {{name}} in modo univoco e non \u00E8 stata aperta. La selezione dell'applicazione \u00E8 terminata."
+      }
+    },
+    {
+      "promptId": "catalog.app.captureFailedTerminal",
+      "text": {
+        "de": "Die Spracherkennung ist derzeit nicht verf\u00FCgbar. Es wurde keine Anwendung ge\u00F6ffnet. Die Anwendungsauswahl ist beendet.",
+        "en": "Speech recognition is currently unavailable. No application was opened. Application selection has ended.",
+        "fr": "La reconnaissance vocale est actuellement indisponible. Aucune application n'a \u00E9t\u00E9 ouverte. La s\u00E9lection d'application est termin\u00E9e.",
+        "es": "El reconocimiento de voz no est\u00E1 disponible en este momento. No se abri\u00F3 ninguna aplicaci\u00F3n. La selecci\u00F3n de aplicaci\u00F3n ha terminado.",
+        "it": "Il riconoscimento vocale non \u00E8 al momento disponibile. Non \u00E8 stata aperta alcuna applicazione. La selezione dell'applicazione \u00E8 terminata."
+      }
+    },
+    {
+      "promptId": "catalog.app.launch",
+      "text": {
+        "de": "Starte {{name}}.",
+        "en": "Starting {{name}}.",
+        "fr": "D\u00E9marrage de {{name}}.",
+        "es": "Iniciando {{name}}.",
+        "it": "Avvio di {{name}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.help",
+      "text": {
+        "de@formal": "Sagen Sie alle Anwendungen, Suche nach, Name, Nummer, wiederholen oder abbrechen.",
+        "de@informal": "Sag alle Anwendungen, Suche nach, Name, Nummer, wiederholen oder abbrechen.",
+        "en": "Say all applications, search for, name, number, repeat or cancel.",
+        "fr": "Dites toutes les applications, rechercher, nom, num\u00E9ro, r\u00E9p\u00E9ter ou annuler.",
+        "fr@informal": "Dis toutes les applications, rechercher, nom, num\u00E9ro, r\u00E9p\u00E9ter ou annuler.",
+        "es": "Diga todas las aplicaciones, buscar, nombre, n\u00FAmero, repetir o cancelar.",
+        "es@informal": "Di todas las aplicaciones, buscar, nombre, n\u00FAmero, repetir o cancelar.",
+        "it": "Dica tutte le applicazioni, cerca, nome, numero, ripeti o annulla.",
+        "it@informal": "Di' tutte le applicazioni, cerca, nome, numero, ripeti o annulla."
+      }
+    },
+    {
+      "promptId": "catalog.app.cancelled",
+      "text": {
+        "de": "Anwendungsauswahl abgebrochen.",
+        "en": "Application selection cancelled.",
+        "fr": "S\u00E9lection d'application annul\u00E9e.",
+        "es": "Selecci\u00F3n de aplicaci\u00F3n cancelada.",
+        "it": "Selezione applicazione annullata."
+      }
+    },
+    {
+      "promptId": "catalog.app.changeLanguage",
+      "text": {
+        "de": "Sagen Sie Sprache wechseln plus eine unterst\u00FCtzte Sprache.",
+        "de@informal": "Sag Sprache wechseln plus eine unterst\u00FCtzte Sprache.",
+        "en": "Say change language plus a supported language.",
+        "fr": "Dites changer de langue suivi d'une langue prise en charge.",
+        "fr@informal": "Dis changer de langue suivi d'une langue prise en charge.",
+        "es": "Diga cambiar idioma seguido de un idioma compatible.",
+        "es@informal": "Di cambiar idioma seguido de un idioma compatible.",
+        "it": "Dica cambia lingua seguito da una lingua supportata.",
+        "it@informal": "Di' cambia lingua seguito da una lingua supportata."
+      }
+    },
+    {
+      "promptId": "catalog.app.unrecognized",
+      "text": {
+        "de": "Das habe ich nicht verstanden. Bitte wiederholen Sie oder sagen Sie Hilfe.",
+        "de@informal": "Das habe ich nicht verstanden. Bitte wiederhole oder sag Hilfe.",
+        "en": "I did not understand that. Please repeat or say help.",
+        "fr": "Je n'ai pas compris. R\u00E9p\u00E9tez ou dites aide.",
+        "fr@informal": "Je n'ai pas compris. R\u00E9p\u00E8te ou dis aide.",
+        "es": "No he entendido. Repita o diga ayuda.",
+        "es@informal": "No he entendido. Repite o di ayuda.",
+        "it": "Non ho capito. Ripeta o dica aiuto.",
+        "it@informal": "Non ho capito. Ripeti o di' aiuto."
+      }
+    },
+    {
+      "promptId": "catalog.app.noInput",
+      "text": {
+        "de@formal": "Ich habe nichts geh\u00F6rt. Bitte sprechen Sie noch einmal.",
+        "de@informal": "Ich habe nichts geh\u00F6rt. Bitte sprich noch einmal.",
+        "en": "I didn't hear anything. Please speak again.",
+        "fr": "Je n'ai rien entendu. Veuillez parler \u00E0 nouveau.",
+        "fr@informal": "Je n'ai rien entendu. Parle \u00E0 nouveau, s'il te pla\u00EEt.",
+        "es": "No he o\u00EDdo nada. Hable de nuevo, por favor.",
+        "es@informal": "No he o\u00EDdo nada. Habla de nuevo, por favor.",
+        "it": "Non ho sentito nulla. Parli di nuovo, per favore.",
+        "it@informal": "Non ho sentito nulla. Parla di nuovo, per favore."
+      }
+    },
+    {
+      "promptId": "catalog.app.reListen",
+      "text": {
+        "de@formal": "Verstanden, ich h\u00F6re weiter zu.",
+        "de@informal": "Verstanden, ich h\u00F6re dir weiter zu.",
+        "en": "Got it. I am still listening.",
+        "fr": "Compris. Je continue \u00E0 \u00E9couter.",
+        "fr@informal": "Compris. J'\u00E9coute encore.",
+        "es": "Entendido. Sigo escuchando.",
+        "es@informal": "Entendido. Te sigo escuchando.",
+        "it": "Capito. Continuo ad ascoltare.",
+        "it@informal": "Capito. Ti ascolto ancora."
+      }
+    },
+    {
+      "promptId": "catalog.app.noApplications",
+      "text": {
+        "de": "Keine Anwendungen verf\u00FCgbar.",
+        "en": "No applications are available.",
+        "fr": "Aucune application disponible.",
+        "es": "No hay aplicaciones disponibles.",
+        "it": "Nessuna applicazione disponibile."
+      }
+    },
+    {
+      "promptId": "catalog.app.noSearchResults",
+      "text": {
+        "de": "Keine Anwendungen f\u00FCr {{query}} gefunden.",
+        "en": "No applications found for {{query}}.",
+        "fr": "Aucune application trouv\u00E9e pour {{query}}.",
+        "es": "No se encontraron aplicaciones para {{query}}.",
+        "it": "Nessuna applicazione trovata per {{query}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.noMatch",
+      "text": {
+        "de": "{{name}} wurde nicht gefunden. Sagen Sie 'alle Anwendungen' oder 'Hilfe'.",
+        "de@informal": "{{name}} wurde nicht gefunden. Sag 'alle Anwendungen' oder 'Hilfe'.",
+        "en": "{{name}} was not found. Say 'all applications' or 'help'.",
+        "fr": "{{name}} est introuvable. Dites 'toutes les applications' ou 'aide'.",
+        "fr@informal": "{{name}} est introuvable. Dis 'toutes les applications' ou 'aide'.",
+        "es": "{{name}} no fue encontrado. Diga 'todas las aplicaciones' o 'ayuda'.",
+        "es@informal": "{{name}} no fue encontrado. Di 'todas las aplicaciones' o 'ayuda'.",
+        "it": "{{name}} non \u00E8 stato trovato. Dica 'tutte le applicazioni' o 'aiuto'.",
+        "it@informal": "{{name}} non \u00E8 stato trovato. Di' 'tutte le applicazioni' o 'aiuto'."
+      }
+    },
+    {
+      "promptId": "catalog.app.invalidNumber",
+      "text": {
+        "de": "Bitte w\u00E4hlen Sie eine Zahl zwischen 1 und {{max}}.",
+        "de@informal": "Bitte w\u00E4hle eine Zahl zwischen 1 und {{max}}.",
+        "en": "Please choose a number between 1 and {{max}}.",
+        "fr": "Choisissez un num\u00E9ro entre 1 et {{max}}.",
+        "fr@informal": "Choisis un num\u00E9ro entre 1 et {{max}}.",
+        "es": "Elija un n\u00FAmero entre 1 y {{max}}.",
+        "es@informal": "Elige un n\u00FAmero entre 1 y {{max}}.",
+        "it": "Scelga un numero tra 1 e {{max}}.",
+        "it@informal": "Scegli un numero tra 1 e {{max}}."
+      }
+    },
+    {
+      "promptId": "catalog.app.noDescription",
+      "text": {
+        "de": "Keine Beschreibung verf\u00FCgbar.",
+        "en": "No description available.",
+        "fr": "Aucune description disponible.",
+        "es": "No hay descripci\u00F3n disponible.",
+        "it": "Nessuna descrizione disponibile."
+      }
+    },
+    {
+      "promptId": "catalog.form.announcing",
+      "text": {
+        "de@formal": "Diese Anwendung hat {{count}} Formulare. Sagen Sie alle Formulare f\u00FCr eine Liste.",
+        "de@informal": "Diese Anwendung hat {{count}} Formulare. Sag alle Formulare f\u00FCr eine Liste.",
+        "en": "This application has {{count}} forms. Say all forms for a list.",
+        "fr": "Cette application a {{count}} formulaires. Dites tous les formulaires pour une liste.",
+        "fr@informal": "Cette application a {{count}} formulaires. Dis tous les formulaires pour une liste.",
+        "es": "Esta aplicaci\u00F3n tiene {{count}} formularios. Diga todos los formularios para una lista.",
+        "es@informal": "Esta aplicaci\u00F3n tiene {{count}} formularios. Di todos los formularios para una lista.",
+        "it": "Questa applicazione ha {{count}} moduli. Dica tutti i moduli per una lista.",
+        "it@informal": "Questa applicazione ha {{count}} moduli. Di' tutti i moduli per una lista."
+      }
+    },
+    {
+      "promptId": "catalog.form.ambiguity.short.intro",
+      "text": {
+        "de": "Ich habe {{count}} passende Formulare gefunden.",
+        "en": "I found {{count}} matching forms.",
+        "fr": "J'ai trouv\u00E9 {{count}} formulaires correspondants.",
+        "es": "He encontrado {{count}} formularios que coinciden.",
+        "it": "Ho trovato {{count}} moduli corrispondenti."
+      }
+    },
+    {
+      "promptId": "catalog.form.ambiguity.refineOrList",
+      "text": {
+        "de@formal": "Ich habe {{count}} passende Formulare gefunden. Nennen Sie einen genaueren Teil des Namens, sagen Sie \u201Ealle Formulare\u201C f\u00FCr die vollst\u00E4ndige Liste oder \u201Eabbrechen\u201C.",
+        "de@informal": "Ich habe {{count}} passende Formulare gefunden. Nenne einen genaueren Teil des Namens, sag \u201Ealle Formulare\u201C f\u00FCr die vollst\u00E4ndige Liste oder \u201Eabbrechen\u201C.",
+        "en": "I found {{count}} matching forms. Say a more specific part of the name, \u201Call forms\u201D for the full list, or \u201Ccancel\u201D.",
+        "fr": "J'ai trouv\u00E9 {{count}} formulaires correspondants. Dites une partie plus pr\u00E9cise du nom, \u00AB tous les formulaires \u00BB pour la liste compl\u00E8te ou \u00AB annuler \u00BB.",
+        "fr@informal": "J'ai trouv\u00E9 {{count}} formulaires correspondants. Dis une partie plus pr\u00E9cise du nom, \u00AB tous les formulaires \u00BB pour la liste compl\u00E8te ou \u00AB annuler \u00BB.",
+        "es": "He encontrado {{count}} formularios que coinciden. Diga una parte m\u00E1s precisa del nombre, \u00AB todos los formularios \u00BB para la lista completa o \u00AB cancelar \u00BB.",
+        "es@informal": "He encontrado {{count}} formularios que coinciden. Di una parte m\u00E1s precisa del nombre, \u00AB todos los formularios \u00BB para la lista completa o \u00AB cancelar \u00BB.",
+        "it": "Ho trovato {{count}} moduli corrispondenti. Dica una parte pi\u00F9 precisa del nome, \u00AB tutti i moduli \u00BB per l'elenco completo oppure \u00AB annulla \u00BB.",
+        "it@informal": "Ho trovato {{count}} moduli corrispondenti. Di' una parte pi\u00F9 precisa del nome, \u00AB tutti i moduli \u00BB per l'elenco completo oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.single",
+      "text": {
+        "de": "Starte Formular {{name}}.",
+        "en": "Starting form {{name}}.",
+        "fr": "D\u00E9marrage du formulaire {{name}}.",
+        "es": "Iniciando formulario {{name}}.",
+        "it": "Avvio del modulo {{name}}."
+      }
+    },
+    {
+      "promptId": "catalog.form.list.intro",
+      "text": {
+        "de": "Es sind {{count}} Formulare verf\u00FCgbar.",
+        "en": "Available forms: {{count}}.",
+        "fr": "Formulaires disponibles: {{count}}.",
+        "es": "Formularios disponibles: {{count}}.",
+        "it": "Moduli disponibili: {{count}}."
+      }
+    },
+    {
+      "promptId": "catalog.form.list.item",
+      "text": {
+        "de": "Nummer {{number}} ist {{name}}.",
+        "en": "Number {{number}}: {{name}}.",
+        "fr": "Num\u00E9ro {{number}}: {{name}}.",
+        "es": "N\u00FAmero {{number}}: {{name}}.",
+        "it": "Numero {{number}}: {{name}}."
+      }
+    },
+    {
+      "promptId": "catalog.form.list.selectPrompt",
+      "text": {
+        "de@formal": "Sagen Sie die Nummer, den Namen oder \u201Eabbrechen\u201C.",
+        "de@informal": "Sag die Nummer, den Namen oder \u201Eabbrechen\u201C.",
+        "en": "Say the number, name, or \u201Ccancel\u201D.",
+        "fr": "Dites le num\u00E9ro, le nom ou \u00AB annuler \u00BB.",
+        "fr@informal": "Dis le num\u00E9ro, le nom ou \u00AB annuler \u00BB.",
+        "es": "Diga el n\u00FAmero, el nombre o \u00AB cancelar \u00BB.",
+        "es@informal": "Di el n\u00FAmero, el nombre o \u00AB cancelar \u00BB.",
+        "it": "Dica il numero, il nome o \u00AB annulla \u00BB.",
+        "it@informal": "Di' il numero, il nome o \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation",
+      "text": {
+        "de": "Gemeint ist {{name}}. Ist das richtig?",
+        "en": "{{name}}. Is that correct?",
+        "fr": "{{name}}. Est-ce correct ?",
+        "es": "{{name}}. \u00BFEs correcto?",
+        "it": "{{name}}. \u00C8 corretto?"
+      }
+    },
+    {
+      "promptId": "catalog.form.lowConfidence.confirm",
+      "text": {
+        "de": "Ich habe {{name}} verstanden. Ist das richtig?",
+        "en": "I understood {{name}}. Is that correct?",
+        "fr": "J'ai compris {{name}}. Est-ce correct ?",
+        "es": "He entendido {{name}}. \u00BFEs correcto?",
+        "it": "Ho capito {{name}}. \u00C8 corretto?"
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.repeat",
+      "text": {
+        "de": "Bitte sagen Sie ja oder nein.",
+        "de@informal": "Bitte sag ja oder nein.",
+        "en": "Please say yes or no.",
+        "fr": "Dites oui ou non.",
+        "fr@informal": "Dis oui ou non.",
+        "es": "Diga s\u00ED o no.",
+        "es@informal": "Di s\u00ED o no.",
+        "it": "Dica s\u00EC o no.",
+        "it@informal": "Di' s\u00EC o no."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.explicitAuthorization",
+      "text": {
+        "de@formal": "Ich habe Ihr \u201EJa\u201C verstanden, aber nicht sicher genug, um {{name}} zu \u00F6ffnen. Sagen Sie bitte noch einmal \u201Eja\u201C. Alternativ sagen Sie \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C. Sie k\u00F6nnen auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "de@informal": "Ich habe dein \u201EJa\u201C verstanden, aber nicht sicher genug, um {{name}} zu \u00F6ffnen. Sag bitte noch einmal \u201Eja\u201C. Alternativ sag \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C. Du kannst auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "en": "I heard your \u201Cyes\u201D, but not clearly enough to open {{name}}. Please say \u201Cyes\u201D again. Alternatively, say \u201Copen {{name}}\u201D or \u201Cnumber {{number}}\u201D. You can also say \u201Cno\u201D or \u201Ccancel\u201D.",
+        "fr": "J'ai compris votre \u00AB oui \u00BB, mais pas assez clairement pour ouvrir {{name}}. Dites encore \u00AB oui \u00BB, s'il vous pla\u00EEt. Vous pouvez aussi dire \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "fr@informal": "J'ai compris ton \u00AB oui \u00BB, mais pas assez clairement pour ouvrir {{name}}. Dis encore \u00AB oui \u00BB, s'il te pla\u00EEt. Tu peux aussi dire \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "es": "He entendido su \u00AB s\u00ED \u00BB, pero no con suficiente claridad para abrir {{name}}. Diga de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puede decir \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "es@informal": "He entendido tu \u00AB s\u00ED \u00BB, pero no con suficiente claridad para abrir {{name}}. Di de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puedes decir \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "it": "Ho capito il suo \u00AB s\u00EC \u00BB, ma non abbastanza chiaramente da aprire {{name}}. Dica di nuovo \u00AB s\u00EC \u00BB, per favore. Pu\u00F2 anche dire \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB.",
+        "it@informal": "Ho capito il tuo \u00AB s\u00EC \u00BB, ma non abbastanza chiaramente da aprire {{name}}. Di' di nuovo \u00AB s\u00EC \u00BB, per favore. Puoi anche dire \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.verificationUnavailable",
+      "text": {
+        "de@formal": "Ich habe Ihr \u201EJa\u201C verstanden, konnte die Erkennung aber technisch nicht sicher pr\u00FCfen. Sagen Sie bitte noch einmal \u201Eja\u201C. Alternativ sagen Sie \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C. Sie k\u00F6nnen auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "de@informal": "Ich habe dein \u201EJa\u201C verstanden, konnte die Erkennung aber technisch nicht sicher pr\u00FCfen. Sag bitte noch einmal \u201Eja\u201C. Alternativ sag \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C. Du kannst auch \u201Enein\u201C oder \u201Eabbrechen\u201C sagen.",
+        "en": "I heard your \u201Cyes\u201D, but could not verify the recognition reliably. Please say \u201Cyes\u201D again. Alternatively, say \u201Copen {{name}}\u201D or \u201Cnumber {{number}}\u201D. You can also say \u201Cno\u201D or \u201Ccancel\u201D.",
+        "fr": "J'ai compris votre \u00AB oui \u00BB, mais je n'ai pas pu v\u00E9rifier la reconnaissance de fa\u00E7on fiable. Dites encore \u00AB oui \u00BB, s'il vous pla\u00EEt. Vous pouvez aussi dire \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "fr@informal": "J'ai compris ton \u00AB oui \u00BB, mais je n'ai pas pu v\u00E9rifier la reconnaissance de fa\u00E7on fiable. Dis encore \u00AB oui \u00BB, s'il te pla\u00EEt. Tu peux aussi dire \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB, ainsi que \u00AB non \u00BB ou \u00AB annuler \u00BB.",
+        "es": "He entendido su \u00AB s\u00ED \u00BB, pero no he podido verificar el reconocimiento de forma fiable. Diga de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puede decir \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "es@informal": "He entendido tu \u00AB s\u00ED \u00BB, pero no he podido verificar el reconocimiento de forma fiable. Di de nuevo \u00AB s\u00ED \u00BB, por favor. Tambi\u00E9n puedes decir \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB, adem\u00E1s de \u00AB no \u00BB o \u00AB cancelar \u00BB.",
+        "it": "Ho capito il suo \u00AB s\u00EC \u00BB, ma non ho potuto verificare il riconoscimento in modo affidabile. Dica di nuovo \u00AB s\u00EC \u00BB, per favore. Pu\u00F2 anche dire \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB.",
+        "it@informal": "Ho capito il tuo \u00AB s\u00EC \u00BB, ma non ho potuto verificare il riconoscimento in modo affidabile. Di' di nuovo \u00AB s\u00EC \u00BB, per favore. Puoi anche dire \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB, oltre a \u00AB no \u00BB o \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.help.initial",
+      "text": {
+        "de@formal": "Sie best\u00E4tigen das Formular {{name}}. Sagen Sie \u201Eja\u201C, um diese Auswahl zu best\u00E4tigen, \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "de@informal": "Du best\u00E4tigst das Formular {{name}}. Sag \u201Eja\u201C, um diese Auswahl zu best\u00E4tigen, \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "en": "You are confirming the form {{name}}. Say \u201Cyes\u201D to confirm this choice, \u201Cno\u201D to return to selection, or \u201Ccancel\u201D.",
+        "fr": "Vous confirmez le formulaire {{name}}. Dites \u00AB oui \u00BB pour confirmer ce choix, \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "fr@informal": "Tu confirmes le formulaire {{name}}. Dis \u00AB oui \u00BB pour confirmer ce choix, \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "es": "Est\u00E1 confirmando el formulario {{name}}. Diga \u00AB s\u00ED \u00BB para confirmar esta elecci\u00F3n, \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "es@informal": "Est\u00E1s confirmando el formulario {{name}}. Di \u00AB s\u00ED \u00BB para confirmar esta elecci\u00F3n, \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "it": "Sta confermando il modulo {{name}}. Dica \u00AB s\u00EC \u00BB per confermare questa scelta, \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB.",
+        "it@informal": "Stai confermando il modulo {{name}}. Di' \u00AB s\u00EC \u00BB per confermare questa scelta, \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.help.explicitAuthorization",
+      "text": {
+        "de@formal": "Sie best\u00E4tigen das Formular {{name}}. Sagen Sie \u201Eja\u201C, \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C, um es zu \u00F6ffnen. Sagen Sie \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "de@informal": "Du best\u00E4tigst das Formular {{name}}. Sag \u201Eja\u201C, \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C, um es zu \u00F6ffnen. Sag \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "en": "You are confirming the form {{name}}. Say \u201Cyes\u201D, \u201Copen {{name}}\u201D, or \u201Cnumber {{number}}\u201D to open it. Say \u201Cno\u201D to return to selection, or \u201Ccancel\u201D.",
+        "fr": "Vous confirmez le formulaire {{name}}. Dites \u00AB oui \u00BB, \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour l'ouvrir. Dites \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "fr@informal": "Tu confirmes le formulaire {{name}}. Dis \u00AB oui \u00BB, \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour l'ouvrir. Dis \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "es": "Est\u00E1 confirmando el formulario {{name}}. Diga \u00AB s\u00ED \u00BB, \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrirlo. Diga \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "es@informal": "Est\u00E1s confirmando el formulario {{name}}. Di \u00AB s\u00ED \u00BB, \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrirlo. Di \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "it": "Sta confermando il modulo {{name}}. Dica \u00AB s\u00EC \u00BB, \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprirlo. Dica \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB.",
+        "it@informal": "Stai confermando il modulo {{name}}. Di' \u00AB s\u00EC \u00BB, \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprirlo. Di' \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.help.confidenceFaultRetry",
+      "text": {
+        "de@formal": "Die Erkennung konnte Ihr \u201EJa\u201C nicht sicher pr\u00FCfen. Sagen Sie \u201Eja\u201C, \u201E\u00D6ffnen Sie {{name}}\u201C oder \u201ENummer {{number}}\u201C, um das Formular zu \u00F6ffnen. Sagen Sie \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "de@informal": "Die Erkennung konnte dein \u201EJa\u201C nicht sicher pr\u00FCfen. Sag \u201Eja\u201C, \u201E\u00D6ffne {{name}}\u201C oder \u201ENummer {{number}}\u201C, um das Formular zu \u00F6ffnen. Sag \u201Enein\u201C, um zur Auswahl zur\u00FCckzukehren, oder \u201Eabbrechen\u201C.",
+        "en": "Recognition could not reliably verify your \u201Cyes\u201D. Say \u201Cyes\u201D, \u201Copen {{name}}\u201D, or \u201Cnumber {{number}}\u201D to open the form. Say \u201Cno\u201D to return to selection, or \u201Ccancel\u201D.",
+        "fr": "La reconnaissance n'a pas pu v\u00E9rifier votre \u00AB oui \u00BB de fa\u00E7on fiable. Dites \u00AB oui \u00BB, \u00AB ouvrez {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour ouvrir le formulaire. Dites \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "fr@informal": "La reconnaissance n'a pas pu v\u00E9rifier ton \u00AB oui \u00BB de fa\u00E7on fiable. Dis \u00AB oui \u00BB, \u00AB ouvre {{name}} \u00BB ou \u00AB num\u00E9ro {{number}} \u00BB pour ouvrir le formulaire. Dis \u00AB non \u00BB pour revenir \u00E0 la s\u00E9lection ou \u00AB annuler \u00BB.",
+        "es": "El reconocimiento no pudo verificar de forma fiable su \u00AB s\u00ED \u00BB. Diga \u00AB s\u00ED \u00BB, \u00AB abra {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrir el formulario. Diga \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "es@informal": "El reconocimiento no pudo verificar de forma fiable tu \u00AB s\u00ED \u00BB. Di \u00AB s\u00ED \u00BB, \u00AB abre {{name}} \u00BB o \u00AB n\u00FAmero {{number}} \u00BB para abrir el formulario. Di \u00AB no \u00BB para volver a la selecci\u00F3n o \u00AB cancelar \u00BB.",
+        "it": "Il riconoscimento non ha potuto verificare in modo affidabile il suo \u00AB s\u00EC \u00BB. Dica \u00AB s\u00EC \u00BB, \u00AB apra {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprire il modulo. Dica \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB.",
+        "it@informal": "Il riconoscimento non ha potuto verificare in modo affidabile il tuo \u00AB s\u00EC \u00BB. Di' \u00AB s\u00EC \u00BB, \u00AB apri {{name}} \u00BB o \u00AB numero {{number}} \u00BB per aprire il modulo. Di' \u00AB no \u00BB per tornare alla selezione oppure \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.notOpenedReselect",
+      "text": {
+        "de@formal": "Das Formular {{name}} wurde nicht ge\u00F6ffnet. W\u00E4hlen Sie erneut per Name oder Nummer, oder sagen Sie \u201Eabbrechen\u201C.",
+        "de@informal": "Das Formular {{name}} wurde nicht ge\u00F6ffnet. W\u00E4hle erneut per Name oder Nummer, oder sag \u201Eabbrechen\u201C.",
+        "en": "The form {{name}} was not opened. Choose again by name or number, or say \u201Ccancel\u201D.",
+        "fr": "Le formulaire {{name}} n'a pas \u00E9t\u00E9 ouvert. Choisissez \u00E0 nouveau par nom ou num\u00E9ro, ou dites \u00AB annuler \u00BB.",
+        "fr@informal": "Le formulaire {{name}} n'a pas \u00E9t\u00E9 ouvert. Choisis \u00E0 nouveau par nom ou num\u00E9ro, ou dis \u00AB annuler \u00BB.",
+        "es": "El formulario {{name}} no se abri\u00F3. Elija de nuevo por nombre o n\u00FAmero, o diga \u00AB cancelar \u00BB.",
+        "es@informal": "El formulario {{name}} no se abri\u00F3. Elige de nuevo por nombre o n\u00FAmero, o di \u00AB cancelar \u00BB.",
+        "it": "Il modulo {{name}} non \u00E8 stato aperto. Scelga di nuovo per nome o numero, oppure dica \u00AB annulla \u00BB.",
+        "it@informal": "Il modulo {{name}} non \u00E8 stato aperto. Scegli di nuovo per nome o numero, oppure di' \u00AB annulla \u00BB."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.verificationFailedTerminal",
+      "text": {
+        "de": "Best\u00E4tigungen k\u00F6nnen derzeit nicht zuverl\u00E4ssig gepr\u00FCft werden. Das Formular {{name}} wurde nicht ge\u00F6ffnet. Die Formularauswahl ist beendet.",
+        "en": "Confirmations cannot be verified reliably right now. The form {{name}} was not opened. Form selection has ended.",
+        "fr": "Les confirmations ne peuvent pas \u00EAtre v\u00E9rifi\u00E9es de mani\u00E8re fiable pour le moment. Le formulaire {{name}} n'a pas \u00E9t\u00E9 ouvert. La s\u00E9lection de formulaire est termin\u00E9e.",
+        "es": "Ahora no es posible verificar las confirmaciones de forma fiable. El formulario {{name}} no se abri\u00F3. La selecci\u00F3n de formulario ha terminado.",
+        "it": "Al momento non \u00E8 possibile verificare le conferme in modo affidabile. Il modulo {{name}} non \u00E8 stato aperto. La selezione del modulo \u00E8 terminata."
+      }
+    },
+    {
+      "promptId": "catalog.form.confirmation.repairExhaustedTerminal",
+      "text": {
+        "de": "Das Formular {{name}} konnte nicht eindeutig best\u00E4tigt werden und wurde nicht ge\u00F6ffnet. Die Formularauswahl ist beendet.",
+        "en": "The form {{name}} could not be confirmed unambiguously and was not opened. Form selection has ended.",
+        "fr": "Le formulaire {{name}} n'a pas pu \u00EAtre confirm\u00E9 sans ambigu\u00EFt\u00E9 et n'a pas \u00E9t\u00E9 ouvert. La s\u00E9lection de formulaire est termin\u00E9e.",
+        "es": "El formulario {{name}} no se pudo confirmar sin ambig\u00FCedad y no se abri\u00F3. La selecci\u00F3n de formulario ha terminado.",
+        "it": "Non \u00E8 stato possibile confermare il modulo {{name}} in modo univoco e non \u00E8 stato aperto. La selezione del modulo \u00E8 terminata."
+      }
+    },
+    {
+      "promptId": "catalog.form.captureFailedTerminal",
+      "text": {
+        "de": "Die Spracherkennung ist derzeit nicht verf\u00FCgbar. Es wurde kein Formular ge\u00F6ffnet. Die Formularauswahl ist beendet.",
+        "en": "Speech recognition is currently unavailable. No form was opened. Form selection has ended.",
+        "fr": "La reconnaissance vocale est actuellement indisponible. Aucun formulaire n'a \u00E9t\u00E9 ouvert. La s\u00E9lection de formulaire est termin\u00E9e.",
+        "es": "El reconocimiento de voz no est\u00E1 disponible en este momento. No se abri\u00F3 ning\u00FAn formulario. La selecci\u00F3n de formulario ha terminado.",
+        "it": "Il riconoscimento vocale non \u00E8 al momento disponibile. Non \u00E8 stato aperto alcun modulo. La selezione del modulo \u00E8 terminata."
+      }
+    },
+    {
+      "promptId": "catalog.form.launch",
+      "text": {
+        "de": "Starte {{name}}.",
+        "en": "Starting {{name}}.",
+        "fr": "D\u00E9marrage de {{name}}.",
+        "es": "Iniciando {{name}}.",
+        "it": "Avvio di {{name}}."
+      }
+    },
+    {
+      "promptId": "catalog.form.prerequisites.notMet",
+      "text": {
+        "de": "Das Formular {{name}} ben\u00F6tigt zuerst {{missingPrerequisites}}.",
+        "en": "The form {{name}} requires {{missingPrerequisites}} first.",
+        "fr": "Le formulaire {{name}} demande d'abord {{missingPrerequisites}}.",
+        "es": "El formulario {{name}} requiere primero {{missingPrerequisites}}.",
+        "it": "Il modulo {{name}} richiede prima {{missingPrerequisites}}."
+      }
+    },
+    {
+      "promptId": "catalog.form.help",
+      "text": {
+        "de@formal": "Sagen Sie alle Formulare, Name, Nummer, wiederholen oder abbrechen.",
+        "de@informal": "Sag alle Formulare, Name, Nummer, wiederholen oder abbrechen.",
+        "en": "Say all forms, name, number, repeat or cancel.",
+        "fr": "Dites tous les formulaires, nom, num\u00E9ro, r\u00E9p\u00E9ter ou annuler.",
+        "fr@informal": "Dis tous les formulaires, nom, num\u00E9ro, r\u00E9p\u00E9ter ou annuler.",
+        "es": "Diga todos los formularios, nombre, n\u00FAmero, repetir o cancelar.",
+        "es@informal": "Di todos los formularios, nombre, n\u00FAmero, repetir o cancelar.",
+        "it": "Dica tutti i moduli, nome, numero, ripeti o annulla.",
+        "it@informal": "Di' tutti i moduli, nome, numero, ripeti o annulla."
+      }
+    },
+    {
+      "promptId": "catalog.form.cancelled",
+      "text": {
+        "de": "Formularauswahl abgebrochen.",
+        "en": "Form selection cancelled.",
+        "fr": "S\u00E9lection du formulaire annul\u00E9e.",
+        "es": "Selecci\u00F3n de formulario cancelada.",
+        "it": "Selezione modulo annullata."
+      }
+    },
+    {
+      "promptId": "catalog.form.unrecognized",
+      "text": {
+        "de": "Das habe ich nicht verstanden. Bitte wiederholen Sie oder sagen Sie Hilfe.",
+        "de@informal": "Das habe ich nicht verstanden. Bitte wiederhole oder sag Hilfe.",
+        "en": "I did not understand that. Please repeat or say help.",
+        "fr": "Je n'ai pas compris. R\u00E9p\u00E9tez ou dites aide.",
+        "fr@informal": "Je n'ai pas compris. R\u00E9p\u00E8te ou dis aide.",
+        "es": "No he entendido. Repita o diga ayuda.",
+        "es@informal": "No he entendido. Repite o di ayuda.",
+        "it": "Non ho capito. Ripeta o dica aiuto.",
+        "it@informal": "Non ho capito. Ripeti o di' aiuto."
+      }
+    },
+    {
+      "promptId": "catalog.form.noInput",
+      "text": {
+        "de@formal": "Ich habe nichts geh\u00F6rt. Bitte sprechen Sie noch einmal.",
+        "de@informal": "Ich habe nichts geh\u00F6rt. Bitte sprich noch einmal.",
+        "en": "I didn't hear anything. Please speak again.",
+        "fr": "Je n'ai rien entendu. Veuillez parler \u00E0 nouveau.",
+        "fr@informal": "Je n'ai rien entendu. Parle \u00E0 nouveau, s'il te pla\u00EEt.",
+        "es": "No he o\u00EDdo nada. Hable de nuevo, por favor.",
+        "es@informal": "No he o\u00EDdo nada. Habla de nuevo, por favor.",
+        "it": "Non ho sentito nulla. Parli di nuovo, per favore.",
+        "it@informal": "Non ho sentito nulla. Parla di nuovo, per favore."
+      }
+    },
+    {
+      "promptId": "catalog.form.reListen",
+      "text": {
+        "de@formal": "Verstanden, ich h\u00F6re weiter zu.",
+        "de@informal": "Verstanden, ich h\u00F6re dir weiter zu.",
+        "en": "Got it. I am still listening.",
+        "fr": "Compris. Je continue \u00E0 \u00E9couter.",
+        "fr@informal": "Compris. J'\u00E9coute encore.",
+        "es": "Entendido. Sigo escuchando.",
+        "es@informal": "Entendido. Te sigo escuchando.",
+        "it": "Capito. Continuo ad ascoltare.",
+        "it@informal": "Capito. Ti ascolto ancora."
+      }
+    },
+    {
+      "promptId": "catalog.form.noForms",
+      "text": {
+        "de": "Diese Anwendung hat keine Formulare.",
+        "en": "This application has no forms.",
+        "fr": "Cette application n'a pas de formulaires.",
+        "es": "Esta aplicaci\u00F3n no tiene formularios.",
+        "it": "Questa applicazione non ha moduli."
+      }
+    },
+    {
+      "promptId": "catalog.form.noMatch",
+      "text": {
+        "de": "{{name}} wurde nicht gefunden.",
+        "en": "{{name}} was not found.",
+        "fr": "{{name}} est introuvable.",
+        "es": "{{name}} no fue encontrado.",
+        "it": "{{name}} non \u00E8 stato trovato."
+      }
+    },
+    {
+      "promptId": "catalog.form.invalidNumber",
+      "text": {
+        "de": "Bitte w\u00E4hlen Sie eine Zahl zwischen 1 und {{max}}.",
+        "de@informal": "Bitte w\u00E4hle eine Zahl zwischen 1 und {{max}}.",
+        "en": "Please choose a number between 1 and {{max}}.",
+        "fr": "Choisissez un num\u00E9ro entre 1 et {{max}}.",
+        "fr@informal": "Choisis un num\u00E9ro entre 1 et {{max}}.",
+        "es": "Elija un n\u00FAmero entre 1 y {{max}}.",
+        "es@informal": "Elige un n\u00FAmero entre 1 y {{max}}.",
+        "it": "Scelga un numero tra 1 e {{max}}.",
+        "it@informal": "Scegli un numero tra 1 e {{max}}."
+      }
+    }
+  ],
+  "intents": [
+    {
+      "intentId": "confirmYes",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "ja",
+          "en": "yes",
+          "fr": "oui",
+          "es": "s\u00ED",
+          "it": "s\u00EC"
+        },
+        {
+          "de": "jawohl",
+          "en": "yeah",
+          "fr": "oui bien sur",
+          "es": "claro",
+          "it": "certo"
+        },
+        {
+          "de": "genau",
+          "en": "correct",
+          "fr": "exact",
+          "es": "correcto",
+          "it": "corretto"
+        },
+        {
+          "de": "richtig",
+          "en": "right",
+          "fr": "correct",
+          "es": "es correcto",
+          "it": "giusto"
+        },
+        {
+          "de": "korrekt",
+          "en": "sure",
+          "fr": "bien sur",
+          "es": "claro que si",
+          "it": "certamente"
+        },
+        {
+          "de": "ok",
+          "en": "ok",
+          "fr": "ok",
+          "es": "ok",
+          "it": "ok"
+        },
+        {
+          "de": "okay",
+          "en": "okay",
+          "fr": "daccord",
+          "es": "vale",
+          "it": "okay"
+        }
+      ]
+    },
+    {
+      "intentId": "confirmNo",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "nein",
+          "en": "no",
+          "fr": "non",
+          "es": "no",
+          "it": "no"
+        },
+        {
+          "de": "ne",
+          "en": "nope",
+          "fr": "non merci",
+          "es": "para nada",
+          "it": "nope"
+        },
+        {
+          "de": "falsch",
+          "en": "wrong",
+          "fr": "faux",
+          "es": "incorrecto",
+          "it": "sbagliato"
+        },
+        {
+          "de": "nicht richtig",
+          "en": "incorrect",
+          "fr": "pas correct",
+          "es": "no es correcto",
+          "it": "non corretto"
+        }
+      ]
+    },
+    {
+      "intentId": "cancel",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "abbrechen",
+          "en": "cancel",
+          "fr": "annuler",
+          "es": "cancelar",
+          "it": "annulla"
+        },
+        {
+          "de": "zur\u00FCck",
+          "en": "go back",
+          "fr": "revenir",
+          "es": "volver",
+          "it": "torna indietro"
+        },
+        {
+          "de": "beenden",
+          "en": "quit",
+          "fr": "quitter",
+          "es": "terminar",
+          "it": "esci"
+        },
+        {
+          "de": "stopp",
+          "en": "stop",
+          "fr": "stop",
+          "es": "stop",
+          "it": "stop"
+        }
+      ]
+    },
+    {
+      "intentId": "changeLanguage",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "sprache wechseln",
+          "en": "change language",
+          "fr": "changer de langue",
+          "es": "cambiar idioma",
+          "it": "cambia lingua"
+        },
+        {
+          "de": "sprache \u00e4ndern",
+          "en": "switch language",
+          "fr": "changer la langue",
+          "es": "cambiar lengua",
+          "it": "cambiare lingua"
+        }
+      ]
+    },
+    {
+      "intentId": "changeLanguage",
+      "matchMode": "prefix",
+      "utterances": [
+        {
+          "de": "sprache wechseln",
+          "en": "change language",
+          "fr": "changer de langue",
+          "es": "cambiar idioma",
+          "it": "cambia lingua"
+        },
+        {
+          "de": "sprache \u00e4ndern",
+          "en": "switch language",
+          "fr": "changer la langue",
+          "es": "cambiar lengua",
+          "it": "cambiare lingua"
+        }
+      ]
+    },
+    {
+      "intentId": "repeat",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "wiederholen",
+          "en": "repeat",
+          "fr": "repeter",
+          "es": "repetir",
+          "it": "ripeti"
+        },
+        {
+          "de": "nochmal",
+          "en": "again",
+          "fr": "encore",
+          "es": "otra vez",
+          "it": "di nuovo"
+        },
+        {
+          "de": "noch einmal",
+          "en": "say again",
+          "fr": "redis",
+          "es": "dilo otra vez",
+          "it": "ripeti ancora"
+        },
+        {
+          "de": "wie bitte",
+          "en": "pardon",
+          "fr": "comment",
+          "es": "como dices",
+          "it": "come hai detto"
+        },
+        {
+          "de": "wiederhole",
+          "en": "repeat that",
+          "fr": "repete",
+          "es": "repite",
+          "it": "ripetilo"
+        },
+        {
+          "de": "noch mal",
+          "en": "once more",
+          "fr": "encore une fois",
+          "es": "una vez mas",
+          "it": "ancora una volta"
+        },
+        {
+          "de": "wie war das",
+          "en": "what was that",
+          "fr": "cetait quoi",
+          "es": "que era eso",
+          "it": "comera"
+        },
+        {
+          "de": "was",
+          "en": "what",
+          "fr": "quoi",
+          "es": "qu\u00E9",
+          "it": "cosa"
+        },
+        {
+          "de": "h\u00E4h",
+          "en": "come again",
+          "fr": "pardon",
+          "es": "perd\u00F3n",
+          "it": "scusa"
+        },
+        {
+          "de": "h\u00E4",
+          "en": "huh",
+          "fr": "r\u00E9p\u00E9tez",
+          "es": "repita",
+          "it": "prego"
+        },
+        {
+          "de": "wie",
+          "en": "pardon me",
+          "fr": "hein",
+          "es": "c\u00F3mo",
+          "it": "come"
+        }
+      ]
+    },
+    {
+      "intentId": "help",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "hilfe",
+          "en": "help",
+          "fr": "aide",
+          "es": "ayuda",
+          "it": "aiuto"
+        },
+        {
+          "de": "was kann ich",
+          "en": "what can i",
+          "fr": "que puis je dire",
+          "es": "que puedo decir",
+          "it": "cosa posso dire"
+        },
+        {
+          "de": "welche befehle",
+          "en": "commands",
+          "fr": "commandes",
+          "es": "comandos",
+          "it": "comandi"
+        },
+        {
+          "de": "optionen",
+          "en": "options",
+          "fr": "options",
+          "es": "opciones",
+          "it": "opzioni"
+        }
+      ]
+    },
+    {
+      "intentId": "list",
+      "matchMode": "phrase",
+      "utterances": [
+        {
+          "de": "alle anwendungen",
+          "en": "all applications",
+          "fr": "toutes les applications",
+          "es": "todas las aplicaciones",
+          "it": "tutte le applicazioni"
+        },
+        {
+          "de": "was gibt es",
+          "en": "what is available",
+          "fr": "quest ce qui est disponible",
+          "es": "que hay disponible",
+          "it": "cosa e disponibile"
+        },
+        {
+          "de": "zeige mir",
+          "en": "show me",
+          "fr": "montre moi",
+          "es": "muestrame",
+          "it": "mostrami"
+        },
+        {
+          "de": "liste",
+          "en": "list",
+          "fr": "liste",
+          "es": "lista",
+          "it": "lista"
+        },
+        {
+          "de": "welche anwendungen gibt es",
+          "en": "which applications are there",
+          "fr": "quelles applications existent",
+          "es": "que aplicaciones hay",
+          "it": "quali applicazioni ci sono"
+        },
+        {
+          "de": "\u00FCbersicht",
+          "en": "overview",
+          "fr": "vue densemble",
+          "es": "vision general",
+          "it": "panoramica"
+        },
+        {
+          "de": "welche anwendung gibt es",
+          "en": "which application is there",
+          "fr": "quelle application existe",
+          "es": "que aplicacion hay",
+          "it": "quale applicazione c e"
+        },
+        {
+          "de": "die anwendungen",
+          "en": "the applications",
+          "fr": "les applications",
+          "es": "las aplicaciones",
+          "it": "le applicazioni"
+        },
+        {
+          "de": "die anwendung",
+          "en": "the app",
+          "fr": "lapplication",
+          "es": "la aplicacion",
+          "it": "lapplicazione"
+        },
+        {
+          "de": "alle formulare",
+          "en": "all forms",
+          "fr": "tous les formulaires",
+          "es": "todos los formularios",
+          "it": "tutti i moduli"
+        }
+      ]
+    },
+    {
+      "intentId": "selectByNumber",
+      "matchMode": "prefix",
+      "utterances": [
+        {
+          "de": "nummer",
+          "en": "number",
+          "fr": "numero",
+          "es": "numero",
+          "it": "numero"
+        }
+      ]
+    },
+    {
+      "intentId": "search",
+      "matchMode": "prefix",
+      "utterances": [
+        {
+          "de": "suche nach",
+          "en": "search for",
+          "fr": "rechercher",
+          "es": "buscar",
+          "it": "cerca"
+        },
+        {
+          "de": "suche",
+          "en": "search",
+          "fr": "cherche",
+          "es": "busca",
+          "it": "cerca"
+        },
+        {
+          "de": "finde",
+          "en": "find",
+          "fr": "trouve",
+          "es": "encuentra",
+          "it": "trova"
+        },
+        {
+          "de": "such",
+          "en": "look for",
+          "fr": "cherche",
+          "es": "busca",
+          "it": "cerca"
+        }
+      ]
+    },
+    {
+      "intentId": "describe",
+      "matchMode": "prefix",
+      "utterances": [
+        {
+          "de": "beschreibe",
+          "en": "describe",
+          "fr": "decris",
+          "es": "describe",
+          "it": "descrivi"
+        },
+        {
+          "de": "was ist",
+          "en": "what is",
+          "fr": "quest ce que cest",
+          "es": "que es",
+          "it": "che cos e"
+        },
+        {
+          "de": "erkl\u00e4re",
+          "en": "explain",
+          "fr": "explique",
+          "es": "explica",
+          "it": "spiega"
+        }
+      ]
+    },
+    {
+      "intentId": "openCandidate",
+      "matchMode": "prefix",
+      "utterances": [
+        {
+          "de@formal": "\u00f6ffnen sie",
+          "de@informal": "\u00f6ffne",
+          "en": "open",
+          "fr": "ouvrez",
+          "fr@informal": "ouvre",
+          "es": "abra",
+          "es@informal": "abre",
+          "it": "apra",
+          "it@informal": "apri"
+        }
+      ]
+    }
+  ],
+  "numberWords": [
+    {
+      "value": 1,
+      "utterances": [
+        {
+          "de": "eins",
+          "en": "one",
+          "fr": "un",
+          "es": "uno",
+          "it": "uno"
+        },
+        {
+          "de": "erste",
+          "en": "first",
+          "fr": "premier",
+          "es": "primero",
+          "it": "primo"
+        }
+      ]
+    },
+    {
+      "value": 2,
+      "utterances": [
+        {
+          "de": "zwei",
+          "en": "two",
+          "fr": "deux",
+          "es": "dos",
+          "it": "due"
+        },
+        {
+          "de": "zweite",
+          "en": "second",
+          "fr": "deuxieme",
+          "es": "segundo",
+          "it": "secondo"
+        }
+      ]
+    },
+    {
+      "value": 3,
+      "utterances": [
+        {
+          "de": "drei",
+          "en": "three",
+          "fr": "trois",
+          "es": "tres",
+          "it": "tre"
+        },
+        {
+          "de": "dritte",
+          "en": "third",
+          "fr": "troisieme",
+          "es": "tercero",
+          "it": "terzo"
+        }
+      ]
+    },
+    {
+      "value": 4,
+      "utterances": [
+        {
+          "de": "vier",
+          "en": "four",
+          "fr": "quatre",
+          "es": "cuatro",
+          "it": "quattro"
+        },
+        {
+          "de": "vierte",
+          "en": "fourth",
+          "fr": "quatrieme",
+          "es": "cuarto",
+          "it": "quarto"
+        }
+      ]
+    },
+    {
+      "value": 5,
+      "utterances": [
+        {
+          "de": "f\u00FCnf",
+          "en": "five",
+          "fr": "cinq",
+          "es": "cinco",
+          "it": "cinque"
+        },
+        {
+          "de": "fuenf",
+          "en": "five",
+          "fr": "cinq",
+          "es": "cinco",
+          "it": "cinque"
+        },
+        {
+          "de": "f\u00FCnfte",
+          "en": "fifth",
+          "fr": "cinquieme",
+          "es": "quinto",
+          "it": "quinto"
+        },
+        {
+          "de": "fuenfte",
+          "en": "fifth",
+          "fr": "cinquieme",
+          "es": "quinto",
+          "it": "quinto"
+        }
+      ]
+    },
+    {
+      "value": 6,
+      "utterances": [
+        {
+          "de": "sechs",
+          "en": "six",
+          "fr": "six",
+          "es": "seis",
+          "it": "sei"
+        },
+        {
+          "de": "sechste",
+          "en": "sixth",
+          "fr": "sixieme",
+          "es": "sexto",
+          "it": "sesto"
+        }
+      ]
+    },
+    {
+      "value": 7,
+      "utterances": [
+        {
+          "de": "sieben",
+          "en": "seven",
+          "fr": "sept",
+          "es": "siete",
+          "it": "sette"
+        },
+        {
+          "de": "siebte",
+          "en": "seventh",
+          "fr": "septieme",
+          "es": "septimo",
+          "it": "settimo"
+        }
+      ]
+    },
+    {
+      "value": 8,
+      "utterances": [
+        {
+          "de": "acht",
+          "en": "eight",
+          "fr": "huit",
+          "es": "ocho",
+          "it": "otto"
+        },
+        {
+          "de": "achte",
+          "en": "eighth",
+          "fr": "huitieme",
+          "es": "octavo",
+          "it": "ottavo"
+        }
+      ]
+    },
+    {
+      "value": 9,
+      "utterances": [
+        {
+          "de": "neun",
+          "en": "nine",
+          "fr": "neuf",
+          "es": "nueve",
+          "it": "nove"
+        },
+        {
+          "de": "neunte",
+          "en": "ninth",
+          "fr": "neuvieme",
+          "es": "noveno",
+          "it": "nono"
+        }
+      ]
+    },
+    {
+      "value": 10,
+      "utterances": [
+        {
+          "de": "zehn",
+          "en": "ten",
+          "fr": "dix",
+          "es": "diez",
+          "it": "dieci"
+        },
+        {
+          "de": "zehnte",
+          "en": "tenth",
+          "fr": "dixieme",
+          "es": "decimo",
+          "it": "decimo"
+        }
+      ]
+    }
+  ]
+}

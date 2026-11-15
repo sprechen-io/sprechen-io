@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../../azure-pipelines-service-ci.yml" />
+    <File Path="../../azure-pipelines-service-deploy.yml" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="../_shared/Sprechen.Common.Cqrs/Sprechen.Common.Cqrs.csproj" />
+    <Project Path="../hosting/Sprechen.ServiceDefaults/Sprechen.ServiceDefaults.csproj" />
+    <Project Path="../mda/Sprechen.Mda.Contracts/Sprechen.Mda.Contracts.csproj" />
+    <Project Path="../mda/Sprechen.Mda.Contracts.Generator/Sprechen.Mda.Contracts.Generator.csproj" />
+    <Project Path="../contracts/Sprechen.Proto/Sprechen.Proto.csproj" />
+  </Folder>
+  <Project Path="../contracts/Sprechen.Proto.Transport/Sprechen.Proto.Transport.csproj" />
+  <Project Path="Sprechen.Service.Abstractions/Sprechen.Service.Abstractions.csproj" />
+  <Project Path="Sprechen.Service.Application/Sprechen.Service.Application.csproj" />
+  <Project Path="Sprechen.Service.Audit/Sprechen.Service.Audit.csproj" />
+  <Project Path="Sprechen.Service.Core/Sprechen.Service.Core.csproj" />
+  <Project Path="Sprechen.Service.Deepgram/Sprechen.Service.Deepgram.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="Sprechen.Service.Application.Tests/Sprechen.Service.Application.Tests.csproj" />
+    <Project Path="Sprechen.Service.Audit.Tests/Sprechen.Service.Audit.Tests.csproj" />
+    <Project Path="Sprechen.Service.Core.Tests/Sprechen.Service.Core.Tests.csproj" />
+    <Project Path="Sprechen.Service.Deepgram.Tests/Sprechen.Service.Deepgram.Tests.csproj" />
+    <Project Path="Sprechen.Service.Tests/Sprechen.Service.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Benchmarks/">
+    <Project Path="Sprechen.Service.Benchmarks/Sprechen.Service.Benchmarks.csproj" />
+  </Folder>
+  <Project Path="Sprechen.Service/Sprechen.Service.csproj" />
+</Solution>

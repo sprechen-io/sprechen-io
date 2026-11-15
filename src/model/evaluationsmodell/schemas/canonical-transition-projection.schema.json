@@ -1,0 +1,499 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/canonical-transition-projection.schema.json",
+  "title": "Canonical transition projection truth table",
+  "description": "The authored truth table both channels are pinned to when they project a raw event onto canonical transitions. An interaction step is exactly one canonical business state change, and the step metric is only comparable between the conditions if both channels project identically.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifactId",
+    "cases",
+    "adoptionSequences",
+    "transitionAdoptionLedgerSequences"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../schemas/canonical-transition-projection.schema.json"
+    },
+    "artifactId": {
+      "type": "string",
+      "const": "canonical-transition-projection"
+    },
+    "description": {
+      "type": "string"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "event",
+          "input",
+          "expected"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "event": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The raw event name being projected."
+          },
+          "input": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fieldId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fieldGroupId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "completed": {
+                "type": "boolean"
+              },
+              "canonicalClass": {
+                "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalClass"
+              },
+              "scope": {
+                "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/TransitionScope"
+              },
+              "objectId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "resultingState": {
+                "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ResultingState"
+              }
+            }
+          },
+          "expected": {
+            "type": "array",
+            "description": "The transitions the line carries. An empty list means the line carried no state change - which is not the same as a projection that could not be made.",
+            "items": {
+              "type": "object",
+              "required": [
+                "canonicalClass",
+                "scope",
+                "objectId",
+                "resultingState"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "canonicalClass": {
+                  "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalClass"
+                },
+                "scope": {
+                  "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/TransitionScope"
+                },
+                "objectId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resultingState": {
+                  "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ResultingState"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "adoptionSequences": {
+      "type": "array",
+      "minItems": 3,
+      "description": "Hand-authored sequences that pin durable adoption, versioning, emitted deltas, and restore continuity for both channel runtimes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "sequence",
+          "steps"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sequence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "#/$defs/adoptionStep"
+            }
+          }
+        }
+      }
+    },
+    "transitionAdoptionLedgerSequences": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Hand-authored ordered checkpoint operations that pin baseline priming, real emitter-call boundaries, reload continuity, and per-event deltas without widening the public envelope.",
+      "items": {
+        "type": "object",
+        "required": [
+          "sequence",
+          "operations"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sequence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "operations": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "$ref": "#/$defs/transitionAdoptionLedgerOperation"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "canonicalTransition": {
+      "type": "object",
+      "required": [
+        "canonicalClass",
+        "scope",
+        "objectId",
+        "resultingState"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "canonicalClass": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/CanonicalClass"
+        },
+        "scope": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/TransitionScope"
+        },
+        "objectId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "resultingState": {
+          "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/ResultingState"
+        }
+      }
+    },
+    "transitionArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/canonicalTransition"
+      }
+    },
+    "nullableTransitionArray": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/transitionArray"
+        }
+      ]
+    },
+    "nonEmptyTransitionArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/canonicalTransition"
+      }
+    },
+    "transitionAdoptionLedgerOperation": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/eventBatchLedgerOperation"
+        },
+        {
+          "$ref": "#/$defs/completionBaselineLedgerOperation"
+        }
+      ]
+    },
+    "eventBatchLedgerOperation": {
+      "type": "object",
+      "required": [
+        "operation",
+        "kind",
+        "events",
+        "projectedByEvent",
+        "expectedStateVersion",
+        "expectedDeltaByEvent"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "event_batch"
+        },
+        "restoreBoundaryBefore": {
+          "type": "boolean"
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "metadataOnlyStatusChanges": {
+          "$ref": "#/$defs/metadataOnlyStatusChanges"
+        },
+        "projectedByEvent": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/transitionArray"
+          }
+        },
+        "expectedStateVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expectedDeltaByEvent": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/transitionArray"
+          }
+        }
+      }
+    },
+    "completionBaselineLedgerOperation": {
+      "type": "object",
+      "required": [
+        "operation",
+        "kind",
+        "completionTransitions",
+        "expectedStateVersion"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "completion_baseline"
+        },
+        "restoreBoundaryBefore": {
+          "type": "boolean"
+        },
+        "completionTransitions": {
+          "$ref": "#/$defs/nonEmptyTransitionArray"
+        },
+        "expectedStateVersion": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "statusChangeSnapshot": {
+      "type": "object",
+      "description": "One detailed field and field-group status snapshot as a channel hands it in. Whether a line carries a change is what the snapshot states line by line; nothing here restricts which of the two answers a line may give.",
+      "required": [
+        "fields",
+        "fieldGroups"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "fieldId",
+              "fieldGroupId",
+              "relevant",
+              "required",
+              "completed",
+              "blockingErrorCodes",
+              "relevanceChanged",
+              "completionChanged"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "fieldId": { "type": "string", "minLength": 1 },
+              "fieldGroupId": { "type": "string", "minLength": 1 },
+              "relevant": { "type": "boolean" },
+              "required": { "type": "boolean" },
+              "completed": { "type": "boolean" },
+              "blockingErrorCodes": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "relevanceChanged": { "type": "boolean" },
+              "completionChanged": { "type": "boolean" }
+            }
+          }
+        },
+        "fieldGroups": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "fieldGroupId",
+              "relevant",
+              "completed",
+              "openGroupErrorCodes",
+              "relevanceChanged",
+              "completionChanged"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "fieldGroupId": { "type": "string", "minLength": 1 },
+              "relevant": { "type": "boolean" },
+              "completed": { "type": "boolean" },
+              "openGroupErrorCodes": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "relevanceChanged": { "type": "boolean" },
+              "completionChanged": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "metadataOnlyStatusChanges": {
+      "description": "The same snapshot, narrowed to the one case a ledger operation stands for: nothing became relevant or complete, and every line still carries at least one open error code. Written as a narrowing rather than a second copy, so a member added to the snapshot cannot go missing here.",
+      "allOf": [
+        { "$ref": "#/$defs/statusChangeSnapshot" },
+        {
+          "properties": {
+            "fields": {
+              "items": {
+                "properties": {
+                  "blockingErrorCodes": { "minItems": 1 },
+                  "relevanceChanged": { "const": false },
+                  "completionChanged": { "const": false }
+                }
+              }
+            },
+            "fieldGroups": {
+              "items": {
+                "properties": {
+                  "openGroupErrorCodes": { "minItems": 1 },
+                  "relevanceChanged": { "const": false },
+                  "completionChanged": { "const": false }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "adoptionStep": {
+      "type": "object",
+      "description": "One authored step of an adoption sequence. A step is driven either by the single event whose projection it adopts, or by one detailed status snapshot together with the batch of events that snapshot produces - both channel runtimes tell the two apart by which of the two a step carries, so the step states exactly one of them.",
+      "required": [
+        "priorStateVersion",
+        "priorAdoptedTransitions",
+        "projected",
+        "expectedStateVersion",
+        "expectedAdoptedTransitions",
+        "expectedDelta"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "event"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "events"
+                ]
+              },
+              {
+                "required": [
+                  "statusChanges"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "events",
+            "statusChanges"
+          ],
+          "not": {
+            "required": [
+              "event"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": [
+            "focus_change",
+            "navigation_changed",
+            "value_change"
+          ]
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "statusChanges": {
+          "$ref": "#/$defs/statusChangeSnapshot"
+        },
+        "restoreBoundaryBefore": {
+          "type": "boolean"
+        },
+        "priorStateVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "priorAdoptedTransitions": {
+          "$ref": "#/$defs/nullableTransitionArray"
+        },
+        "projected": {
+          "$ref": "#/$defs/transitionArray"
+        },
+        "expectedStateVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expectedAdoptedTransitions": {
+          "$ref": "#/$defs/transitionArray"
+        },
+        "expectedDelta": {
+          "$ref": "#/$defs/transitionArray"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "variableDefinitionsId": "sample.simple.variables.multilingual",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": true,
+  "definitions": [
+    {
+      "variableDefinitionId": "freeText",
+      "name": "freeText",
+      "semanticTag": "sample.simple.freeText",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 200,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "favoriteColor",
+      "name": "favoriteColor",
+      "semanticTag": "sample.simple.favoriteColor",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "red",
+            "displayName": {
+              "de": "Rot",
+              "en": "Red",
+              "fr": "Rouge",
+              "es": "Rojo",
+              "it": "Rosso"
+            }
+          },
+          {
+            "code": "green",
+            "displayName": {
+              "de": "Gr\u00FCn",
+              "en": "Green",
+              "fr": "Vert",
+              "es": "Verde",
+              "it": "Verde"
+            }
+          },
+          {
+            "code": "blue",
+            "displayName": {
+              "de": "Blau",
+              "en": "Blue",
+              "fr": "Bleu",
+              "es": "Azul",
+              "it": "Blu"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "quantity",
+      "name": "quantity",
+      "semanticTag": "sample.simple.quantity",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "integer",
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "variableDefinitionId": "dueDate",
+      "name": "dueDate",
+      "semanticTag": "sample.simple.dueDate",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "date"
+      }
+    },
+    {
+      "variableDefinitionId": "contactChannels",
+      "name": "contactChannels",
+      "semanticTag": "sample.simple.contactChannels",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "set",
+        "values": [
+          {
+            "code": "email",
+            "displayName": {
+              "de": "E-Mail",
+              "en": "Email",
+              "fr": "E-mail",
+              "es": "Correo electr\u00F3nico",
+              "it": "E-mail"
+            }
+          },
+          {
+            "code": "phone",
+            "displayName": {
+              "de": "Telefon",
+              "en": "Phone",
+              "fr": "T\u00E9l\u00E9phone",
+              "es": "Tel\u00E9fono",
+              "it": "Telefono"
+            }
+          },
+          {
+            "code": "sms",
+            "displayName": {
+              "de": "SMS",
+              "en": "SMS",
+              "fr": "SMS",
+              "es": "SMS",
+              "it": "SMS"
+            }
+          }
+        ],
+        "minSelected": 1
+      }
+    },
+    {
+      "variableDefinitionId": "newsletterTopics",
+      "name": "newsletterTopics",
+      "semanticTag": "sample.simple.newsletterTopics",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "set",
+        "values": [
+          {
+            "code": "news",
+            "displayName": {
+              "de": "Nachrichten",
+              "en": "News",
+              "fr": "Actualit\u00E9s",
+              "es": "Noticias",
+              "it": "Notizie"
+            }
+          },
+          {
+            "code": "sports",
+            "displayName": {
+              "de": "Sport",
+              "en": "Sports",
+              "fr": "Sport",
+              "es": "Deportes",
+              "it": "Sport"
+            }
+          },
+          {
+            "code": "technology",
+            "displayName": {
+              "de": "Technik",
+              "en": "Technology",
+              "fr": "Technologie",
+              "es": "Tecnolog\u00EDa",
+              "it": "Tecnologia"
+            }
+          }
+        ],
+        "minSelected": 0
+      }
+    },
+    {
+      "variableDefinitionId": "preferredTime",
+      "name": "preferredTime",
+      "semanticTag": "sample.simple.preferredTime",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "time"
+      }
+    }
+  ]
+}

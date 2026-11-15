@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.Net.Client" Version="2.80.0" />
+    <PackageReference Include="Grpc.Net.Client.Web" Version="2.80.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\contracts\Sprechen.Proto\Sprechen.Proto.csproj" />
+    <ProjectReference Include="..\..\contracts\Sprechen.Proto.Transport\Sprechen.Proto.Transport.csproj" />
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Contracts\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.App.CaptureRuntime\Sprechen.Speech.App.CaptureRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.App.Runtime\Sprechen.Speech.App.Runtime.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Using Include="Sprechen.Speech.WakeWord.Contracts" />
+  </ItemGroup>
+</Project>

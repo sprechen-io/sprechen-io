@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/voice-lexicon-catalog.schema.json",
+  "title": "VoiceLexiconCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "lexiconModelId",
+    "yesNoProfiles",
+    "politenessProfiles"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "lexiconModelId": {
+      "$ref": "#/$defs/Id"
+    },
+    "yesNoProfiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VoiceLexiconYesNoProfile"
+      },
+      "description": "Per-language yes/no lexicon. The owning VoiceInterfaceDocument defines the authoritative supportedLanguages; exact coverage is enforced there."
+    },
+    "politenessProfiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VoiceLexiconPolitenessProfile"
+      },
+      "description": "Per-language formal/informal lexicon for generic voice and session-setup addressing. The owning VoiceInterfaceDocument defines the authoritative supportedLanguages; exact coverage is enforced there."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "VoiceLexiconYesNoProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "languageCode",
+        "yesWord",
+        "noWord",
+        "yesTokens",
+        "noTokens",
+        "notUnderstoodPhrases"
+      ],
+      "properties": {
+        "languageCode": {
+          "$ref": "#/$defs/LanguageCode"
+        },
+        "yesWord": {
+          "type": "string",
+          "minLength": 1
+        },
+        "noWord": {
+          "type": "string",
+          "minLength": 1
+        },
+        "yesTokens": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "noTokens": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "negationCues": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "description": "Optional scoping negation particles (not the direct no-words) that veto a co-occurring yes-word."
+        },
+        "notUnderstoodPhrases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Phrases with which a speaker signals non-comprehension. Matched and masked before any yes/no vote, and reported as not-recognised: saying you did not understand is neither consent nor refusal. Masking happens before the yes/no vote because the session entry classifies across all five languages at once, so a no-word of another language inside such a phrase would otherwise be read as a NO."
+        }
+      }
+    },
+    "VoiceLexiconPolitenessProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "languageCode",
+        "formalWord",
+        "informalWord",
+        "formalTokens",
+        "informalTokens"
+      ],
+      "properties": {
+        "languageCode": {
+          "$ref": "#/$defs/LanguageCode"
+        },
+        "formalWord": {
+          "type": "string",
+          "minLength": 1
+        },
+        "informalWord": {
+          "type": "string",
+          "minLength": 1
+        },
+        "formalTokens": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "informalTokens": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

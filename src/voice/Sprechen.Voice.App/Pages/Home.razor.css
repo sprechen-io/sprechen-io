@@ -1,0 +1,10 @@
+.home {
+    position: relative;
+    min-height: calc(100vh - var(--sp-top-bar-min-height) - var(--sp-content-padding-top));
+    min-height: calc(100svh - var(--sp-top-bar-min-height) - var(--sp-content-padding-top));
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    overflow: visible;
+    padding: clamp(1rem, 2.5vw, 1.75rem);
+}

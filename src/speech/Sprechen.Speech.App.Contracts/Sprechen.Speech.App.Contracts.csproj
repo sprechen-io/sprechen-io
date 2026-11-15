@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Contracts\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.LanguageContracts\Sprechen.Speech.LanguageContracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Sprechen.Speech.TextNormalization" />
+  </ItemGroup>
+</Project>

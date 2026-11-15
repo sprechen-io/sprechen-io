@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/telemetry-fragments.schema.json",
+  "title": "TelemetryFragments",
+  "description": "Shared schema module for reusable telemetry envelope, evaluation vocabularies, status snapshots, and error payload fragments referenced by telemetry-events.schema.json.",
+  "$defs": {
+    "Condition": {
+      "description": "Study condition identifier (within-subjects comparison): A = established screenreader reference workflow, B = voice-only prototype.",
+      "type": "string",
+      "enum": [
+        "A",
+        "B"
+      ]
+    },
+    "RecordProvenance": {
+      "type": "string",
+      "description": "Origin class of the record. participant identifies a bound study token, operational_probe identifies operational verification through the enabled probe route, and demonstration identifies a non-study demonstration. The ingestion route validates this value against its own trust boundary; it never rewrites a mismatch.",
+      "enum": [
+        "participant",
+        "operational_probe",
+        "demonstration"
+      ]
+    },
+    "TaskEndState": {
+      "description": "Terminal task outcome used for TSR-E and time-on-task evaluation. The vocabulary is the one the study event specification fixes. Only the closing task submits the whole process; every other task reaches a target state of its own without submitting, which is why reaching the target and submitting are separate values rather than one.",
+      "type": "string",
+      "enum": [
+        "task_target_reached",
+        "process_submitted",
+        "aborted",
+        "not_submitted",
+        "technical_failure"
+      ]
+    },
+    "CanonicalClass": {
+      "description": "The five classes of a canonical business state change. An interaction step is exactly one such change - not an utterance, not an action, and not a count of event names.",
+      "type": "string",
+      "enum": [
+        "field_target_changed",
+        "field_group_target_changed",
+        "confirmed_field_value_changed",
+        "field_completion_changed",
+        "field_group_completion_changed"
+      ]
+    },
+    "TransitionScope": {
+      "description": "What a canonical transition is about: a single field or a whole field group.",
+      "type": "string",
+      "enum": [
+        "field",
+        "field_group"
+      ]
+    },
+    "ResultingState": {
+      "description": "The state a canonical transition leaves its object in. Deliberately not the dialog's own state vocabulary: this one has to mean the same in both conditions to be comparable.",
+      "type": "string",
+      "enum": [
+        "targeted",
+        "confirmed_changed",
+        "complete",
+        "incomplete"
+      ]
+    },
+    "CanonicalTransition": {
+      "description": "One canonical business state change. The object identifier is an agreed field or field-group id and carries no content: no labels, no selectors, no entered or expected values, no transcripts.",
+      "type": "object",
+      "required": [
+        "canonical_class",
+        "scope",
+        "object_id",
+        "resulting_state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "canonical_class": {
+          "$ref": "#/$defs/CanonicalClass"
+        },
+        "scope": {
+          "$ref": "#/$defs/TransitionScope"
+        },
+        "object_id": {
+          "$ref": "#/$defs/IdentifyingText",
+          "maxLength": 128
+        },
+        "resulting_state": {
+          "$ref": "#/$defs/ResultingState"
+        }
+      }
+    },
+    "AmbiguityType": {
+      "description": "Normative ambiguity category for ambiguity-resolution evaluation.",
+      "type": "string",
+      "enum": [
+        "input_vs_command",
+        "spelling",
+        "fieldname_vs_content"
+      ]
+    },
+    "AmbiguityResolutionStrategy": {
+      "description": "Normative ambiguity-resolution strategy used by the runtime.",
+      "type": "string",
+      "enum": [
+        "context_default",
+        "prefix",
+        "two_option",
+        "spell_fallback",
+        "query",
+        "opt_in_proposal"
+      ]
+    },
+    "AmbiguitySignalClass": {
+      "description": "Deterministic command-signal class. 'no_command' semantically means 'kein Kommando erkannt'.",
+      "type": "string",
+      "enum": [
+        "clear",
+        "ambiguous",
+        "no_command"
+      ]
+    },
+    "AmbiguityResult": {
+      "description": "Normative ambiguity-resolution result for analytics and evaluation.",
+      "type": "string",
+      "enum": [
+        "accepted",
+        "corrected"
+      ]
+    },
+    "Severity": {
+      "description": "Error severity level: error (validation failure), warning (caution), or info (informational). The error rate counts only error, so this value is what separates a rule the person violated from a finding about the channel, which voice reports as warning through the same event. A value outside this enum is refused at emission rather than defaulted, because defaulting toward error would add lines to the measured rate that no rule and no call site asked for. See model.md section 13.1.2.2.",
+      "type": "string",
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ]
+    },
+    "Scope": {
+      "description": "Validation scope in study logging terms. Maps from ConstraintScope per the machine-readable pairing in #/$defs/ScopeMapping.",
+      "type": "string",
+      "enum": [
+        "field",
+        "field_group",
+        "cross_group",
+        "form"
+      ]
+    },
+    "ScopeMapping": {
+      "description": "Machine-readable pairing from ConstraintScope (constraint-language.schema.json#/$defs/ConstraintScope, camelCase) to Scope (#/$defs/Scope, snake_case). Normative for every channel that logs a validation scope.",
+      "type": "object",
+      "properties": {
+        "field": {
+          "const": "field"
+        },
+        "fieldGroup": {
+          "const": "field_group"
+        },
+        "crossGroup": {
+          "const": "cross_group"
+        },
+        "form": {
+          "const": "form"
+        }
+      },
+      "required": [
+        "field",
+        "fieldGroup",
+        "crossGroup",
+        "form"
+      ],
+      "additionalProperties": false
+    },
+    "InputMode": {
+      "description": "Input mode. Maps from FormContract InputMode: voice, keyboard, spelling, digits, literal.",
+      "type": "string",
+      "enum": [
+        "voice",
+        "keyboard",
+        "spelling",
+        "digits",
+        "literal"
+      ]
+    },
+    "InputModeTrigger": {
+      "description": "Trigger for input mode change: explicit user command, automatic system detection, or field-level default.",
+      "type": "string",
+      "enum": [
+        "explicit_command",
+        "automatic",
+        "field_default"
+      ]
+    },
+    "SystemFeedbackType": {
+      "description": "System feedback type used for process diagnostics and user-facing feedback.",
+      "type": "string",
+      "enum": [
+        "info",
+        "error",
+        "confirm",
+        "help",
+        "status",
+        "navigationNoTarget"
+      ]
+    },
+    "ZeroDenominatorMode": {
+      "description": "Progress basis that had a zero denominator when the status snapshot was emitted.",
+      "type": "string",
+      "enum": [
+        "allFields",
+        "requiredFieldsOnly",
+        "fieldGroupBased"
+      ]
+    },
+    "ProgressCounter": {
+      "description": "Progress counter: completed and total items for form/field/group completion tracking.",
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of completed items. Runtime invariant: completed <= total."
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "completed",
+        "total"
+      ],
+      "additionalProperties": false
+    },
+    "StatusNavigationFields": {
+      "description": "Navigation state: current field ID, field group ID, and navigation position indices.",
+      "type": "object",
+      "properties": {
+        "current_field_id": {
+          "$ref": "#/$defs/IdentifyingText"
+        },
+        "current_field_group_id": {
+          "$ref": "#/$defs/IdentifyingText"
+        },
+        "navigation_index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based position within the navigation sequence. Runtime invariant: navigation_index < navigation_total."
+        },
+        "navigation_total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "current_field_id",
+        "current_field_group_id",
+        "navigation_index",
+        "navigation_total"
+      ]
+    },
+    "StatusNavigation": {
+      "description": "Closed standalone navigation state. Composed event data uses StatusNavigationFields and closes only after adding its event-owned members.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/StatusNavigationFields"
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "StatusSnapshotProgress": {
+      "description": "Progress snapshot: completion counters for form, fields, and field groups.",
+      "type": "object",
+      "properties": {
+        "allFields": {
+          "$ref": "#/$defs/ProgressCounter"
+        },
+        "requiredFieldsOnly": {
+          "$ref": "#/$defs/ProgressCounter"
+        },
+        "fieldGroupBased": {
+          "$ref": "#/$defs/ProgressCounter"
+        }
+      },
+      "required": [
+        "allFields",
+        "requiredFieldsOnly",
+        "fieldGroupBased"
+      ],
+      "additionalProperties": false
+    },
+    "ErrorCode": {
+      "description": "Internal, channel-owned rule identity: the stable semantic code of the constraint a field broke, or the code a channel gives an observation of its own. It groups reports of the same rule across rule instances, which is what the open-error identity and the blocking/open-group lists need. It is never the study's diagnosis code - that vocabulary is closed and lives in StudyDiagnosisCode - so an internal code never reaches a study error line. See model.md section 13.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "StudyDiagnosisCode": {
+      "description": "The study's case diagnosis vocabulary, closed and shared by both conditions. A study error line says which KIND of case it was and nothing more: a rule the person broke, a navigation step that failed, or a recognition failure with text-free evidence. Internal codes differ between the two channels, so a rate over them would measure how each channel cut its rules rather than how often the person was stuck. These codes feed the case-by-case diagnosis of a single task run and no additional rate. See model.md section 13.1.2.",
+      "type": "string",
+      "enum": [
+        "D-NAVIGATION",
+        "D-STT",
+        "D-VALIDATION"
+      ]
+    },
+    "StudyErrorRouting": {
+      "description": "Which study error event a reported internal code of the voice channel produces, or none. validation means the validation_error_opened / validation_error_cleared pair, recognition means stt_error, silence means the no_speech_detected event, and none means the case produces no study error line at all because it can prove neither a broken rule nor a recognition failure. A code that is not listed here is a contract rule code and therefore validation. That is also why the map has to name the channel's own catalog completely: an unlisted channel code would inherit the A/B-comparable validation stream by falling through. The completeness is proven against that catalog in source, not at runtime. See model.md section 13.1.2.",
+      "type": "object",
+      "properties": {
+        "no_speech_detected": {
+          "const": "silence"
+        },
+        "no_input": {
+          "const": "silence"
+        },
+        "capture_interrupted": {
+          "const": "recognition"
+        },
+        "recognized_as_empty": {
+          "const": "recognition"
+        },
+        "low_stt_confidence": {
+          "const": "recognition"
+        },
+        "stt_error": {
+          "const": "recognition"
+        },
+        "unrecognized_input": {
+          "const": "none"
+        },
+        "unknown_command": {
+          "const": "none"
+        },
+        "keyboard_mode_active": {
+          "const": "validation"
+        },
+        "voice_input_forbidden": {
+          "const": "validation"
+        },
+        "spoken_value_unavailable": {
+          "const": "validation"
+        },
+        "manual_correction": {
+          "const": "none"
+        },
+        "switch_to_spelling": {
+          "const": "none"
+        }
+      },
+      "required": [
+        "no_speech_detected",
+        "no_input",
+        "capture_interrupted",
+        "recognized_as_empty",
+        "low_stt_confidence",
+        "stt_error",
+        "unrecognized_input",
+        "unknown_command",
+        "keyboard_mode_active",
+        "voice_input_forbidden",
+        "spoken_value_unavailable",
+        "manual_correction",
+        "switch_to_spelling"
+      ],
+      "additionalProperties": false
+    },
+    "ErrorTrigger": {
+      "description": "The act that made a validation error line exist: load (the task was loaded and its current state was written out), user_input (the person entered, spoke or changed a value), submit_attempt (the person tried to submit), rule_visibility (an already-unsatisfied constraint became visible without a new attempt), system_recognition (the system own recognition produced the line). Only user_input and submit_attempt are aggregated into the error rate; the other three are recorded and reported separately so the load-time dump stays visible instead of being suppressed. One act writes at most one line per open error and that line names the act itself, so a channel emits this event from exactly one producer: a second producer cannot see what the first already wrote for the same act and would name a different trigger for the same violation. The producer is the site that writes the line and knows which errors are already open, not every site that reports a violation to it: a channel may have many reporting sites, each naming its own act, while exactly one of them writes. See model.md section 13.1.",
+      "type": "string",
+      "enum": [
+        "load",
+        "user_input",
+        "submit_attempt",
+        "rule_visibility",
+        "system_recognition"
+      ]
+    },
+    "ErrorDataFields": {
+      "description": "Study error data: the case diagnosis code, the severity, the scope, and the optional field/group context. The diagnosis code is fixed per event; severity is what separates a rule the person broke from a finding the channel makes about itself.",
+      "type": "object",
+      "properties": {
+        "error_code": {
+          "$ref": "#/$defs/StudyDiagnosisCode"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "field_id": {
+          "$ref": "#/$defs/IdentifyingText"
+        },
+        "field_group_id": {
+          "$ref": "#/$defs/IdentifyingText"
+        },
+        "related_field_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IdentifyingText"
+          }
+        }
+      },
+      "required": [
+        "error_code",
+        "severity",
+        "scope"
+      ]
+    },
+    "ErrorData": {
+      "description": "Closed standalone validation error data. Composed event data uses ErrorDataFields and closes only after adding its event-owned members.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/ErrorDataFields"
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ApplicationId": {
+      "description": "Stable MDA application identifier used as non-personal study-log context. At least two lowercase alphanumeric segments separated by a dot, an underscore or a hyphen, so that every line names the application family it belongs to. The single exception is the modeled placeholder A00, which states that no application was bound when the line was written. It is not an application and carries no family.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(A00|[a-z0-9]+([._-][a-z0-9]+)+)$"
+    },
+    "IdentifyingText": {
+      "description": "Text a record is identified or grouped by, written exactly as the run produced it: at least one character, and none of it surrounding whitespace. Stated once and referenced by every member that names a field, a field group, a command, an intent, a mode, a reason or a detector, because two spellings of one name that differ only in padding are two names to every reader that does not trim, and a producer that trims instead writes a name the run never produced. How long such a name may be is stated by the member, which knows what it names.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S(?:.*\\S)?$"
+    },
+    "StudyIdentifier": {
+      "description": "An identifier the study correlates records by. Blank text is not one: it groups with nothing and the analysis cannot tell it from a missing value, so it is refused at the door rather than counted as a record whose participant or task is unknown. Surrounding whitespace is refused for the same reason - two spellings of one identifier are two identifiers to every reader that does not trim.",
+      "$ref": "#/$defs/IdentifyingText",
+      "maxLength": 64
+    },
+    "RecordReceivedAt": {
+      "type": "string",
+      "pattern": "^20[2-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\\.[0-9]{7}[+-][0-2][0-9]:[0-5][0-9]$",
+      "description": "Receipt time measured by the server when it accepted the line, in the server's local time as RFC 3339 with a written-out offset. The offset is required: Berlin wall-clock 02:30 occurs twice on the changeover day, and without it a later instant maps to an earlier string. It states when the line was accepted, not when it became durable, and it orders nothing - file order and the non-decreasing state_version do that."
+    },
+    "BaseEvent": {
+      "description": "Base event structure: immutable transport event ID, session ID, client offset, participant ID, condition, application ID, task ID, record provenance, event type, and state version. event_id identifies one envelope across delivery retries; it is not a study-session identifier and is not part of the canonical-transition deduplication key. session_id identifies one actually started modeled task; the sent and stored shapes require it together with client_offset_ms except on modeled outside-task diagnostics, where they refuse both. Runtime admission accepts participant when a study token is bound, demonstration otherwise, and operational_probe only on the enabled probe route. A mismatch is rejected, never rewritten. record_received_at is listed but not required here so that the closure stays local to this definition: the two shapes in telemetry-events.schema.json then only state a disposition each, the transport shape refusing the member and the stored shape requiring it.",
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 32,
+          "pattern": "^[0-9a-f]{32}$",
+          "description": "Opaque immutable identifier generated once for this envelope before durable delivery. Retries preserve it byte-for-byte so ingestion can acknowledge an already persisted event without recording it twice."
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 32,
+          "pattern": "^[0-9a-f]{32}$",
+          "description": "Opaque identifier of one actually started modeled task, copied from the channel evaluation-task ID already stored in the checkpoint. Retries keep the same value and the same bytes. It is not event_id, not the participant, and not the study task_id. Task-bound envelopes require it; modeled outside-task diagnostics that use the placeholder application and task refuse it."
+        },
+        "participant_id": {
+          "$ref": "#/$defs/StudyIdentifier"
+        },
+        "condition": {
+          "$ref": "#/$defs/Condition"
+        },
+        "application_id": {
+          "$ref": "#/$defs/ApplicationId"
+        },
+        "task_id": {
+          "$ref": "#/$defs/StudyIdentifier"
+        },
+        "record_provenance": {
+          "$ref": "#/$defs/RecordProvenance"
+        },
+        "event": {
+          "type": "string"
+        },
+        "state_version": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "Monotonically increasing state version within a task. The upper bound is the widest value an envelope can be carried by; a line above it is refused as a stated rule rather than discovered as an unreadable number."
+        },
+        "data": {
+          "type": "object"
+        },
+        "record_received_at": {
+          "$ref": "#/$defs/RecordReceivedAt"
+        },
+        "client_offset_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "description": "Monotone milliseconds since task_start of the same task, measured on the client. Task-bound envelopes require it together with session_id. Modeled outside-task diagnostics refuse both. It is not a wall clock, not record_received_at, and not a study identifier."
+        }
+      },
+      "required": [
+        "event_id",
+        "participant_id",
+        "condition",
+        "application_id",
+        "task_id",
+        "record_provenance",
+        "event",
+        "state_version"
+      ],
+      "additionalProperties": false
+    },
+    "CanonicalTransitionList": {
+      "description": "The canonical transitions a line carries. An empty list is an explicit statement that the line carried no state change; it is never a stand-in for a projection that could not be made, because conflating the two would undercount steps silently.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CanonicalTransition"
+      }
+    }
+  }
+}

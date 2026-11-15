@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Contracts\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+  </ItemGroup>
+
+  <!-- Die Höflichkeitsausdrücke der Befehlsparser (commandPolitePaddingTokensByLanguage) stammen aus dem gemeinsamen Transkriptlexikon des Dialogmodells. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\model\dialogmodell\reference-contracts\voice-interface\form-transcript-lexicon.reference.json">
+      <Link>Resources\form-transcript-lexicon.reference.json</Link>
+      <LogicalName>Sprechen.VoiceAssistant.CommandParsing.Resources.form-transcript-lexicon.default.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+    <Using Include="Sprechen.Speech.TextNormalization" />
+  </ItemGroup>
+</Project>

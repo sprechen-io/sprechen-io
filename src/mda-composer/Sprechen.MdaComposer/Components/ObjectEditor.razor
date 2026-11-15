@@ -1,0 +1,169 @@
+@inject ExampleAuthoringSession Session
+
+@{
+    var documentObject = Session.Queries.GetNode(Path) as JsonObject;
+}
+
+@foreach (var prop in Schema.Properties ?? [])
+{
+    var propName = prop.Name;
+    var isComplex = !IsPrimitiveInline(prop);
+    var isPresent = documentObject?.ContainsKey(propName) ?? false;
+    var propertyPath = JsonPointer.Append(Path, propName);
+
+    @if (isPresent)
+    {
+        <div class="mb-2 ps-2 border-start">
+            @if (isComplex)
+            {
+                <div class="property-section d-flex align-items-baseline"
+                     @onclick="() => ToggleCollapse(propName)">
+                    <span class="toggle-icon me-1 @(IsCollapsed(propName) ? "collapsed" : "")">▾</span>
+                    <label class="form-label mb-0 me-2 fw-semibold">
+                        @prop.Name
+                        @if (prop.IsRequired)
+                        {
+                            <span class="text-danger">*</span>
+                        }
+                    </label>
+                    <small class="text-muted me-2">@SchemaPresentation.GetTypeHint(prop)</small>
+                    @if (!prop.IsRequired)
+                    {
+                        <button class="btn btn-outline-danger btn-sm py-0 px-1 ms-auto"
+                                style="font-size:0.7rem" title="Property entfernen"
+                                @onclick:stopPropagation="true"
+                                @onclick="() => RemoveProperty(propName)">✕</button>
+                    }
+                </div>
+                @if (prop.Description is not null)
+                {
+                    <small class="text-muted d-block ms-3">@prop.Description</small>
+                }
+                <ConstraintBadges Schema="@prop" />
+                @if (!IsCollapsed(propName))
+                {
+                    <div class="ms-2 mt-1">
+                        <PropertyEditor Schema="@prop" Path="@propertyPath" />
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="d-flex align-items-baseline">
+                    <label class="form-label mb-0 me-2 fw-semibold" style="min-width:140px;">
+                        @prop.Name
+                        @if (prop.IsRequired)
+                        {
+                            <span class="text-danger">*</span>
+                        }
+                    </label>
+                    <div class="flex-grow-1">
+                        <PropertyEditor Schema="@prop" Path="@propertyPath" />
+                    </div>
+                    @if (!prop.IsRequired)
+                    {
+                        <button class="btn btn-outline-danger btn-sm py-0 px-1 ms-1"
+                                style="font-size:0.7rem" title="Property entfernen"
+                                @onclick="() => RemoveProperty(propName)">✕</button>
+                    }
+                </div>
+                @if (prop.Description is not null)
+                {
+                    <small class="text-muted ms-3">@prop.Description</small>
+                }
+                <ConstraintBadges Schema="@prop" />
+            }
+        </div>
+    }
+    else if (prop.IsRequired)
+    {
+        <div class="mb-2 ps-2 border-start border-warning">
+            <div class="d-flex align-items-baseline gap-2 flex-wrap">
+                <label class="form-label mb-0 fw-semibold">
+                    @prop.Name
+                    <span class="text-danger">*</span>
+                </label>
+                <small class="text-warning-emphasis">Fehlender Pflichtwert</small>
+                <button class="btn btn-outline-warning btn-sm py-0 px-2"
+                        @onclick="() => InitializeProperty(propName, prop)">
+                    Standardwert erzeugen
+                </button>
+            </div>
+            @if (prop.Description is not null)
+            {
+                <small class="text-muted d-block">@prop.Description</small>
+            }
+            <ConstraintBadges Schema="@prop" />
+        </div>
+    }
+}
+
+@if (SchemaPresentation.GetAbsentOptionalProperties(Schema, documentObject) is { Count: > 0 } absent)
+{
+    <div class="mt-1 d-flex align-items-center gap-1 flex-wrap">
+        <select class="form-select form-select-sm" style="max-width:200px"
+                @bind="_selectedOptionalProp">
+            <option value="">+ optionale Property…</option>
+            @foreach (var p in absent)
+            {
+                <option value="@p.Name">@p.Name (@SchemaPresentation.GetTypeHint(p))</option>
+            }
+        </select>
+        @if (!string.IsNullOrEmpty(_selectedOptionalProp))
+        {
+            <button class="btn btn-outline-primary btn-sm" @onclick="AddSelectedOptionalProperty">
+                Hinzufügen
+            </button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+    [Parameter] public string Path { get; set; } = JsonPointer.Root;
+
+    private readonly HashSet<string> _collapsed = [];
+    private PropertyEditorSchemaPresentation SchemaPresentation { get; } = new();
+    private string _selectedOptionalProp = string.Empty;
+
+    private static bool IsPrimitiveInline(SchemaNode prop)
+        => (prop.Type is SchemaNodeType.String or SchemaNodeType.Number
+            or SchemaNodeType.Integer or SchemaNodeType.Boolean)
+            && prop.EnumValues is null
+            && !prop.IsMap;
+
+    private bool IsCollapsed(string name) => _collapsed.Contains(name);
+
+    private void ToggleCollapse(string name)
+    {
+        if (!_collapsed.Remove(name))
+        {
+            _collapsed.Add(name);
+        }
+    }
+
+    private void RemoveProperty(string name)
+    {
+        Session.Objects.RemoveObjectProperty(Path, name);
+    }
+
+    private void AddSelectedOptionalProperty()
+    {
+        if (string.IsNullOrEmpty(_selectedOptionalProp))
+        {
+            return;
+        }
+
+        var prop = Schema.Properties?.FirstOrDefault(p => p.Name == _selectedOptionalProp);
+        if (prop is not null)
+        {
+            Session.Objects.AddObjectProperty(Path, prop.Name, prop);
+            _selectedOptionalProp = string.Empty;
+        }
+    }
+
+    private void InitializeProperty(string name, SchemaNode propertySchema)
+    {
+        Session.Objects.AddObjectProperty(Path, name, propertySchema);
+    }
+}

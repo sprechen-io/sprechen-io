@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Sprechen.Common.Cqrs</RootNamespace>
+    <AssemblyName>Sprechen.Common.Cqrs</AssemblyName>
+  </PropertyGroup>
+</Project>

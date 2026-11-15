@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "variableDefinitionsId": "sample.complex.variables.multilingual",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": true,
+  "definitions": [
+    {
+      "variableDefinitionId": "fullName",
+      "name": "fullName",
+      "semanticTag": "sample.complex.fullName",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 120,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "email",
+      "name": "email",
+      "semanticTag": "sample.complex.email",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 5,
+        "maxLength": 120,
+        "formatHint": "email"
+      }
+    },
+    {
+      "variableDefinitionId": "phone",
+      "name": "phone",
+      "semanticTag": "sample.complex.phone",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 4,
+        "maxLength": 32,
+        "formatHint": "phone"
+      }
+    },
+    {
+      "variableDefinitionId": "postalCode",
+      "name": "postalCode",
+      "semanticTag": "sample.complex.postalCode",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 3,
+        "maxLength": 10,
+        "formatHint": "postalCode"
+      }
+    },
+    {
+      "variableDefinitionId": "productCategory",
+      "name": "productCategory",
+      "semanticTag": "sample.complex.productCategory",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "books",
+            "displayName": {
+              "de": "B\u00fccher",
+              "en": "Books",
+              "fr": "Livres",
+              "es": "Libros",
+              "it": "Libri"
+            }
+          },
+          {
+            "code": "electronics",
+            "displayName": {
+              "de": "Elektronik",
+              "en": "Electronics",
+              "fr": "\u00c9lectronique",
+              "es": "Electr\u00f3nica",
+              "it": "Elettronica"
+            }
+          },
+          {
+            "code": "clothing",
+            "displayName": {
+              "de": "Kleidung",
+              "en": "Clothing",
+              "fr": "V\u00eatements",
+              "es": "Ropa",
+              "it": "Abbigliamento"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "quantity",
+      "name": "quantity",
+      "semanticTag": "sample.complex.quantity",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "integer",
+        "min": 1,
+        "max": 9999
+      }
+    },
+    {
+      "variableDefinitionId": "expressDelivery",
+      "name": "expressDelivery",
+      "semanticTag": "sample.complex.expressDelivery",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "boolean"
+      }
+    },
+    {
+      "variableDefinitionId": "deliveryDate",
+      "name": "deliveryDate",
+      "semanticTag": "sample.complex.deliveryDate",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "date"
+      }
+    },
+    {
+      "variableDefinitionId": "deliveryTime",
+      "name": "deliveryTime",
+      "semanticTag": "sample.complex.deliveryTime",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "time"
+      }
+    },
+    {
+      "variableDefinitionId": "contactChannels",
+      "name": "contactChannels",
+      "semanticTag": "sample.complex.contactChannels",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "set",
+        "values": [
+          {
+            "code": "email",
+            "displayName": {
+              "de": "E-Mail",
+              "en": "Email",
+              "fr": "E-mail",
+              "es": "Correo electr\u00f3nico",
+              "it": "E-mail"
+            }
+          },
+          {
+            "code": "phone",
+            "displayName": {
+              "de": "Telefon",
+              "en": "Phone",
+              "fr": "T\u00e9l\u00e9phone",
+              "es": "Tel\u00e9fono",
+              "it": "Telefono"
+            }
+          },
+          {
+            "code": "sms",
+            "displayName": {
+              "de": "SMS",
+              "en": "SMS",
+              "fr": "SMS",
+              "es": "SMS",
+              "it": "SMS"
+            }
+          }
+        ],
+        "minSelected": 1,
+        "maxSelected": 3
+      }
+    },
+    {
+      "variableDefinitionId": "iban",
+      "name": "iban",
+      "semanticTag": "sample.complex.iban",
+      "privacyClass": "sensitive",
+      "sensitiveDataPolicy": {
+        "voiceInputPolicy": "optional",
+        "readbackPolicy": "optInRequired",
+        "silentInputFallback": "keyboard"
+      },
+      "valueType": {
+        "kind": "string",
+        "minLength": 15,
+        "maxLength": 34,
+        "formatHint": "iban"
+      }
+    }
+  ]
+}

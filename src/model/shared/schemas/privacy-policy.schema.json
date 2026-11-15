@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/privacy-policy.schema.json",
+  "title": "PrivacyPolicy",
+  "description": "Shared schema module for reusable privacy classes and sensitive-data handling semantics referenced by multiple root contracts.",
+  "$defs": {
+    "PrivacyClass": {
+      "description": "Privacy classification assigned to a variable for data protection policy.",
+      "type": "string",
+      "enum": [
+        "public",
+        "personal",
+        "sensitive",
+        "secret"
+      ]
+    },
+    "VoiceInputPolicy": {
+      "type": "string",
+      "enum": [
+        "forbidden",
+        "optional",
+        "recommended"
+      ],
+      "description": "Whether voice input is forbidden, optional, or recommended for this field."
+    },
+    "ReadbackPolicy": {
+      "type": "string",
+      "enum": [
+        "never",
+        "optInRequired",
+        "always"
+      ],
+      "description": "Whether the system may read back the entered value: never, only with user opt-in, or always."
+    },
+    "SilentInputFallback": {
+      "type": "string",
+      "enum": [
+        "keyboard",
+        "braille",
+        "any"
+      ],
+      "description": "Preferred silent input method when voice is not used."
+    },
+    "SensitiveDataPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Policy for handling sensitive data input and output (voice, readback, silent fallback). If omitted, runtimes MUST apply the privacyClass defaults documented in model.md section 7.",
+      "properties": {
+        "voiceInputPolicy": {
+          "$ref": "#/$defs/VoiceInputPolicy",
+          "description": "Default: 'recommended' for public/personal, 'optional' for sensitive, 'forbidden' for secret."
+        },
+        "readbackPolicy": {
+          "$ref": "#/$defs/ReadbackPolicy",
+          "description": "Default: 'always' for public/personal, 'optInRequired' for sensitive, 'never' for secret."
+        },
+        "silentInputFallback": {
+          "$ref": "#/$defs/SilentInputFallback",
+          "description": "Default: 'any'."
+        }
+      }
+    }
+  }
+}

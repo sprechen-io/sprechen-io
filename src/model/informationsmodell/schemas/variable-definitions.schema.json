@@ -1,0 +1,612 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/variable-definitions.schema.json",
+  "title": "VariableDefinitions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "variableDefinitionsId",
+    "supportedLanguages",
+    "strictLocalization",
+    "definitions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "variableDefinitionsId": {
+      "$ref": "#/$defs/Id"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "strictLocalization": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), missing localizations for supportedLanguages are a preflight error. If false, they are warnings with defaultLanguage fallback."
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "definitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReusableVariableDefinition"
+      }
+    }
+  },
+  "$defs": {
+    "AnyNonNull": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AnyNonNull"
+    },
+    "DecimalString": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/DecimalString"
+    },
+    "NumericLiteral": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NumericLiteral"
+    },
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ErrorCode": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ErrorCode"
+    },
+    "DiacriticsStrategy": {
+      "$ref": "https://Sprechen/schemas/form-voice-profile.schema.json#/$defs/DiacriticsStrategy"
+    },
+    "ConstraintScope": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintScope"
+    },
+    "CompareOperator": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareOperator"
+    },
+    "PrivacyClass": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/PrivacyClass"
+    },
+    "VoiceInputPolicy": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/VoiceInputPolicy"
+    },
+    "ReadbackPolicy": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/ReadbackPolicy"
+    },
+    "SilentInputFallback": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/SilentInputFallback"
+    },
+    "SensitiveDataPolicy": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/SensitiveDataPolicy"
+    },
+    "ValueTypeDefinition": {
+      "description": "Union of all value types. Note: DecimalType, DateTimeType, ObjectType, ListType, and CustomType are extension points NOT supported by the reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED). Schema-valid contracts using these types will fail preflight.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StringType"
+        },
+        {
+          "$ref": "#/$defs/IntegerType"
+        },
+        {
+          "$ref": "#/$defs/DecimalType"
+        },
+        {
+          "$ref": "#/$defs/BooleanType"
+        },
+        {
+          "$ref": "#/$defs/DateType"
+        },
+        {
+          "$ref": "#/$defs/TimeType"
+        },
+        {
+          "$ref": "#/$defs/DateTimeType"
+        },
+        {
+          "$ref": "#/$defs/EnumType"
+        },
+        {
+          "$ref": "#/$defs/SetType"
+        },
+        {
+          "$ref": "#/$defs/ObjectType"
+        },
+        {
+          "$ref": "#/$defs/ListType"
+        },
+        {
+          "$ref": "#/$defs/CustomType"
+        }
+      ]
+    },
+    "StringType": {
+      "description": "String value type: minLength, maxLength, and formatHint (text, email, phone, etc.).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "string"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum string length (inclusive). Preflight validates that minLength \u2264 maxLength when both are specified."
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum string length (inclusive). Preflight validates that maxLength \u2265 minLength when both are specified."
+        },
+        "formatHint": {
+          "$ref": "#/$defs/FormatHint"
+        }
+      }
+    },
+    "FormatHint": {
+      "type": "string",
+      "enum": [
+        "text",
+        "email",
+        "phone",
+        "postalCode",
+        "url",
+        "pin",
+        "date",
+        "time",
+        "iban",
+        "digits",
+        "number"
+      ],
+      "description": "Optional string-format hint for presentation and parsing of string-typed variables only. Use DateType/TimeType for structured date/time values with parse validation. 'phone' is the canonical MDA telephone hint and adapters project it to HTML input type 'tel'. 'tel' is an alias of 'phone' and is scheduled for removal."
+    },
+    "IntegerType": {
+      "description": "Integer value type: min, max, and step constraints.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "integer"
+        },
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        }
+      }
+    },
+    "DecimalType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "decimal"
+        },
+        "min": {
+          "$ref": "#/$defs/DecimalString"
+        },
+        "max": {
+          "$ref": "#/$defs/DecimalString"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scale": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of decimal places. Preflight validates that scale \u2264 precision when both are specified."
+        }
+      }
+    },
+    "BooleanType": {
+      "description": "Boolean value type: true/false values only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "boolean"
+        }
+      }
+    },
+    "DateType": {
+      "description": "Date value type: date value without time component.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "date"
+        }
+      }
+    },
+    "TimeType": {
+      "description": "Time value type: time value without date component.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "time"
+        }
+      }
+    },
+    "DateTimeType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "dateTime"
+        }
+      }
+    },
+    "EnumValue": {
+      "description": "Single enum option: code, displayName, icon, and optional description.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "displayName"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "displayName": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    },
+    "EnumType": {
+      "description": "Enumerated value type: list of EnumValue options defining all allowed values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "values"
+      ],
+      "properties": {
+        "kind": {
+          "const": "enum"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/EnumValue"
+          }
+        }
+      }
+    },
+    "SetType": {
+      "description": "Multi-select value type: multiple values from list with optional minSelected/maxSelected constraints.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "values"
+      ],
+      "properties": {
+        "kind": {
+          "const": "set"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/EnumValue"
+          }
+        },
+        "minSelected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum number of selected values (inclusive). Preflight validates that minSelected \u2264 maxSelected when both are specified."
+        },
+        "maxSelected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of selected values (inclusive). Preflight validates that maxSelected \u2265 minSelected when both are specified."
+        }
+      }
+    },
+    "ObjectProperty": {
+      "description": "Property in object type: propertyName and either variable reference or inline type definition.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "propertyName"
+      ],
+      "properties": {
+        "propertyName": {
+          "type": "string"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Id"
+        },
+        "inlineType": {
+          "$ref": "#/$defs/ValueTypeDefinition"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "variableId"
+          ]
+        },
+        {
+          "required": [
+            "inlineType"
+          ]
+        }
+      ]
+    },
+    "ObjectType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "properties"
+      ],
+      "properties": {
+        "kind": {
+          "const": "object"
+        },
+        "properties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ObjectProperty"
+          }
+        }
+      }
+    },
+    "ListType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "itemType"
+      ],
+      "properties": {
+        "kind": {
+          "const": "list"
+        },
+        "itemType": {
+          "$ref": "#/$defs/ValueTypeDefinition"
+        },
+        "minItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "CustomType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "customTypeName"
+      ],
+      "properties": {
+        "kind": {
+          "const": "custom"
+        },
+        "customTypeName": {
+          "type": "string"
+        },
+        "customSchema": {
+          "type": "object"
+        }
+      }
+    },
+    "ConstraintTargetRef": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintTargetRef"
+    },
+    "ConstraintBase": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintBase"
+    },
+    "ConstraintDefinition": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintDefinition"
+    },
+    "ValueExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ValueExpression"
+    },
+    "ExpressionUnion": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ExpressionUnion"
+    },
+    "Expression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/Expression"
+    },
+    "AndExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AndExpression"
+    },
+    "OrExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/OrExpression"
+    },
+    "NotExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NotExpression"
+    },
+    "EqualsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/EqualsExpression"
+    },
+    "NotEqualsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NotEqualsExpression"
+    },
+    "CompareExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareExpression"
+    },
+    "InExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/InExpression"
+    },
+    "ContainsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ContainsExpression"
+    },
+    "StartsWithExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/StartsWithExpression"
+    },
+    "IsSetExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsSetExpression"
+    },
+    "IsNotSetExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsNotSetExpression"
+    },
+    "IsEmptyExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsEmptyExpression"
+    },
+    "IsNotEmptyExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsNotEmptyExpression"
+    },
+    "CustomExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CustomExpression"
+    },
+    "SpeechRate": {
+      "$ref": "https://Sprechen/schemas/form-voice-profile.schema.json#/$defs/SpeechRate"
+    },
+    "ReusableVariableDefinition": {
+      "description": "Reusable variable semantics shared across multiple form contracts.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variableDefinitionId",
+        "name",
+        "valueType"
+      ],
+      "properties": {
+        "variableDefinitionId": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "semanticTag": {
+          "type": "string"
+        },
+        "privacyClass": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "sensitiveDataPolicy": {
+          "$ref": "#/$defs/SensitiveDataPolicy"
+        },
+        "valueType": {
+          "$ref": "#/$defs/ValueTypeDefinition"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "privacyClass": {
+                "const": "secret"
+              }
+            },
+            "required": [
+              "privacyClass"
+            ]
+          },
+          "then": {
+            "description": "If sensitiveDataPolicy is omitted, runtime defaults for privacyClass='secret' still apply (voiceInputPolicy='forbidden', readbackPolicy='never').",
+            "properties": {
+              "sensitiveDataPolicy": {
+                "type": "object",
+                "properties": {
+                  "voiceInputPolicy": {
+                    "const": "forbidden"
+                  },
+                  "readbackPolicy": {
+                    "const": "never"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "privacyClass": {
+                "const": "sensitive"
+              }
+            },
+            "required": [
+              "privacyClass"
+            ]
+          },
+          "then": {
+            "description": "If sensitiveDataPolicy is omitted, runtime defaults for privacyClass='sensitive' still apply (readbackPolicy='optInRequired').",
+            "properties": {
+              "sensitiveDataPolicy": {
+                "type": "object",
+                "properties": {
+                  "readbackPolicy": {
+                    "enum": [
+                      "never",
+                      "optInRequired"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

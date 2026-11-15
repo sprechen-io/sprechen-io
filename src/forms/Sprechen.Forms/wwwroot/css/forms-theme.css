@@ -1,0 +1,583 @@
+/* Gemeinsame Farben und Layoutregeln der Formularanwendung.
+ * Die Standardwerte auf :root gelten für das helle Schema. Die Media Query
+ * folgt der Systemvorgabe; die spezifischeren data-theme-Selektoren geben
+ * einer manuellen Auswahl Vorrang. Ohne Attribut bleibt die Systemvorgabe wirksam.
+ */
+
+:root {
+    color-scheme: light dark;
+
+    --forms-bg: #ffffff;
+    --forms-text: #000000;
+    --forms-muted-text: #444444;
+    --forms-progress-text: #555555;
+    --forms-border: #767676;
+    --forms-divider: #cccccc;
+    --forms-focus-ring: #0078d4;
+    --forms-skiplink-bg: #111111;
+    --forms-skiplink-text: #ffffff;
+
+    --forms-invalid-border: #c42b1c;
+
+    --forms-error-text: #b00020;
+    --forms-error-border: #b00020;
+    --forms-error-bg: #fff5f6;
+
+    --forms-study-bg: #f0f4f8;
+
+    --forms-success-bg: #dff6dd;
+    --forms-success-border: #107c10;
+    --forms-cancel-bg: #fff4ce;
+    --forms-cancel-border: #c19c00;
+
+    --forms-progress-track: #e0e0e0;
+    --forms-progress-value: #0078d4;
+
+    --forms-primary-bg: #0078d4;
+    --forms-primary-text: #ffffff;
+    --forms-primary-hover-bg: #106ebe;
+
+    --forms-secondary-bg: #f3f3f3;
+    --forms-secondary-text: #333333;
+    --forms-secondary-border: #cccccc;
+    --forms-secondary-hover-bg: #e5e5e5;
+    --forms-secondary-hover-border: #999999;
+
+    --forms-success-btn-bg: #107c10;
+    --forms-success-btn-text: #ffffff;
+    --forms-success-btn-hover-bg: #0b5e0b;
+
+    --forms-danger-bg: #ffffff;
+    --forms-danger-text: #c42b1c;
+    --forms-danger-border: #c42b1c;
+    --forms-danger-hover-bg: #fdf3f2;
+}
+
+/* Dunkle Farbwerte für die Systemvorgabe. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --forms-bg: #212529;
+        --forms-text: #e6e6e6;
+        --forms-muted-text: #ced4da;
+        --forms-progress-text: #ced4da;
+        --forms-border: #868e96;
+        --forms-divider: #495057;
+        --forms-focus-ring: #8cc4ff;
+        --forms-skiplink-bg: #e9ecef;
+        --forms-skiplink-text: #16191c;
+
+        --forms-invalid-border: #ff6b6b;
+
+        --forms-error-text: #ff6b6b;
+        --forms-error-border: #ff6b6b;
+        --forms-error-bg: #3b1f22;
+
+        --forms-study-bg: #2a2f34;
+
+        --forms-success-bg: #14271a;
+        --forms-success-border: #4cc76a;
+        --forms-cancel-bg: #2c2611;
+        --forms-cancel-border: #ffd43b;
+
+        --forms-progress-track: #495057;
+        --forms-progress-value: #4ea3f0;
+
+        --forms-primary-bg: #0078d4;
+        --forms-primary-text: #ffffff;
+        --forms-primary-hover-bg: #2b8fe0;
+
+        --forms-secondary-bg: #343a40;
+        --forms-secondary-text: #e6e6e6;
+        --forms-secondary-border: #868e96;
+        --forms-secondary-hover-bg: #495057;
+        --forms-secondary-hover-border: #adb5bd;
+
+        --forms-success-btn-bg: #107c10;
+        --forms-success-btn-text: #ffffff;
+        --forms-success-btn-hover-bg: #0e6b0e;
+
+        --forms-danger-bg: #2a2f34;
+        --forms-danger-text: #ff6b6b;
+        --forms-danger-border: #ff6b6b;
+        --forms-danger-hover-bg: #3b1f22;
+    }
+}
+
+/* Eine manuelle Auswahl des dunklen Schemas hat Vorrang vor der Systemvorgabe. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --forms-bg: #212529;
+    --forms-text: #e6e6e6;
+    --forms-muted-text: #ced4da;
+    --forms-progress-text: #ced4da;
+    --forms-border: #868e96;
+    --forms-divider: #495057;
+    --forms-focus-ring: #8cc4ff;
+    --forms-skiplink-bg: #e9ecef;
+    --forms-skiplink-text: #16191c;
+
+    --forms-invalid-border: #ff6b6b;
+
+    --forms-error-text: #ff6b6b;
+    --forms-error-border: #ff6b6b;
+    --forms-error-bg: #3b1f22;
+
+    --forms-study-bg: #2a2f34;
+
+    --forms-success-bg: #14271a;
+    --forms-success-border: #4cc76a;
+    --forms-cancel-bg: #2c2611;
+    --forms-cancel-border: #ffd43b;
+
+    --forms-progress-track: #495057;
+    --forms-progress-value: #4ea3f0;
+
+    --forms-primary-bg: #0078d4;
+    --forms-primary-text: #ffffff;
+    --forms-primary-hover-bg: #2b8fe0;
+
+    --forms-secondary-bg: #343a40;
+    --forms-secondary-text: #e6e6e6;
+    --forms-secondary-border: #868e96;
+    --forms-secondary-hover-bg: #495057;
+    --forms-secondary-hover-border: #adb5bd;
+
+    --forms-success-btn-bg: #107c10;
+    --forms-success-btn-text: #ffffff;
+    --forms-success-btn-hover-bg: #0e6b0e;
+
+    --forms-danger-bg: #2a2f34;
+    --forms-danger-text: #ff6b6b;
+    --forms-danger-border: #ff6b6b;
+    --forms-danger-hover-bg: #3b1f22;
+}
+
+/* Eine manuelle Auswahl des hellen Schemas hat Vorrang vor der Systemvorgabe. */
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --forms-bg: #ffffff;
+    --forms-text: #000000;
+    --forms-muted-text: #444444;
+    --forms-progress-text: #555555;
+    --forms-border: #767676;
+    --forms-divider: #cccccc;
+    --forms-focus-ring: #0078d4;
+    --forms-skiplink-bg: #111111;
+    --forms-skiplink-text: #ffffff;
+
+    --forms-invalid-border: #c42b1c;
+
+    --forms-error-text: #b00020;
+    --forms-error-border: #b00020;
+    --forms-error-bg: #fff5f6;
+
+    --forms-study-bg: #f0f4f8;
+
+    --forms-success-bg: #dff6dd;
+    --forms-success-border: #107c10;
+    --forms-cancel-bg: #fff4ce;
+    --forms-cancel-border: #c19c00;
+
+    --forms-progress-track: #e0e0e0;
+    --forms-progress-value: #0078d4;
+
+    --forms-primary-bg: #0078d4;
+    --forms-primary-text: #ffffff;
+    --forms-primary-hover-bg: #106ebe;
+
+    --forms-secondary-bg: #f3f3f3;
+    --forms-secondary-text: #333333;
+    --forms-secondary-border: #cccccc;
+    --forms-secondary-hover-bg: #e5e5e5;
+    --forms-secondary-hover-border: #999999;
+
+    --forms-success-btn-bg: #107c10;
+    --forms-success-btn-text: #ffffff;
+    --forms-success-btn-hover-bg: #0b5e0b;
+
+    --forms-danger-bg: #ffffff;
+    --forms-danger-text: #c42b1c;
+    --forms-danger-border: #c42b1c;
+    --forms-danger-hover-bg: #fdf3f2;
+}
+
+/* Gemeinsamer Seitenrahmen. */
+
+:root {
+    background-color: var(--forms-bg);
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    margin: 24px;
+    line-height: 1.5;
+    background-color: var(--forms-bg);
+    color: var(--forms-text);
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.skip-link:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 8px 12px;
+    background: var(--forms-skiplink-bg);
+    color: var(--forms-skiplink-text);
+    border-radius: 6px;
+    display: inline-block;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+select,
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+input[type="time"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--forms-border);
+    border-radius: 4px;
+}
+
+input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+}
+
+select:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="checkbox"]:focus {
+    outline: 2px solid var(--forms-focus-ring);
+    outline-offset: 1px;
+}
+
+input:not([type="checkbox"]):invalid:not(:placeholder-shown) {
+    border-color: var(--forms-invalid-border);
+}
+
+.help {
+    color: var(--forms-muted-text);
+    font-size: 0.95rem;
+    margin-top: 4px;
+}
+
+.error,
+.validation-summary {
+    padding: 12px;
+    border: 2px solid var(--forms-error-border);
+    color: var(--forms-error-text);
+    border-radius: 6px;
+    margin: 16px 0;
+    max-width: 960px;
+    background: var(--forms-error-bg);
+}
+
+.validation-summary a {
+    color: inherit;
+}
+
+/* Kennzeichnet den gesperrten Formularstand nach fehlgeschlagener Abschlussübermittlung. */
+form.terminal-snapshot {
+    outline: 2px dashed var(--forms-error-border);
+    outline-offset: 8px;
+}
+
+form.terminal-snapshot :is(input, select, textarea, button, a) {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.validation-summary ul {
+    margin: 8px 0 0;
+    padding-left: 20px;
+}
+
+.field-has-error input,
+.field-has-error select,
+.field-has-error textarea {
+    border-color: var(--forms-error-border);
+}
+
+.field-error {
+    margin-top: 6px;
+    color: var(--forms-error-text);
+    font-size: 0.95rem;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Layout der Formularseite. */
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-width: 960px;
+}
+
+@media (min-width: 720px) {
+    .row {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.fields {
+    max-width: 720px;
+    margin-top: 24px;
+}
+
+.field {
+    margin-bottom: 16px;
+}
+
+.field legend {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* Darstellung schreibgeschützter Werte als Hinweis. */
+.readonly-note {
+    border: 1px solid var(--forms-border);
+    border-left: 4px solid var(--forms-primary-bg);
+    padding: 8px 12px;
+    border-radius: 2px;
+}
+
+.readonly-note:focus-visible {
+    outline: 3px solid var(--forms-focus-ring);
+    outline-offset: 2px;
+}
+
+.readonly-note-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.readonly-note-value {
+    display: block;
+    white-space: pre-wrap;
+}
+
+.choice {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.choice label {
+    display: inline;
+    font-weight: 400;
+    margin: 0;
+}
+
+.field-group-title {
+    margin: 24px 0 8px;
+    font-size: 1.1rem;
+}
+
+.study-info {
+    background: var(--forms-study-bg);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+}
+
+.study-info dt {
+    font-weight: 600;
+    display: inline;
+}
+
+.study-info dd {
+    display: inline;
+    margin: 0 16px 0 4px;
+}
+
+.success-message,
+.cancel-message {
+    padding: 24px;
+    border-radius: 6px;
+    max-width: 720px;
+    margin-top: 24px;
+}
+
+.success-message {
+    background: var(--forms-success-bg);
+    border: 2px solid var(--forms-success-border);
+}
+
+.cancel-message {
+    background: var(--forms-cancel-bg);
+    border: 2px solid var(--forms-cancel-border);
+}
+
+/* Einstellungsseite. */
+
+.actions {
+    margin-top: 16px;
+}
+
+.back-link {
+    margin-top: 24px;
+}
+
+.settings-page select {
+    max-width: 360px;
+}
+
+/* Formularnavigation. */
+
+.form-navigation {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--forms-divider);
+}
+
+.progress-indicator {
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    color: var(--forms-progress-text);
+}
+
+.progress-indicator progress {
+    display: block;
+    width: 100%;
+    height: 8px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 4px;
+    background: var(--forms-progress-track);
+}
+
+.progress-indicator progress::-webkit-progress-bar {
+    background: var(--forms-progress-track);
+    border-radius: 4px;
+}
+
+.progress-indicator progress::-webkit-progress-value {
+    background: var(--forms-progress-value);
+    border-radius: 4px;
+}
+
+.progress-indicator progress::-moz-progress-bar {
+    background: var(--forms-progress-value);
+    border-radius: 4px;
+}
+
+.navigation-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.btn:focus {
+    outline: 3px solid var(--forms-focus-ring);
+    outline-offset: 2px;
+}
+
+.btn-primary {
+    background: var(--forms-primary-bg);
+    color: var(--forms-primary-text);
+    border-color: var(--forms-primary-bg);
+}
+
+.btn-primary:hover {
+    background: var(--forms-primary-hover-bg);
+    border-color: var(--forms-primary-hover-bg);
+}
+
+.btn-secondary {
+    background: var(--forms-secondary-bg);
+    color: var(--forms-secondary-text);
+    border-color: var(--forms-secondary-border);
+}
+
+.btn-secondary:hover {
+    background: var(--forms-secondary-hover-bg);
+    border-color: var(--forms-secondary-hover-border);
+}
+
+.btn-success {
+    background: var(--forms-success-btn-bg);
+    color: var(--forms-success-btn-text);
+    border-color: var(--forms-success-btn-bg);
+}
+
+.btn-success:hover {
+    background: var(--forms-success-btn-hover-bg);
+    border-color: var(--forms-success-btn-hover-bg);
+}
+
+.btn-danger {
+    background: var(--forms-danger-bg);
+    color: var(--forms-danger-text);
+    border-color: var(--forms-danger-border);
+}
+
+.btn-danger:hover {
+    background: var(--forms-danger-hover-bg);
+}
+
+.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}

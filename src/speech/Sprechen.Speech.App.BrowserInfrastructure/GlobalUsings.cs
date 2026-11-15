@@ -1,0 +1,9 @@
+global using Sprechen.Speech.App.BrowserInfrastructure.Services;
+global using Sprechen.Speech.App.MicrophoneRecording.Services;
+global using Sprechen.Speech.App.Contracts.Dialogs.VoiceInterface;
+global using Sprechen.Speech.App.Contracts.Messages;
+global using Sprechen.Speech.App.Contracts.Services;
+global using Sprechen.Speech.LanguageContracts;
+global using Sprechen.Speech.App.CaptureRuntime.Services;
+global using Sprechen.Speech.App.Runtime.Services;
+global using Sprechen.Speech.ModelRuntime.Services;

@@ -1,0 +1,19 @@
+{
+  "name": "voice-web-host-support",
+  "private": true,
+  "devDependencies": {
+    "bootstrap": "5.3.3",
+    "bootstrap-icons": "1.11.3",
+    "esbuild": "0.28.1",
+    "sass": "1.97.0",
+    "standardized-audio-context": "25.3.77",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "build:vendor": "node Build/CopyVendorAssets.mjs",
+    "build:sac": "node Build/BundleStandardizedAudioContext.mjs",
+    "build:ts": "node Build/CleanTypeScriptOutput.mjs && tsc -p tsconfig.json",
+    "build:css": "sass --no-source-map --style=compressed Styles/app.scss wwwroot/voice-support/app.css",
+    "build": "npm run build:vendor --silent && npm run build:sac --silent && npm run build:ts --silent && npm run build:css --silent"
+  }
+}

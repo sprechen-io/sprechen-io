@@ -1,0 +1,318 @@
+{
+  "schemaVersion": "1",
+  "contractVersion": "1",
+  "applicationId": "sample.complex",
+  "formId": "full-coverage",
+  "displayName": {
+    "de": "Komplexes Beispiel",
+    "en": "Complex example",
+    "fr": "Exemple complexe",
+    "es": "Ejemplo complejo",
+    "it": "Esempio complesso"
+  },
+  "description": {
+    "de": "Beispielformular, das jeden unterst\u00fctzten Feldtyp \u00fcber vier Feldgruppen abdeckt.",
+    "en": "Example form covering every supported field type across four field groups.",
+    "fr": "Formulaire d'exemple couvrant chaque type de champ pris en charge sur quatre groupes de champs.",
+    "es": "Formulario de ejemplo que cubre todos los tipos de campo admitidos en cuatro grupos de campos.",
+    "it": "Modulo di esempio che copre ogni tipo di campo supportato su quattro gruppi di campi."
+  },
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "entryFieldGroupId": "contact",
+  "strictLocalization": true,
+  "defaultLanguage": "de",
+  "fieldCatalog": {
+    "fieldDefinitionsId": "sample.complex.fields.multilingual",
+    "catalogVersion": "4"
+  },
+  "variableCatalog": {
+    "variableDefinitionsId": "sample.complex.variables.multilingual",
+    "catalogVersion": "1"
+  },
+  "variables": [
+    {
+      "variableId": "fullName",
+      "variableDefinitionId": "fullName"
+    },
+    {
+      "variableId": "email",
+      "variableDefinitionId": "email"
+    },
+    {
+      "variableId": "phone",
+      "variableDefinitionId": "phone"
+    },
+    {
+      "variableId": "postalCode",
+      "variableDefinitionId": "postalCode"
+    },
+    {
+      "variableId": "productCategory",
+      "variableDefinitionId": "productCategory"
+    },
+    {
+      "variableId": "quantity",
+      "variableDefinitionId": "quantity"
+    },
+    {
+      "variableId": "expressDelivery",
+      "variableDefinitionId": "expressDelivery"
+    },
+    {
+      "variableId": "deliveryDate",
+      "variableDefinitionId": "deliveryDate"
+    },
+    {
+      "variableId": "deliveryTime",
+      "variableDefinitionId": "deliveryTime"
+    },
+    {
+      "variableId": "contactChannels",
+      "variableDefinitionId": "contactChannels"
+    },
+    {
+      "variableId": "iban",
+      "variableDefinitionId": "iban"
+    }
+  ],
+  "fields": [
+    {
+      "fieldId": "fullNameField",
+      "variableId": "fullName",
+      "fieldDefinitionId": "sample.complex.full-coverage.fullNameField"
+    },
+    {
+      "fieldId": "emailField",
+      "variableId": "email",
+      "fieldDefinitionId": "sample.complex.full-coverage.emailField"
+    },
+    {
+      "fieldId": "phoneField",
+      "variableId": "phone",
+      "fieldDefinitionId": "sample.complex.full-coverage.phoneField"
+    },
+    {
+      "fieldId": "postalCodeField",
+      "variableId": "postalCode",
+      "fieldDefinitionId": "sample.complex.full-coverage.postalCodeField"
+    },
+    {
+      "fieldId": "productCategoryField",
+      "variableId": "productCategory",
+      "fieldDefinitionId": "sample.complex.full-coverage.productCategoryField"
+    },
+    {
+      "fieldId": "quantityField",
+      "variableId": "quantity",
+      "fieldDefinitionId": "sample.complex.full-coverage.quantityField"
+    },
+    {
+      "fieldId": "expressDeliveryField",
+      "variableId": "expressDelivery",
+      "fieldDefinitionId": "sample.complex.full-coverage.expressDeliveryField"
+    },
+    {
+      "fieldId": "deliveryDateField",
+      "variableId": "deliveryDate",
+      "fieldDefinitionId": "sample.complex.full-coverage.deliveryDateField"
+    },
+    {
+      "fieldId": "deliveryTimeField",
+      "variableId": "deliveryTime",
+      "fieldDefinitionId": "sample.complex.full-coverage.deliveryTimeField"
+    },
+    {
+      "fieldId": "contactChannelsField",
+      "variableId": "contactChannels",
+      "fieldDefinitionId": "sample.complex.full-coverage.contactChannelsField"
+    },
+    {
+      "fieldId": "ibanField",
+      "variableId": "iban",
+      "fieldDefinitionId": "sample.complex.full-coverage.ibanField"
+    }
+  ],
+  "fieldGroups": [
+    {
+      "fieldGroupId": "contact",
+      "title": {
+        "de": "Kontaktdaten",
+        "en": "Contact details",
+        "fr": "Coordonn\u00e9es",
+        "es": "Datos de contacto",
+        "it": "Dati di contatto"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00e4lt Name, E-Mail, Telefon und Postleitzahl.",
+        "en": "This field group contains name, email, phone, and postal code.",
+        "fr": "Ce groupe de champs contient le nom, l'e-mail, le t\u00e9l\u00e9phone et le code postal.",
+        "es": "Este grupo de campos contiene nombre, correo electr\u00f3nico, tel\u00e9fono y c\u00f3digo postal.",
+        "it": "Questo gruppo di campi contiene nome, e-mail, telefono e codice postale."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "fullNameField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "emailField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "phoneField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "postalCodeField"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "order"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "schedule"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "payment"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "order",
+      "title": {
+        "de": "Bestellung",
+        "en": "Order",
+        "fr": "Commande",
+        "es": "Pedido",
+        "it": "Ordine"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00e4lt Produktkategorie, Menge und Expresslieferung.",
+        "en": "This field group contains product category, quantity, and express delivery.",
+        "fr": "Ce groupe de champs contient la cat\u00e9gorie de produit, la quantit\u00e9 et la livraison express.",
+        "es": "Este grupo de campos contiene categor\u00eda de producto, cantidad y entrega expr\u00e9s.",
+        "it": "Questo gruppo di campi contiene categoria di prodotto, quantit\u00e0 e consegna espressa."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "productCategoryField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "quantityField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "expressDeliveryField"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "schedule",
+      "title": {
+        "de": "Lieferung",
+        "en": "Delivery",
+        "fr": "Livraison",
+        "es": "Entrega",
+        "it": "Consegna"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00e4lt Lieferdatum, Lieferzeit und Kontaktkan\u00e4le zur Mehrfachauswahl.",
+        "en": "This field group contains delivery date, delivery time, and multi-select contact channels.",
+        "fr": "Ce groupe de champs contient la date de livraison, l'heure de livraison et des canaux de contact \u00e0 s\u00e9lection multiple.",
+        "es": "Este grupo de campos contiene fecha de entrega, hora de entrega y canales de contacto de selecci\u00f3n m\u00faltiple.",
+        "it": "Questo gruppo di campi contiene data di consegna, orario di consegna e canali di contatto a selezione multipla."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "deliveryDateField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "deliveryTimeField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "contactChannelsField"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "payment",
+      "title": {
+        "de": "Zahlung",
+        "en": "Payment",
+        "fr": "Paiement",
+        "es": "Pago",
+        "it": "Pagamento"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00e4lt die IBAN als sensibles Feld; sie wird vertraulich behandelt.",
+        "en": "This field group contains the IBAN as a sensitive field; it is treated confidentially.",
+        "fr": "Ce groupe de champs contient l'IBAN en tant que champ sensible ; il est trait\u00e9 de mani\u00e8re confidentielle.",
+        "es": "Este grupo de campos contiene el IBAN como campo sensible; se maneja de forma confidencial.",
+        "it": "Questo gruppo di campi contiene l'IBAN come campo sensibile; viene trattato in modo riservato."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "ibanField"
+        }
+      ]
+    }
+  ],
+  "rules": [],
+  "constraints": [
+    {
+      "constraintId": "quantity.range",
+      "target": {
+        "kind": "field",
+        "fieldId": "quantityField"
+      },
+      "severity": "error",
+      "code": "form.quantity.invalid",
+      "message": {
+        "de": "Die Menge muss zwischen 1 und 9999 liegen.",
+        "en": "The quantity must be between 1 and 9999.",
+        "fr": "La quantit\u00e9 doit \u00eatre comprise entre 1 et 9999.",
+        "es": "La cantidad debe estar entre 1 y 9999.",
+        "it": "La quantit\u00e0 deve essere compresa tra 1 e 9999."
+      },
+      "remediation": {
+        "de": "Sagen Sie eine Zahl zwischen 1 und 9999, zum Beispiel 3.",
+        "de@informal": "Sag eine Zahl zwischen 1 und 9999, zum Beispiel 3.",
+        "en": "Say a number between 1 and 9999, for example 3.",
+        "fr": "Dites un nombre entre 1 et 9999, par exemple 3.",
+        "fr@informal": "Dis un nombre entre 1 et 9999, par exemple 3.",
+        "es": "Diga un n\u00famero entre 1 y 9999, por ejemplo 3.",
+        "es@informal": "Di un n\u00famero entre 1 y 9999, por ejemplo 3.",
+        "it": "Dica un numero tra 1 e 9999, per esempio 3.",
+        "it@informal": "Di' un numero tra 1 e 9999, per esempio 3."
+      },
+      "kind": "range",
+      "min": 1,
+      "max": 9999
+    }
+  ],
+  "projections": {
+    "html": {
+      "profile": "a11yFirst"
+    },
+    "voice": {
+      "hints": {
+        "commandModelId": "voice.global.default.v1"
+      }
+    }
+  }
+}

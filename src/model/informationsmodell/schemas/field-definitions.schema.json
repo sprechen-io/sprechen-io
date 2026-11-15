@@ -1,0 +1,337 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/field-definitions.schema.json",
+  "title": "FieldDefinitions",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "fieldDefinitionsId",
+    "supportedLanguages",
+    "strictLocalization",
+    "definitions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "fieldDefinitionsId": {
+      "$ref": "#/$defs/Id"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "strictLocalization": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), missing localizations for supportedLanguages are a preflight error. If false, they are warnings with defaultLanguage fallback."
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "definitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReusableFieldDefinition"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "AnyNonNull": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AnyNonNull"
+    },
+    "DecimalString": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/DecimalString"
+    },
+    "NumericLiteral": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NumericLiteral"
+    },
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ErrorCode": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ErrorCode"
+    },
+    "Editability": {
+      "description": "Field editability: userEditable (user can modify), readOnly (system-controlled, read-only), or computed (derived).",
+      "type": "string",
+      "enum": [
+        "userEditable",
+        "readOnly",
+        "computed"
+      ]
+    },
+    "CodeStyle": {
+      "description": "Optional field-local refinement for string variables. If true, the bound string value is captured and confirmed as code-like text instead of free text. Base interaction semantics for boolean/date/time/integer/enum/set are derived from the bound variable type and are therefore not duplicated in the field model.",
+      "type": "boolean"
+    },
+    "InputMode": {
+      "type": "string",
+      "enum": [
+        "voice",
+        "keyboard",
+        "spelling",
+        "digits",
+        "literal"
+      ],
+      "description": "Input mode hint for field capture (non-normative, client MAY ignore): voice (normal speech), keyboard (typed input), spelling (letter-by-letter), digits (number-by-number), literal (exact transcription). Clients are free to map these to their own capabilities."
+    },
+    "ConstraintScope": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintScope"
+    },
+    "CompareOperator": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareOperator"
+    },
+    "ConfirmationStyle": {
+      "type": "string",
+      "enum": [
+        "default",
+        "none",
+        "repeatBack",
+        "spellOut",
+        "summarize"
+      ],
+      "description": "How a field value should be verbalized if confirmation happens. 'default' delegates to the runtime/system default confirmation style for the field and interaction context."
+    },
+    "TraceInfo": {
+      "description": "Metadata for request tracing: request identifiers for debugging and correlation.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rqIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "ConstraintTargetRef": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintTargetRef"
+    },
+    "ConstraintBase": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintBase"
+    },
+    "ConstraintDefinition": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintDefinition"
+    },
+    "ValueExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ValueExpression"
+    },
+    "ExpressionUnion": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ExpressionUnion"
+    },
+    "Expression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/Expression"
+    },
+    "AndExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AndExpression"
+    },
+    "OrExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/OrExpression"
+    },
+    "NotExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NotExpression"
+    },
+    "EqualsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/EqualsExpression"
+    },
+    "NotEqualsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NotEqualsExpression"
+    },
+    "CompareExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareExpression"
+    },
+    "InExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/InExpression"
+    },
+    "ContainsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ContainsExpression"
+    },
+    "StartsWithExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/StartsWithExpression"
+    },
+    "IsSetExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsSetExpression"
+    },
+    "IsNotSetExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsNotSetExpression"
+    },
+    "IsEmptyExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsEmptyExpression"
+    },
+    "IsNotEmptyExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsNotEmptyExpression"
+    },
+    "CustomExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CustomExpression"
+    },
+    "FieldProjections": {
+      "description": "Channel-specific field rendering: HTML and voice projection overrides.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "html": {
+          "$ref": "#/$defs/FieldHtmlProjection"
+        },
+        "voice": {
+          "$ref": "#/$defs/FieldVoiceProjection"
+        }
+      }
+    },
+    "FieldHtmlProjection": {
+      "description": "HTML-specific field presentation hints: inputMode, autocomplete, accessibility labels.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inputMode": {
+          "type": "string",
+          "enum": [
+            "text",
+            "numeric",
+            "decimal",
+            "tel",
+            "email",
+            "url",
+            "search"
+          ]
+        },
+        "autocomplete": {
+          "type": "string"
+        },
+        "accessibleName": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "accessibleDescription": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    },
+    "FieldVoiceProjection": {
+      "description": "Voice-specific field properties: localized names, synonyms, and confirmation style.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "names": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "synonyms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          }
+        },
+        "confirmationStyle": {
+          "$ref": "#/$defs/ConfirmationStyle",
+          "description": "How a field value may be verbalized if confirmation happens. Distinct from FormsCatalog confirmationPolicy, which only governs selection dialogs and does not suppress field-level confirmations triggered by STT confidence, validation, or repair logic."
+        }
+      }
+    },
+    "FieldPresentationHints": {
+      "description": "Optional presentation hints for field layout and rendering.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "multilinePreferred": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ReusableFieldDefinition": {
+      "description": "Reusable field semantics without form-local binding information such as local fieldId or variableId.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldDefinitionId",
+        "label",
+        "editability"
+      ],
+      "properties": {
+        "fieldDefinitionId": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "helpText": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "placeholder": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1
+        },
+        "editability": {
+          "$ref": "#/$defs/Editability"
+        },
+        "codeStyle": {
+          "$ref": "#/$defs/CodeStyle"
+        },
+        "preferredInputModes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InputMode"
+          },
+          "uniqueItems": true
+        },
+        "fieldConstraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstraintDefinition"
+          }
+        },
+        "presentationHints": {
+          "$ref": "#/$defs/FieldPresentationHints"
+        },
+        "projections": {
+          "$ref": "#/$defs/FieldProjections"
+        },
+        "trace": {
+          "$ref": "#/$defs/TraceInfo"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

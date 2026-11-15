@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\contracts\Sprechen.Contracts.MdaFormAccess\Sprechen.Contracts.MdaFormAccess.csproj" />
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Contracts\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.CaptureRuntime\Sprechen.Speech.App.CaptureRuntime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Runtime\Sprechen.Speech.App.Runtime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.ModelRuntime\Sprechen.Speech.ModelRuntime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.WakeRuntime\Sprechen.VoiceAssistant.WakeRuntime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.DialogRuntime.Contracts\Sprechen.Speech.DialogRuntime.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.State\Sprechen.Speech.State.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Using Include="Sprechen.Speech.WakeWord.Contracts" />
+  </ItemGroup>
+</Project>

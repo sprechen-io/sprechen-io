@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="../mda/Sprechen.Mda.Contracts/Sprechen.Mda.Contracts.csproj" />
+    <Project Path="../mda/Sprechen.Mda.Contracts.Generator/Sprechen.Mda.Contracts.Generator.csproj" />
+    <Project Path="../mda/Sprechen.Mda.Preflight/Sprechen.Mda.Preflight.csproj" />
+    <Project Path="../mda/Sprechen.Mda.SchemaBundle/Sprechen.Mda.SchemaBundle.csproj" />
+    <Project Path="../hosting/Sprechen.ServiceDefaults/Sprechen.ServiceDefaults.csproj" />
+    <Project Path="../contracts/Sprechen.Contracts.ApiClient/Sprechen.Contracts.ApiClient.csproj" />
+    <Project Path="../contracts/Sprechen.Contracts.FormSurfaces/Sprechen.Contracts.FormSurfaces.csproj" />
+    <Project Path="../contracts/Sprechen.Contracts.MdaFormAccess/Sprechen.Contracts.MdaFormAccess.csproj" />
+    <Project Path="../speech/Sprechen.Speech.WakeWord.Contracts/Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Project Path="../speech/Sprechen.Speech.App.Contracts/Sprechen.Speech.App.Contracts.csproj" />
+    <Project Path="../speech/Sprechen.Speech.LanguageContracts/Sprechen.Speech.LanguageContracts.csproj" />
+    <Project Path="../speech/Sprechen.Speech.TextNormalization/Sprechen.Speech.TextNormalization.csproj" />
+    <Project Path="../web/Sprechen.Web.FormSurfaces/Sprechen.Web.FormSurfaces.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Sprechen.Forms.Tests/Sprechen.Forms.Tests.csproj" />
+  </Folder>
+  <Project Path="Sprechen.Forms/Sprechen.Forms.csproj" />
+  <Project Path="Sprechen.Forms.TypeScriptCodegen/Sprechen.Forms.TypeScriptCodegen.csproj" />
+  <Project Path="../evaluation-telemetry/Sprechen.EvaluationTelemetry.Api/Sprechen.EvaluationTelemetry.Api.csproj" />
+  <Project Path="../evaluation-telemetry/Sprechen.EvaluationTelemetry.Ingestion/Sprechen.EvaluationTelemetry.Ingestion.csproj" />
+  <Project Path="../evaluation-telemetry/Sprechen.EvaluationTelemetry.JsonlStore/Sprechen.EvaluationTelemetry.JsonlStore.csproj" />
+</Solution>

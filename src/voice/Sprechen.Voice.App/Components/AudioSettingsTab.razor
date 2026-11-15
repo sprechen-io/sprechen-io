@@ -1,0 +1,319 @@
+@implements IDisposable
+@inject IAudioOutputSettings AudioSettings
+@inject ISupportedLanguagesClient SupportedLanguagesClient
+@inject ITextToSpeechPlayer TextToSpeechPlayer
+
+<section class="card card-body">
+    <h2 class="h5">@Copy.Audio.GetTitle(PreferredIsoCode)</h2>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert alert-warning mt-3" role="alert">@_error</div>
+    }
+
+    <div class="mt-3">
+        <label class="form-label d-flex align-items-center justify-content-between" for="audio-volume">
+            <span>@Copy.Audio.GetVolumeLabel(PreferredIsoCode)</span>
+            <span class="text-body-secondary small">@_volumePercent%</span>
+        </label>
+        <input id="audio-volume"
+               class="form-range"
+               type="range"
+               min="@MIN_VOLUME_PERCENT"
+               max="@MAX_VOLUME_PERCENT"
+               step="@VOLUME_STEP_PERCENT"
+               value="@_volumePercent"
+               disabled="@(!_loaded)"
+               @oninput="OnVolumeInputAsync" />
+        <div class="d-flex justify-content-between text-body-secondary small" aria-hidden="true">
+            <span>@MIN_VOLUME_PERCENT%</span>
+            <span>@VOLUME_MID_PERCENT%</span>
+            <span>@MAX_VOLUME_PERCENT%</span>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button id="audio-volume-test"
+                type="button"
+                class="btn btn-outline-secondary"
+                @onclick="ToggleTestSpeechAsync"
+                disabled="@(!_loaded)"
+                aria-pressed="@(_testSpeechCts is not null)">
+            @if (_testSpeechCts is null)
+            {
+                <span class="bi bi-play-fill me-2" aria-hidden="true"></span><span>@Copy.Audio.GetVolumeTestStart(PreferredIsoCode)</span>
+            }
+            else
+            {
+                <span class="bi bi-stop-fill me-2" aria-hidden="true"></span><span>@Copy.Audio.GetVolumeTestStop(PreferredIsoCode)</span>
+            }
+        </button>
+    </div>
+</section>
+
+@code {
+    private const int MIN_VOLUME_PERCENT = 0;
+    private const int MAX_VOLUME_PERCENT = 100;
+    private const int VOLUME_STEP_PERCENT = 1;
+    private const int VOLUME_MID_PERCENT = 50;
+    [Microsoft.AspNetCore.Components.Parameter]
+    public string? PreferredIsoCode { get; set; }
+
+    private CancellationTokenSource? _setVolumeCts;
+    private CancellationTokenSource? _testSpeechCts;
+    private Task? _testSpeechTask;
+    private int _volumePercent = MAX_VOLUME_PERCENT;
+    private bool _loaded;
+    private string? _error;
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var volume = await AudioSettings.GetVolumeAsync(CancellationToken.None);
+            _volumePercent = Math.Clamp((int)Math.Round(volume * 100f), MIN_VOLUME_PERCENT, MAX_VOLUME_PERCENT);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loaded = true;
+        }
+    }
+
+    private async Task OnVolumeInputAsync(ChangeEventArgs args)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        if (args.Value is not string raw || !int.TryParse(raw, out var percent))
+        {
+            return;
+        }
+
+        percent = Math.Clamp(percent, MIN_VOLUME_PERCENT, MAX_VOLUME_PERCENT);
+        _volumePercent = percent;
+
+        _setVolumeCts?.Cancel();
+        _setVolumeCts?.Dispose();
+        _setVolumeCts = new CancellationTokenSource();
+
+        var normalized = percent / (float)MAX_VOLUME_PERCENT;
+
+        try
+        {
+            await AudioSettings.SetVolumeAsync(normalized, _setVolumeCts.Token);
+        }
+        catch (OperationCanceledException) when (_setVolumeCts.IsCancellationRequested)
+        {
+            // Die letzte Änderung gilt.
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task ToggleTestSpeechAsync()
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _error = null;
+
+        if (_testSpeechCts is null)
+        {
+            StartTestSpeech();
+            return;
+        }
+
+        await StopTestSpeechAsync();
+    }
+
+    private void StartTestSpeech()
+    {
+        if (_testSpeechCts is not null)
+        {
+            return;
+        }
+
+        var cts = new CancellationTokenSource();
+        _testSpeechCts = cts;
+
+        _testSpeechTask = RunTestSpeechLoopAsync(cts);
+    }
+
+    private async Task StopTestSpeechAsync()
+    {
+        var cts = _testSpeechCts;
+        var task = _testSpeechTask;
+
+        _testSpeechCts = null;
+        _testSpeechTask = null;
+
+        if (cts is null)
+        {
+            return;
+        }
+
+        try
+        {
+            cts.Cancel();
+        }
+        finally
+        {
+            cts.Dispose();
+        }
+
+        if (task is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await task;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task RunTestSpeechLoopAsync(CancellationTokenSource cts)
+    {
+        try
+        {
+            var supportedLanguages = await SupportedLanguagesClient.GetAsync(cts.Token);
+            var isoCodes = supportedLanguages.Languages
+                .Select(language => language.IsoCode?.Trim())
+                .Where(code => !string.IsNullOrWhiteSpace(code))
+                .Select(code => code!)
+                .ToArray();
+
+            if (isoCodes.Length == 0)
+            {
+                throw new InvalidOperationException("No supported languages returned by the server.");
+            }
+
+            var volumeTestTexts = ResolveVolumeTestTexts(isoCodes);
+            var fallbackText = ResolveFallbackText(volumeTestTexts);
+
+            while (!cts.IsCancellationRequested)
+            {
+                foreach (var isoCode in isoCodes)
+                {
+                    if (cts.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    var text = ResolveVolumeTestText(volumeTestTexts, fallbackText, isoCode);
+                    await TextToSpeechPlayer.SpeakAsync(text, isoCode, cts.Token);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ein Abbruch, etwa durch Stopp oder Unterbrechen der Sprachausgabe, ist hier erwartbar.
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                await InvokeAsync(() =>
+                {
+                    _error = ex.Message;
+                    StateHasChanged();
+                });
+            }
+            catch (ObjectDisposedException)
+            {
+                // Die Komponente ist schon freigegeben.
+            }
+            catch (InvalidOperationException)
+            {
+                // Die Anzeige kann in diesem Zustand nicht mehr aktualisiert werden.
+            }
+        }
+        finally
+        {
+            try
+            {
+                await InvokeAsync(() =>
+                {
+                    if (ReferenceEquals(_testSpeechCts, cts))
+                    {
+                        _testSpeechCts = null;
+                        _testSpeechTask = null;
+                    }
+
+                    StateHasChanged();
+                });
+            }
+            catch (ObjectDisposedException)
+            {
+                // Die Komponente ist schon freigegeben.
+            }
+            catch (InvalidOperationException)
+            {
+                // Die Anzeige kann in diesem Zustand nicht mehr aktualisiert werden.
+            }
+        }
+    }
+
+    private IReadOnlyDictionary<string, string> ResolveVolumeTestTexts(IReadOnlyList<string> isoCodes)
+    {
+        ArgumentNullException.ThrowIfNull(isoCodes);
+
+        var texts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var isoCode in isoCodes)
+        {
+            texts[isoCode] = Copy.Audio.GetVolumeTestText(isoCode);
+        }
+
+        return texts;
+    }
+
+    private static string ResolveFallbackText(IReadOnlyDictionary<string, string> texts)
+    {
+        if (texts.TryGetValue("en", out var english))
+        {
+            return english;
+        }
+
+        return texts.Values.First();
+    }
+
+    private static string ResolveVolumeTestText(
+        IReadOnlyDictionary<string, string> texts,
+        string fallbackText,
+        string isoCode)
+    {
+        if (texts.TryGetValue(isoCode, out var text))
+        {
+            return text;
+        }
+
+        return fallbackText;
+    }
+
+    public void Dispose()
+    {
+        _setVolumeCts?.Cancel();
+        _setVolumeCts?.Dispose();
+
+        _testSpeechCts?.Cancel();
+        _testSpeechCts?.Dispose();
+    }
+}

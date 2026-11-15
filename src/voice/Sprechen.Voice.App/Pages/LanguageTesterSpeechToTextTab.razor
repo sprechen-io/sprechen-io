@@ -1,0 +1,373 @@
+@using SupportedLanguageContract = Sprechen.Speech.LanguageContracts.SupportedLanguage
+@using Sprechen.Speech.App.Contracts.Services
+@using Sprechen.Speech.LanguageContracts
+@implements IAsyncDisposable
+@inject ISpeechToTextStreamingClient SpeechToTextStreamingClient
+@inject ISupportedLanguagesClient SupportedLanguagesClient
+
+<section class="card">
+    <div class="card-body">
+        <h2 class="h5 card-title">Speech To Text (stream)</h2>
+
+        <div class="mb-3">
+            <label for="lang" class="form-label">Language</label>
+            <InputSelect id="lang" class="form-select" @bind-Value="_languageCode" disabled="@(!_languagesLoaded || _supportedLanguages.Count == 0 || _isBusy || _isRecording)">
+                @if (!_languagesLoaded)
+                {
+                    <option value="">Loading.</option>
+                }
+                else
+                {
+                    @foreach (var language in _supportedLanguages)
+                    {
+                        <option value="@language.IsoCode">@language.DisplayName (@language.IsoCode)</option>
+                    }
+                }
+            </InputSelect>
+            <div class="form-text">Using: @EffectiveLanguageDisplay</div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn @(_isRecording ? "btn-danger" : "btn-primary")" @onclick="ToggleAsync" disabled="@_isBusy">
+                @(_isRecording ? "Stop" : "Start")
+            </button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_status))
+        {
+            <div class="mt-3 text-muted">@_status</div>
+        }
+
+        <div class="mt-3">
+            <label class="form-label">Transcript</label>
+            <textarea class="form-control" rows="6" readonly>@_transcript</textarea>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert alert-danger mt-3" role="alert">@_error</div>
+        }
+    </div>
+</section>
+
+@code {
+    private const string FALLBACK_DEFAULT_LANGUAGE_CODE = "de";
+
+    private readonly CancellationTokenSource _lifetimeCts = new();
+    private ISpeechToTextStreamingSession? _session;
+    private Task? _transcriptTask;
+    private CancellationTokenSource? _cts;
+    private Exception? _transcriptError;
+
+    private bool _isBusy;
+    private bool _isRecording;
+    private string? _status;
+    private string? _error;
+    private string _transcript = string.Empty;
+    private readonly List<string> _finalizedSegments = new();
+    private string _currentPartial = string.Empty;
+    private int? _lastFinalizedTurnIndex;
+
+    private IReadOnlyList<SupportedLanguageContract> _supportedLanguages = Array.Empty<SupportedLanguageContract>();
+    private string _defaultLanguageCode = FALLBACK_DEFAULT_LANGUAGE_CODE;
+    private bool _languagesLoaded;
+    private string? _languageCode;
+
+    private string EffectiveLanguageCode => string.IsNullOrWhiteSpace(_languageCode)
+        ? _defaultLanguageCode
+        : _languageCode.Trim();
+
+    private string EffectiveLanguageDisplay
+    {
+        get
+        {
+            var iso = EffectiveLanguageCode;
+            var match = _supportedLanguages.FirstOrDefault(l => string.Equals(l.IsoCode, iso, StringComparison.OrdinalIgnoreCase));
+            return match is null ? iso : $"{match.DisplayName} ({match.IsoCode})";
+        }
+    }
+
+    private Task ToggleAsync() => _isRecording ? StopAsync() : StartAsync();
+
+    protected override Task OnInitializedAsync()
+    {
+        _ = LoadSupportedLanguagesAsync(_lifetimeCts.Token);
+        return Task.CompletedTask;
+    }
+
+    private async Task LoadSupportedLanguagesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(3));
+            var response = await SupportedLanguagesClient.GetAsync(cts.Token);
+
+            _supportedLanguages = response.Languages
+                .Where(l => !string.IsNullOrWhiteSpace(l.IsoCode))
+                .ToArray();
+
+            _defaultLanguageCode = string.IsNullOrWhiteSpace(response.DefaultIsoCode)
+                ? FALLBACK_DEFAULT_LANGUAGE_CODE
+                : response.DefaultIsoCode.Trim();
+
+            var resolved = _supportedLanguages.FirstOrDefault(l => string.Equals(l.IsoCode, _defaultLanguageCode, StringComparison.OrdinalIgnoreCase))?.IsoCode
+                ?? _supportedLanguages.FirstOrDefault()?.IsoCode
+                ?? _defaultLanguageCode;
+
+            _languageCode = resolved;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+        catch (OperationCanceledException)
+        {
+            _error = "Loading supported languages timed out.";
+            _supportedLanguages = Array.Empty<SupportedLanguageContract>();
+            _defaultLanguageCode = FALLBACK_DEFAULT_LANGUAGE_CODE;
+            _languageCode = _defaultLanguageCode;
+        }
+        catch (Exception ex)
+        {
+            _error = $"Loading supported languages failed: {ex.Message}";
+            _supportedLanguages = Array.Empty<SupportedLanguageContract>();
+            _defaultLanguageCode = FALLBACK_DEFAULT_LANGUAGE_CODE;
+            _languageCode = _defaultLanguageCode;
+        }
+
+        _languagesLoaded = true;
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Die Komponente wurde beim UI-Aktualisieren schon freigegeben.
+        }
+        catch (InvalidOperationException)
+        {
+            // Die Anzeige kann in diesem Zustand nicht mehr aktualisiert werden.
+        }
+    }
+
+    private async Task StartAsync()
+    {
+        if (_isRecording || _isBusy)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _error = null;
+        _transcript = string.Empty;
+        _finalizedSegments.Clear();
+        _currentPartial = string.Empty;
+        _lastFinalizedTurnIndex = null;
+        _status = "Requesting microphone.";
+        _cts = new CancellationTokenSource();
+
+        try
+        {
+            _transcriptError = null;
+            _session = await SpeechToTextStreamingClient.StartAsync(EffectiveLanguageCode, _cts.Token);
+            _transcriptTask = ReceiveTextAsync(_session, _cts.Token);
+
+            _isRecording = true;
+            _status = "Recording.";
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _status = null;
+            await CleanupAsync();
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task StopAsync()
+    {
+        if (!_isRecording || _isBusy)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _status = "Stopping.";
+
+        try
+        {
+            var cancellationToken = _cts?.Token ?? CancellationToken.None;
+            if (_session is not null)
+            {
+                await _session.StopAsync(cancellationToken);
+            }
+
+            if (_transcriptTask is not null)
+            {
+                await _transcriptTask;
+            }
+
+            if (_transcriptError is not null)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(_transcriptError).Throw();
+            }
+
+            _status = null;
+        }
+        catch (OperationCanceledException)
+        {
+            _status = null;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _status = null;
+        }
+        finally
+        {
+            _isRecording = false;
+            await CleanupAsync();
+            _isBusy = false;
+        }
+    }
+
+    private async Task ReceiveTextAsync(ISpeechToTextStreamingSession session, CancellationToken ct)
+    {
+        try
+        {
+            await foreach (var conversationEvent in session.Events.WithCancellation(ct))
+            {
+                var changed = conversationEvent switch
+                {
+                    SpeechConversationTranscriptUpdateEvent update => ApplyPartial(update.Transcript),
+                    SpeechConversationEagerEndOfTurnEvent eagerEndOfTurn => ApplyPartial(eagerEndOfTurn.Transcript),
+                    SpeechConversationTranscriptFinalizedEvent finalized => ApplyFinalized(finalized.Transcript, finalized.TurnIndex),
+                    SpeechConversationEndOfTurnEvent endOfTurn => ApplyFinalized(endOfTurn.Transcript, endOfTurn.TurnIndex),
+                    _ => false
+                };
+
+                if (!changed)
+                {
+                    continue;
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            // Der angeforderte Abbruch beendet das Lesen der Sitzung.
+        }
+        catch (Exception ex)
+        {
+            _transcriptError = ex;
+        }
+    }
+
+    private bool ApplyPartial(string? text)
+    {
+        var trimmed = text?.Trim() ?? string.Empty;
+        if (string.Equals(trimmed, _currentPartial, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        _currentPartial = trimmed;
+        RecomputeTranscript();
+        return true;
+    }
+
+    private bool ApplyFinalized(string? text, int? turnIndex)
+    {
+        var trimmed = text?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            return false;
+        }
+
+        if (turnIndex.HasValue && _lastFinalizedTurnIndex == turnIndex.Value)
+        {
+            return false;
+        }
+
+        _finalizedSegments.Add(trimmed);
+        _lastFinalizedTurnIndex = turnIndex;
+        _currentPartial = string.Empty;
+        RecomputeTranscript();
+        return true;
+    }
+
+    private void RecomputeTranscript()
+    {
+        if (_finalizedSegments.Count == 0)
+        {
+            _transcript = _currentPartial;
+            return;
+        }
+
+        var joined = string.Join(" ", _finalizedSegments);
+        _transcript = string.IsNullOrWhiteSpace(_currentPartial)
+            ? joined
+            : joined + " " + _currentPartial;
+    }
+
+    private async Task CleanupAsync()
+    {
+        try
+        {
+            _cts?.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+
+        _cts?.Dispose();
+        _cts = null;
+
+        if (_session is not null)
+        {
+            try
+            {
+                await _session.DisposeAsync();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (OperationCanceledException)
+            {
+                // Ein Abbruch während der Freigabe ist erwartbar.
+            }
+            _session = null;
+        }
+
+        _transcriptTask = null;
+        _transcriptError = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            _lifetimeCts.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+
+        _lifetimeCts.Dispose();
+
+        try
+        {
+            await StopAsync();
+        }
+        catch (Exception)
+        {
+            await CleanupAsync();
+        }
+    }
+}
+

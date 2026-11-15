@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1",
+  "profileVersion": "1",
+  "profileId": "sample.application-selection-dialog.default",
+  "noInputTimeoutMs": 10000,
+  "maxRetries": 3,
+  "confirmationPolicy": "always",
+  "sttMinConfidenceToConfirm": 51,
+  "speechRate": 1.0,
+  "pauseBetweenItemsMs": 500,
+  "allowBargeIn": false,
+  "politenessLevel": "formal",
+  "progressCalculationBasis": "allFields"
+}

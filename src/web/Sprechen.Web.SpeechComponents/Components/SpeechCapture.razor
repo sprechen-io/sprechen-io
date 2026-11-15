@@ -1,0 +1,177 @@
+@implements IDisposable
+@inject ISpeechCaptureSurfaceState SpeechCaptureSurfaceState
+@inject ISpeechCaptureSurfacePressController SpeechCaptureSurfacePressController
+@inject IUserLanguageState UserLanguageState
+@inject IWakeWordProvider WakeWordProvider
+@inject ILogger<SpeechCapture> Logger
+
+<button type="button"
+        @ref="_startControl"
+        class="speech-surface @GetFamilyCssClass() @GetActivationCssClass() @(SpeechCaptureSurfaceState.Current.IsRecording ? "recording" : string.Empty)"
+        aria-label="@GetAriaLabel()"
+        aria-describedby="@GetDescribedById()"
+        aria-busy="@GetAriaBusy()"
+        aria-disabled="@GetAriaDisabled()"
+        title="@GetStatusAnnouncement()"
+        @onclick="OnPressedAsync">
+</button>
+<span class="visually-hidden" aria-live="polite">@GetStatusAnnouncement()</span>
+
+@code {
+    private string? _wakeWords;
+    private ElementReference _startControl;
+
+    // Zugänglicher Name der Startschaltfläche vor dem Beginn einer Sitzung.
+    // Wenn vorhanden, nennt er die Handlung, damit ein Screenreader ansagt, was das Aktivieren tut.
+    [Parameter]
+    public string? StartControlAccessibleName { get; set; }
+
+    // ID des Elements mit der Startanleitung. Aria-describedby verknüpft es
+    // mit der Schaltfläche, solange die Sitzung noch nicht begonnen hat.
+    [Parameter]
+    public string? StartControlDescribedById { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SpeechCaptureSurfaceState.Changed += OnStateChanged;
+        UserLanguageState.SelectedLanguageChanged += OnDisplayLanguageChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWakeWordsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        // Beim ersten Rendern erhält die Startschaltfläche den Fokus. Eine bereits
+        // gestartete Sitzung behält ihren Fokus.
+        if (SpeechCaptureSurfaceState.Current.ActivationState != SpeechAssistantActivationState.NotStarted)
+        {
+            return;
+        }
+
+        try
+        {
+            await _startControl.FocusAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "Focusing the activation control on first render failed.");
+        }
+    }
+
+    private async Task OnPressedAsync()
+    {
+        if (SpeechCaptureSurfaceState.Current.ActivationState == SpeechAssistantActivationState.Starting)
+        {
+            return;
+        }
+
+        await SpeechCaptureSurfacePressController.HandlePressAsync(CancellationToken.None);
+    }
+
+    private string GetFamilyCssClass()
+    {
+        return SpeechCaptureSurfaceState.Current.ActiveEarconFamily switch
+        {
+            EarconFamily.Flow => "earcon-flow",
+            EarconFamily.ValidationSuccess => "earcon-validation-success",
+            EarconFamily.ValidationNotOk => "earcon-validation-not-ok",
+            EarconFamily.Structure => "earcon-structure",
+            EarconFamily.Mode => "earcon-mode",
+            _ => "earcon-idle"
+        };
+    }
+
+    private string GetActivationCssClass()
+    {
+        return SpeechCaptureSurfaceState.Current.ActivationState switch
+        {
+            SpeechAssistantActivationState.Starting => "activation-starting",
+            SpeechAssistantActivationState.Ready => "activation-ready",
+            SpeechAssistantActivationState.Paused => "activation-paused",
+            SpeechAssistantActivationState.Failed => "activation-failed",
+            _ => "activation-not-started"
+        };
+    }
+
+    private string GetAriaLabel()
+    {
+        if (IsColdStart() && !string.IsNullOrWhiteSpace(StartControlAccessibleName))
+        {
+            return StartControlAccessibleName;
+        }
+
+        return SpeechCaptureSurfaceCopy.GetAriaLabel(SpeechCaptureSurfaceState.Current, UserLanguageState.SelectedIsoCode);
+    }
+
+    private string? GetDescribedById()
+    {
+        return IsColdStart() && !string.IsNullOrWhiteSpace(StartControlDescribedById)
+            ? StartControlDescribedById
+            : null;
+    }
+
+    private bool IsColdStart()
+    {
+        return !SpeechCaptureSurfaceState.Current.IsRecording
+            && SpeechCaptureSurfaceState.Current.ActivationState == SpeechAssistantActivationState.NotStarted;
+    }
+
+    private string GetAriaBusy()
+    {
+        return SpeechCaptureSurfaceState.Current.ActivationState == SpeechAssistantActivationState.Starting ? "true" : "false";
+    }
+
+    private string GetAriaDisabled()
+    {
+        return SpeechCaptureSurfaceState.Current.ActivationState == SpeechAssistantActivationState.Starting ? "true" : "false";
+    }
+
+    private string GetStatusAnnouncement()
+    {
+        return SpeechCaptureSurfaceCopy.GetStatusAnnouncement(
+            SpeechCaptureSurfaceState.Current,
+            UserLanguageState.SelectedIsoCode,
+            _wakeWords);
+    }
+
+    private async Task LoadWakeWordsAsync()
+    {
+        var isoCode = UserLanguageState.SelectedIsoCode;
+        if (string.IsNullOrWhiteSpace(isoCode))
+        {
+            _wakeWords = null;
+            return;
+        }
+
+        var inventory = await WakeWordProvider.GetWakeWordInventoryAsync(isoCode, CancellationToken.None);
+        _wakeWords = inventory.ActivationForms.Count == 0
+            ? null
+            : new WakeWordActivationFormCodec().Format(inventory.ActivationForms);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnStateChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void OnDisplayLanguageChanged(string isoCode)
+    {
+        _ = LoadWakeWordsAsync();
+    }
+
+    public void Dispose()
+    {
+        SpeechCaptureSurfaceState.Changed -= OnStateChanged;
+        UserLanguageState.SelectedLanguageChanged -= OnDisplayLanguageChanged;
+    }
+}

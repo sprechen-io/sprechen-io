@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "generatedAt": "2026-04-12T00:00:00Z",
+  "selectionDialog": {
+    "selectionDialogId": "sample.application-selection-dialog",
+    "modelVersion": "5"
+  },
+  "selectionDialogProfile": {
+    "profileId": "sample.application-selection-dialog.default",
+    "profileVersion": "1"
+  },
+  "applications": []
+}

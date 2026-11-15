@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Contracts\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+    <Using Include="Sprechen.Speech.TextNormalization" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Using Include="Sprechen.Speech.WakeWord.Contracts" />
+  </ItemGroup>
+</Project>

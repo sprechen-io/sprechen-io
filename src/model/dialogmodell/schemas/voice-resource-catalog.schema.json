@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/voice-resource-catalog.schema.json",
+  "title": "VoiceResourceCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "resourceModelId",
+    "resources"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "resourceModelId": {
+      "$ref": "#/$defs/Id"
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VoiceInteractionResource"
+      },
+      "description": "Localized generic voice resources such as session-setup texts, language names, UI speech prompts, and modeled transcript-speaking failure feedback resources. Language coverage is owned by the referencing VoiceInterfaceDocument; full coverage against supportedLanguages is enforced there when strictLocalization is true."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "VoiceInteractionResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "texts"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "texts": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    }
+  }
+}

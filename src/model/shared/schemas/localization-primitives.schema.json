@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/localization-primitives.schema.json",
+  "title": "LocalizationPrimitives",
+  "description": "Shared schema module for reusable localization primitives referenced by multiple root contracts.",
+  "$defs": {
+    "LanguageCode": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2,
+      "pattern": "^[a-z]{2}$",
+      "description": "ISO 639-1 language code (two-letter, lowercase), e.g. 'de', 'en'."
+    },
+    "LocalizedTextKey": {
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^[a-z]{2}(?:-[A-Z]{2})?(?:@(?:formal|informal))?$",
+      "description": "LocalizedText key. Supports base languages (e.g. 'de'), optional region variants (e.g. 'de-CH'), and optional politeness suffixes (e.g. 'de@formal', 'de-CH@informal')."
+    },
+    "LocalizedText": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/LocalizedTextKey"
+      },
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1,
+      "description": "Map from localized text keys to concrete strings. Coverage across supportedLanguages is enforced by the containing contract and its preflight rules."
+    }
+  }
+}

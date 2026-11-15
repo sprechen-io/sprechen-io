@@ -1,0 +1,47 @@
+@inject SchemaTextLoader Loader
+
+<div class="mb-2">
+    <input type="text" class="form-control form-control-sm"
+           placeholder="Schema filtern…" @oninput="OnFilter" />
+</div>
+
+<div class="row">
+    @foreach (var (area, schemas) in ComposerRootCatalog.ByModelArea)
+    {
+        var filtered = schemas.Where(s => MatchesFilter(s)).ToList();
+        @if (filtered.Count > 0)
+        {
+            <div class="col-md-4 mb-3">
+                <h6>@area</h6>
+                @foreach (var schema in filtered)
+                {
+                    var isAvailable = Loader.ParsedSchemas.ContainsKey(schema.FileName);
+                    <button class="btn btn-sm @(isAvailable ? "btn-outline-primary" : "btn-outline-secondary") d-block w-100 mb-1 text-start"
+                            disabled="@(!isAvailable)"
+                            @onclick="() => OnSchemaSelected.InvokeAsync(schema)">
+                        @schema.DisplayName
+                        @if (!isAvailable)
+                        {
+                            <small class="text-muted">(nicht geladen)</small>
+                        }
+                    </button>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    // Filtert Schemas innerhalb ihrer Modellbereiche, damit die Gruppierung bei der Suche erhalten bleibt.
+    [Parameter]
+    public EventCallback<ComposerRootSchemaInfo> OnSchemaSelected { get; set; }
+
+    private string _filter = string.Empty;
+
+    private void OnFilter(ChangeEventArgs e)
+    {
+        _filter = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private bool MatchesFilter(ComposerRootSchemaInfo schema) => new ComposerSchemaFilter(_filter).Matches(schema);
+}

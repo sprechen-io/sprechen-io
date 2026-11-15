@@ -1,0 +1,25 @@
+@if (Schema.Type == SchemaNodeType.Object && !Schema.IsMap)
+{
+    <ObjectEditor Schema="@Schema" Path="@Path" />
+}
+else if (Schema.Type == SchemaNodeType.Object && Schema.IsMap)
+{
+    <MapEditor Schema="@Schema" Path="@Path" />
+}
+else if (Schema.Type == SchemaNodeType.Array)
+{
+    <ArrayEditor Schema="@Schema" Path="@Path" />
+}
+else if (Schema.Type is SchemaNodeType.OneOf or SchemaNodeType.AnyOf)
+{
+    <UnionEditor Schema="@Schema" Path="@Path" />
+}
+else
+{
+    <ScalarEditor Schema="@Schema" Path="@Path" />
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+    [Parameter] public string Path { get; set; } = JsonPointer.Root;
+}

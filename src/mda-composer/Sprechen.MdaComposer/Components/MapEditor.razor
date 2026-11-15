@@ -1,0 +1,72 @@
+@inject ExampleAuthoringSession Session
+
+@{
+    var mapObj = Session.Queries.GetNode(Path) as JsonObject;
+}
+
+@if (mapObj is null)
+{
+    <div class="alert alert-warning py-2 small mb-0">
+        Für diesen Pfad liegt aktuell kein Map-Objekt vor.
+        <button class="btn btn-outline-warning btn-sm ms-2" @onclick="InitializeMap">
+            Map erzeugen
+        </button>
+    </div>
+}
+else
+{
+    var mapKeys = GetMapKeys(mapObj);
+
+    @foreach (var key in mapKeys)
+    {
+        var currentKey = key;
+        <div class="input-group input-group-sm mb-1">
+            <input class="form-control" style="max-width:120px" value="@currentKey"
+                   @onchange="e => HandleMapRename(currentKey, e)" />
+            <input class="form-control" value="@GetMapStringValue(mapObj, currentKey)"
+                   @oninput="e => HandleMapValueChange(currentKey, e)" />
+            <button class="btn btn-outline-danger"
+                    @onclick="() => RemoveMapKey(currentKey)">&#215;</button>
+        </div>
+    }
+
+    <button class="btn btn-outline-secondary btn-sm mt-1"
+            @onclick="AddMapKey">+ Eintrag</button>
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+    [Parameter] public string Path { get; set; } = JsonPointer.Root;
+
+    private void InitializeMap()
+    {
+        Session.Scalars.InitializeValue(Path, Schema);
+    }
+
+    private static List<string> GetMapKeys(JsonObject obj)
+        => obj.Select(p => p.Key).ToList();
+
+    private static string GetMapStringValue(JsonObject obj, string key)
+        => obj[key]?.ToString() ?? string.Empty;
+
+    private void HandleMapRename(string oldKey, ChangeEventArgs e)
+    {
+        var newKey = e.Value?.ToString() ?? string.Empty;
+        Session.Objects.RenameMapEntry(Path, oldKey, newKey);
+    }
+
+    private void HandleMapValueChange(string key, ChangeEventArgs e)
+    {
+        Session.Objects.SetMapEntryValue(Path, key, e.Value?.ToString() ?? string.Empty);
+    }
+
+    private void RemoveMapKey(string key)
+    {
+        Session.Objects.RemoveMapEntry(Path, key);
+    }
+
+    private void AddMapKey()
+    {
+        Session.Objects.AddMapEntry(Path);
+    }
+}

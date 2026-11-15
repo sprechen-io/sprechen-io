@@ -1,0 +1,10 @@
+global using Sprechen.Speech.App.Contracts.Services;
+global using Sprechen.Speech.LanguageContracts;
+global using Sprechen.Speech.App.Contracts.Messages;
+global using Sprechen.Speech.App.Contracts.Dialogs.VoiceInterface;
+global using Sprechen.Speech.App.Runtime.Services;
+global using Sprechen.Speech.ModelRuntime.Services;
+global using Sprechen.Speech.DialogRuntime.Contracts.Dialogs.SpeechAssistant;
+global using Sprechen.Speech.TextNormalization;
+global using Sprechen.Speech.WakeWord.Contracts;
+global using Sprechen.Speech.WakeWord.ClientInfrastructure.Services;

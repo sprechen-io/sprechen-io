@@ -1,0 +1,409 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/application-selection-dialog.schema.json",
+  "title": "ApplicationSelectionDialog",
+  "description": "Models application-selection prompts and intent vocabulary. The runtime starts in Announcing unless a prefetched transcript is executable without prior selection or prompt state. Entry-executable intents are list, search, selectByNumber, help, describe, cancel, changeLanguage, or a name with at least one visible application candidate. confirmYes, confirmNo, repeat, openCandidate, and other non-executable prefetched inputs must fall back to Announcing. A matcher-classified ambiguous candidate must be resolved before launch even when confirmationPolicy is never. that policy suppresses confirmation only for an unambiguous high-confidence candidate. Confirmation has initial stage C1 plus two bounded C2 repair stages. Once a candidate and SelectionRevision are retained, an unconflicted confirmYes in C1 or either C2 stage authorizes at confidence at or above sttMinConfidenceToConfirm. present confidence below that threshold enters explicit retained-candidate authorization from C1, while missing confidence spends the finite session repair budget and enters confidence-fault-retry C2. Parser precedence may choose confirmYes as the primary intent but must preserve competing modeled target, number, language, navigation, query, confirmNo, or cancel evidence. a conflicted affirmative never launches any candidate, and only primary confirmYes may carry that marker. In either C2 stage, openCandidate plus an exact retained display name or a stable retained number is an additional authorization path only at or above sttMinConfidenceToConfirm, with unique resolution and immediate candidate/revision revalidation. sttMinConfidenceToAccept remains the gate for an unbound selection. confirmNo and cancel remain immediate and spend no repair budget. contextual help, repeat, and list preserve stage without spending safety budget. Every other recognized non-launch result in either C2 stage is unsuccessful and spends the same session repair budget. at its exact boundary no launch occurs. Genuine silence speaks the short catalog app/form confirmation.repeat prompt and opens a fresh capture window without budget consumption. With allowBargeIn=false, the speak-now cue occurs after the announcement at the real capture boundary. Up to five candidates are all announced and numbered. six or more retain the complete immutable set for refinement, full listing, or cancellation. No provider-capability or serialized runtime-state field is introduced.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "modelVersion",
+    "selectionDialogId",
+    "supportedLanguages",
+    "strictLocalization",
+    "prompts",
+    "intents",
+    "numberWords"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "modelVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "selectionDialogId": {
+      "$ref": "#/$defs/Id"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "strictLocalization": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), missing localizations for supportedLanguages are a preflight error. If false, they are warnings with defaultLanguage fallback."
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "prompts": {
+      "type": "array",
+      "description": "Preflight requires the exact, case-sensitive promptId values catalog.app.confirmation.repeat and catalog.form.confirmation.repeat because ordinary no-input confirmation recovery dereferences both prompts, plus catalog.app.reListen and catalog.form.reListen because the honest filler after a recognized-but-promptless selection turn dereferences them.",
+      "items": {
+        "$ref": "#/$defs/CatalogVoicePrompt"
+      }
+    },
+    "intents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogVoiceIntent"
+      }
+    },
+    "numberWords": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogVoiceNumberWord"
+      }
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ContractVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+      "description": "Contract version identifier. Must match the pattern used by FormContract.contractVersion."
+    },
+    "ConfirmationPolicy": {
+      "type": "string",
+      "enum": [
+        "always",
+        "ambiguous",
+        "never"
+      ],
+      "description": "Controls confirmation for an unambiguous user selection. 'always' = every selection (evaluation default), 'ambiguous' = only when recognition is uncertain, 'never' = no confirmation for an unambiguous high-confidence candidate. Matcher-classified ambiguity (non-exact, duplicate, or multiple match), reported confidence below the acceptance threshold, or missing confidence must still be resolved before launch."
+    },
+    "PolitenessLevel": {
+      "type": "string",
+      "enum": [
+        "formal",
+        "informal"
+      ],
+      "description": "Controls social addressing mode in spoken prompts and localized-text resolution variants."
+    },
+    "ProgressCalculationBasis": {
+      "type": "string",
+      "enum": [
+        "allFields",
+        "requiredFieldsOnly",
+        "fieldGroupBased"
+      ],
+      "description": "Controls how completion progress is calculated: all fields, required fields only, or field groups."
+    },
+    "VoiceDialogSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Settings for voice dialog behavior. All fields are optional with sensible defaults.",
+      "properties": {
+        "noInputTimeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 60000,
+          "default": 10000,
+          "description": "Timeout for speech input in milliseconds. Default: 10000."
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3,
+          "description": "Maximum consecutive classified recoverable system capture failures before escalation. Genuine silence/no-input and ordinary non-selection/non-recognition do not consume this budget. silence opens a fresh capture window. Default: 3."
+        },
+        "confirmationPolicy": {
+          "$ref": "#/$defs/ConfirmationPolicy",
+          "default": "always",
+          "description": "When to require explicit confirmation in application/form selection dialogs. Default: 'always'. Field-level confirmations inside form dialogs are governed separately by form runtime rules such as STT confidence handling."
+        },
+        "sttMinConfidenceToAccept": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 85,
+          "description": "STT confidence percent at/above which a recognized selection-dialog pick passes the confidence gate without adding a confidence-based confirmation. The configured confirmationPolicy still applies. Mirrors the form-voice-profile threshold for the selection-dialog confidence band. Default: 85."
+        },
+        "sttMinConfidenceToConfirm": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 65,
+          "description": "Lower bound of the selection-dialog confidence mid band and the authorization threshold for an unconflicted confirmYes after a candidate is retained: at/above this and below sttMinConfidenceToAccept, a recognized pick is routed to confirmation rather than hedged with a value-naming prompt. below this it is hedged unless an exact unambiguous name match floors the result to a clean confirmation. Default: 65."
+        },
+        "speechRate": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 2.0,
+          "default": 1.0,
+          "description": "TTS speech rate multiplier (0.5-2.0). Default: 1.0. The same multiplier semantics are used for form-level voice hints and prompt style hints."
+        },
+        "pauseBetweenItemsMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000,
+          "default": 500,
+          "description": "Pause between list items in milliseconds. Default: 500."
+        },
+        "cancelRefractoryMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "default": 2000,
+          "description": "Refractory window in milliseconds after a cancel command request. During this window repeated cancel requests are blocked before asking for another destructive-command confirmation. Default: 2000."
+        },
+        "allowBargeIn": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether users may interrupt prompt playback with speech input. Default: false."
+        },
+        "autoAdvanceAfterCommit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the dialog advances focus to the next relevant field after a successful field commit. Default: true. When false the dialog stays on the committed field and waits for an explicit navigation command."
+        },
+        "politenessLevel": {
+          "$ref": "#/$defs/PolitenessLevel",
+          "default": "formal",
+          "description": "Politeness level for social addressing mode (formal/informal). Default: 'formal'."
+        },
+        "progressCalculationBasis": {
+          "$ref": "#/$defs/ProgressCalculationBasis",
+          "default": "allFields",
+          "description": "Basis for status progress announcements (x of y). Default: 'allFields'."
+        }
+      }
+    },
+    "PromptId": {
+      "description": "Identifier for a reusable voice prompt within catalog voice projections.",
+      "$ref": "#/$defs/Id"
+    },
+    "CatalogVoicePrompt": {
+      "description": "Reusable catalog voice prompt with exact localized templates. Placeholders are case-sensitive. every spoken list, number, name, help, and cancel affordance must be executable by the modeled intent vocabulary in the same language and register.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "promptId",
+        "text"
+      ],
+      "properties": {
+        "promptId": {
+          "$ref": "#/$defs/PromptId"
+        },
+        "text": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    },
+    "CatalogVoiceIntentId": {
+      "description": "Predefined catalog dialog intent identifier.",
+      "type": "string",
+      "enum": [
+        "confirmYes",
+        "confirmNo",
+        "cancel",
+        "changeLanguage",
+        "repeat",
+        "help",
+        "list",
+        "selectByNumber",
+        "search",
+        "describe",
+        "openCandidate"
+      ]
+    },
+    "CatalogVoiceIntentMatchMode": {
+      "description": "How catalog intent utterances are matched: full phrase/word match or prefix extraction.",
+      "type": "string",
+      "enum": [
+        "phrase",
+        "prefix"
+      ]
+    },
+    "CatalogVoiceIntent": {
+      "description": "Catalog dialog intent lexicon entry with localized phrase or prefix utterances. openCandidate is a syntactic prefix extraction only and has execution authority solely in active C2 explicit authorization after retained-set resolution and confidence checks.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intentId",
+        "matchMode",
+        "utterances"
+      ],
+      "properties": {
+        "intentId": {
+          "$ref": "#/$defs/CatalogVoiceIntentId"
+        },
+        "matchMode": {
+          "$ref": "#/$defs/CatalogVoiceIntentMatchMode"
+        },
+        "utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1,
+          "description": "Localized utterances or prefixes that trigger this catalog intent."
+        }
+      }
+    },
+    "CatalogVoiceNumberWord": {
+      "description": "Localized number-word lexicon entry for catalog selection by spoken ordinal/cardinal words.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "utterances"
+      ],
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Positive selection number represented by the utterances."
+        },
+        "utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1,
+          "description": "Localized ordinal/cardinal words that map to the given numeric value."
+        }
+      }
+    },
+    "FormDescriptor": {
+      "description": "Form metadata: identity, display info, contract versions, tags, and prerequisites.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formId",
+        "displayName",
+        "description",
+        "latestContractVersion",
+        "availableContractVersions"
+      ],
+      "properties": {
+        "formId": {
+          "$ref": "#/$defs/Id"
+        },
+        "displayName": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Resolved form display names must be non-empty after compact normalization, unique within their application and language/register scope, and must not collide with higher-precedence selection-intent or composed canonical/recognition-only wake vocabulary."
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "latestContractVersion": {
+          "$ref": "#/$defs/ContractVersion"
+        },
+        "availableContractVersions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContractVersion"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Recommended order within the application. Forms with sequence are sorted ascending. forms without sequence appear after those with sequence."
+        },
+        "prerequisiteForms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          },
+          "uniqueItems": true,
+          "description": "List of formIds that must be completed before this form. Empty or absent = no prerequisites. Referenced formIds MUST exist in the same ApplicationDescriptor.forms[]."
+        },
+        "sharedVariables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          },
+          "uniqueItems": true,
+          "description": "List of variableIds that can be shared from other forms (cross-form data flow). Referenced variables should exist in the FormContracts of prerequisiteForms."
+        }
+      }
+    },
+    "ApplicationDescriptor": {
+      "description": "Application metadata: identity, display info, language support, forms, and settings.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "applicationId",
+        "displayName",
+        "description",
+        "supportedLanguages",
+        "defaultLanguage",
+        "forms"
+      ],
+      "properties": {
+        "applicationId": {
+          "$ref": "#/$defs/Id"
+        },
+        "displayName": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Resolved application display names must be non-empty after compact normalization, unique within the catalog language/register scope, and must not collide with higher-precedence selection-intent or composed canonical/recognition-only wake vocabulary."
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "supportedLanguages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LanguageCode"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "defaultLanguage": {
+          "$ref": "#/$defs/LanguageCode"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "isStudyApplication": {
+          "type": "boolean",
+          "default": false,
+          "description": "True when this application is the study application that a study link must open. Exactly one application in the composed catalog may be true."
+        },
+        "voiceDialogSettings": {
+          "$ref": "#/$defs/VoiceDialogSettings",
+          "description": "Optional application-specific voice dialog settings (overrides catalog-level defaults)."
+        },
+        "forms": {
+          "type": "array",
+          "description": "NOTE: formId uniqueness per application and latest\u2208available are enforced by runtime preflight (semantic checks beyond JSON Schema).",
+          "items": {
+            "$ref": "#/$defs/FormDescriptor"
+          }
+        }
+      }
+    }
+  }
+}

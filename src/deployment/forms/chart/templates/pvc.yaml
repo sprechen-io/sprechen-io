@@ -1,0 +1,18 @@
+{{- $unitName := required "unitName is required" .Values.unitName -}}
+{{- $metadataDomain := required "metadataDomain is required" .Values.metadataDomain -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $unitName }}-evaluation-telemetry-ledger
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{ $metadataDomain }}/telemetry-storage-owner: {{ $unitName }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ $unitName }}-evaluation-telemetry-retain
+  resources:
+    requests:
+      storage: {{ required "persistence.size is required" .Values.persistence.size }}

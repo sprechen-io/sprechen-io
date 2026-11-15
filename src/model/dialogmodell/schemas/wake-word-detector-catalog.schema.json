@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/wake-word-detector-catalog.schema.json",
+  "title": "WakeWordDetectorCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "detectorCatalogModelId",
+    "wakeWordModelId",
+    "detectorProfiles"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "detectorCatalogModelId": {
+      "$ref": "#/$defs/Id"
+    },
+    "wakeWordModelId": {
+      "$ref": "#/$defs/Id",
+      "description": "Join to the lexical WakeWordCatalog inventory this acoustic detector catalog targets. VoiceInterfaceDocument preflight fails when the loaded wake-word catalog carries a different wakeWordModelId."
+    },
+    "detectorProfiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/WakeWordDetectorProfile"
+      },
+      "minItems": 1,
+      "description": "Modeled acoustic detector profiles for the referenced lexical wake-word inventory. The first wave may keep the shipped reference profile on lexicalFallbackOnly until real detector assets exist."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "WakeWordDetectorOperatingMode": {
+      "type": "string",
+      "enum": [
+        "lexicalFallbackOnly",
+        "acousticPreferred"
+      ]
+    },
+    "WakeWordDetectorEligibilityPolicy": {
+      "type": "string",
+      "enum": [
+        "defaultInventoryOnly"
+      ]
+    },
+    "WakeWordDetectorFallbackReasonCodes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalogFallbackOnly",
+        "overrideIneligible",
+        "recognitionOnlyActivation",
+        "detectorUnavailable",
+        "detectorWarmup",
+        "detectorFailure"
+      ],
+      "properties": {
+        "catalogFallbackOnly": {
+          "type": "string",
+          "minLength": 1
+        },
+        "overrideIneligible": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recognitionOnlyActivation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detectorUnavailable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detectorWarmup": {
+          "type": "string",
+          "minLength": 1
+        },
+        "detectorFailure": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "WakeWordDetectorProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detectorId",
+        "operatingMode",
+        "confidenceThreshold",
+        "refractoryMs",
+        "warmupMs",
+        "lookbackMs",
+        "eligibilityPolicy",
+        "fallbackReasonCodes"
+      ],
+      "properties": {
+        "detectorId": {
+          "$ref": "#/$defs/Id"
+        },
+        "operatingMode": {
+          "$ref": "#/$defs/WakeWordDetectorOperatingMode"
+        },
+        "confidenceThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "refractoryMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000
+        },
+        "warmupMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000
+        },
+        "lookbackMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000,
+          "description": "Bounded acoustic-evidence lookback budget measured from the detector cursor. It does not create a post-wake continuation capture."
+        },
+        "eligibilityPolicy": {
+          "$ref": "#/$defs/WakeWordDetectorEligibilityPolicy",
+          "description": "First-wave restriction: the acoustic detector is eligible only while the lexical wake-word inventory is still the modeled default inventory."
+        },
+        "fallbackReasonCodes": {
+          "$ref": "#/$defs/WakeWordDetectorFallbackReasonCodes"
+        }
+      }
+    }
+  }
+}

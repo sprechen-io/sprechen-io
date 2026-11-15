@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Sprechen.Web.SpeechComponents</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\\..\\mda\\Sprechen.Mda.Contracts\\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\\..\\speech\\Sprechen.Speech.App.Contracts\\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\\..\\speech\\Sprechen.Speech.ModelRuntime\\Sprechen.Speech.ModelRuntime.csproj" />
+    <ProjectReference Include="..\\..\\speech\\Sprechen.Speech.WakeWord.Contracts\\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <ProjectReference Include="..\\Sprechen.Web.FormSurfaces\\Sprechen.Web.FormSurfaces.csproj" />
+  </ItemGroup>
+</Project>

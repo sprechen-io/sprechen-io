@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="bunit" Version="2.7.2" />
+    <PackageReference Include="coverlet.collector" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.analyzers" Version="1.27.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\contracts\Sprechen.Contracts.MdaFormAccess\Sprechen.Contracts.MdaFormAccess.csproj" />
+    <ProjectReference Include="..\..\mda\Sprechen.Mda.Preflight\Sprechen.Mda.Preflight.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.DialogRuntime.Contracts\Sprechen.Speech.DialogRuntime.Contracts.csproj" />
+    <ProjectReference Include="..\..\_shared\Sprechen.Common.Cqrs\Sprechen.Common.Cqrs.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TestDoubles\Sprechen.Speech.TestDoubles.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.EvaluationTelemetry\Sprechen.VoiceAssistant.EvaluationTelemetry.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.ClientInfrastructure\Sprechen.Speech.App.ClientInfrastructure.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.ModelRuntime\Sprechen.Speech.ModelRuntime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Runtime\Sprechen.Speech.App.Runtime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.CommandParsing\Sprechen.VoiceAssistant.CommandParsing.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.SelectionRuntime\Sprechen.VoiceAssistant.SelectionRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.SelectionDialogRuntime\Sprechen.VoiceAssistant.SelectionDialogRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.FormEngine\Sprechen.VoiceAssistant.FormEngine.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.InputParsing\Sprechen.VoiceAssistant.InputParsing.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.Orchestration\Sprechen.VoiceAssistant.Orchestration.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.Prompting\Sprechen.VoiceAssistant.Prompting.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.WakeRuntime\Sprechen.VoiceAssistant.WakeRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.VoiceCommands\Sprechen.VoiceAssistant.VoiceCommands.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.VoiceInteraction\Sprechen.VoiceAssistant.VoiceInteraction.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant.VoiceRuntime\Sprechen.VoiceAssistant.VoiceRuntime.csproj" />
+    <ProjectReference Include="..\Sprechen.VoiceAssistant\Sprechen.VoiceAssistant.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sprechen.VoiceAssistant.Dialogs.FileSystem.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Wahrheitstabellen des Modells als Prüforakel; nur in dieser Testassembly, nicht im Produkt. -->
+    <EmbeddedResource Include="..\..\model\evaluationsmodell\reference-contracts\open-error-identity\open-error-identity.reference.json" LogicalName="ReferenceTables.open-error-identity.reference.json" />
+    <EmbeddedResource Include="..\..\model\informationsmodell\reference-contracts\contract-rule-evaluation\contract-rule-evaluation.reference.json" LogicalName="ReferenceTables.contract-rule-evaluation.reference.json" />
+    <EmbeddedResource Include="..\..\model\evaluationsmodell\reference-contracts\canonical-transitions\canonical-transition-projection.reference.json" LogicalName="ReferenceTables.canonical-transition-projection.reference.json" />
+    <EmbeddedResource Include="..\..\model\evaluationsmodell\reference-contracts\task-card-comparison\task-card-comparison-key.reference.json" LogicalName="ReferenceTables.task-card-comparison-key.reference.json" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "fieldDefinitionsId": "sample.simple.fields.multilingual",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": true,
+  "definitions": [
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.freeTextField",
+      "label": {
+        "de": "Freier Text",
+        "en": "Free text",
+        "fr": "Texte libre",
+        "es": "Texto libre",
+        "it": "Testo libero"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Geben Sie einen kurzen freien Text ein.",
+        "de@informal": "Gib einen kurzen freien Text ein.",
+        "en": "Enter a short free-text value.",
+        "fr": "Saisissez un court texte libre.",
+        "fr@informal": "Saisis un court texte libre.",
+        "es": "Introduzca un texto libre breve.",
+        "es@informal": "Introduce un texto libre breve.",
+        "it": "Inserisca un breve testo libero.",
+        "it@informal": "Inserisci un breve testo libero."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.favoriteColorField",
+      "label": {
+        "de": "Farbe",
+        "en": "Color",
+        "fr": "Couleur",
+        "es": "Color",
+        "it": "Colore"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "W\u00E4hlen Sie eine Farbe: Rot, Gr\u00FCn oder Blau.",
+        "de@informal": "W\u00E4hle eine Farbe: Rot, Gr\u00FCn oder Blau.",
+        "en": "Choose a color: red, green, or blue.",
+        "fr": "Choisissez une couleur : rouge, vert ou bleu.",
+        "fr@informal": "Choisis une couleur : rouge, vert ou bleu.",
+        "es": "Elija un color: rojo, verde o azul.",
+        "es@informal": "Elige un color: rojo, verde o azul.",
+        "it": "Scelga un colore: rosso, verde o blu.",
+        "it@informal": "Scegli un colore: rosso, verde o blu."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.quantityField",
+      "label": {
+        "de": "Zahl",
+        "en": "Number",
+        "fr": "Nombre",
+        "es": "N\u00FAmero",
+        "it": "Numero"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Geben Sie eine ganze Zahl zwischen 0 und 100 ein.",
+        "de@informal": "Gib eine ganze Zahl zwischen 0 und 100 ein.",
+        "en": "Enter an integer between 0 and 100.",
+        "fr": "Saisissez un nombre entier entre 0 et 100.",
+        "fr@informal": "Saisis un nombre entier entre 0 et 100.",
+        "es": "Introduzca un n\u00FAmero entero entre 0 y 100.",
+        "es@informal": "Introduce un n\u00FAmero entero entre 0 y 100.",
+        "it": "Inserisca un numero intero tra 0 e 100.",
+        "it@informal": "Inserisci un numero intero tra 0 e 100."
+      },
+      "preferredInputModes": [
+        "voice",
+        "digits",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.dueDateField",
+      "label": {
+        "de": "Datum",
+        "en": "Date",
+        "fr": "Date",
+        "es": "Fecha",
+        "it": "Data"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Geben Sie ein Datum an.",
+        "de@informal": "Gib ein Datum an.",
+        "en": "Enter a date.",
+        "fr": "Saisissez une date.",
+        "fr@informal": "Saisis une date.",
+        "es": "Introduzca una fecha.",
+        "es@informal": "Introduce una fecha.",
+        "it": "Inserisca una data.",
+        "it@informal": "Inserisci una data."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.contactChannelsField",
+      "label": {
+        "de": "Kontaktkan\u00E4le",
+        "en": "Contact channels",
+        "fr": "Canaux de contact",
+        "es": "Canales de contacto",
+        "it": "Canali di contatto"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "W\u00E4hlen Sie einen oder mehrere Kan\u00E4le: E-Mail, Telefon, SMS.",
+        "de@informal": "W\u00E4hle einen oder mehrere Kan\u00E4le: E-Mail, Telefon, SMS.",
+        "en": "Choose one or more channels: email, phone, SMS.",
+        "fr": "Choisissez un ou plusieurs canaux : e-mail, t\u00E9l\u00E9phone, SMS.",
+        "fr@informal": "Choisis un ou plusieurs canaux : e-mail, t\u00E9l\u00E9phone, SMS.",
+        "es": "Elija uno o varios canales: correo electr\u00F3nico, tel\u00E9fono, SMS.",
+        "es@informal": "Elige uno o varios canales: correo electr\u00F3nico, tel\u00E9fono, SMS.",
+        "it": "Scelga uno o pi\u00F9 canali: e-mail, telefono, SMS.",
+        "it@informal": "Scegli uno o pi\u00F9 canali: e-mail, telefono, SMS."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.newsletterTopicsField",
+      "label": {
+        "de": "Interessen",
+        "en": "Interests",
+        "fr": "Centres d\u0027int\u00E9r\u00EAt",
+        "es": "Intereses",
+        "it": "Interessi"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "W\u00E4hlen Sie beliebig viele Themen: Nachrichten, Sport, Technik. Sagen Sie fertig, wenn Sie nichts ausw\u00E4hlen m\u00F6chten.",
+        "de@informal": "W\u00E4hle beliebig viele Themen: Nachrichten, Sport, Technik. Sag fertig, wenn du nichts ausw\u00E4hlen m\u00F6chtest.",
+        "en": "Choose any number of topics: news, sports, technology. Say done if you do not want to select anything.",
+        "fr": "Choisissez autant de th\u00E8mes que vous voulez : actualit\u00E9s, sport, technologie. Dites terminer si vous ne souhaitez rien s\u00E9lectionner.",
+        "fr@informal": "Choisis autant de th\u00E8mes que tu veux : actualit\u00E9s, sport, technologie. Dis terminer si tu ne veux rien s\u00E9lectionner.",
+        "es": "Elija tantos temas como desee: noticias, deportes, tecnolog\u00EDa. Diga terminar si no desea seleccionar nada.",
+        "es@informal": "Elige tantos temas como quieras: noticias, deportes, tecnolog\u00EDa. Di terminar si no quieres seleccionar nada.",
+        "it": "Scelga un numero qualsiasi di argomenti: notizie, sport, tecnologia. Dica fine se non desidera selezionare nulla.",
+        "it@informal": "Scegli un numero qualsiasi di argomenti: notizie, sport, tecnologia. Di' fine se non vuoi selezionare nulla."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.simple.two-groups.preferredTimeField",
+      "label": {
+        "de": "Bevorzugte Uhrzeit",
+        "en": "Preferred time",
+        "fr": "Heure pr\u00E9f\u00E9r\u00E9e",
+        "es": "Hora preferida",
+        "it": "Orario preferito"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Geben Sie eine Uhrzeit an, zum Beispiel 14:30.",
+        "de@informal": "Gib eine Uhrzeit an, zum Beispiel 14:30.",
+        "en": "Enter a time, for example 14:30.",
+        "fr": "Indiquez une heure, par exemple 14:30.",
+        "fr@informal": "Indique une heure, par exemple 14:30.",
+        "es": "Indique una hora, por ejemplo 14:30.",
+        "es@informal": "Indica una hora, por ejemplo 14:30.",
+        "it": "Indichi un orario, per esempio 14:30.",
+        "it@informal": "Indica un orario, per esempio 14:30."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    }
+  ]
+}

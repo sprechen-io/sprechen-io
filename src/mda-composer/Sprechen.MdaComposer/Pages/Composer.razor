@@ -1,0 +1,425 @@
+@page "/composer/{SchemaFileName?}"
+@inject SchemaTextLoader Loader
+@inject ExampleAuthoringSession Session
+@inject SessionPersistenceStore Persistence
+@inject ToastService Toasts
+@inject ComposerJsInterop JsInterop
+@implements IDisposable
+
+<PageTitle>Composer — @(Session.CurrentRootSchemaInfo?.DisplayName ?? "Auswählen")@(Session.IsDirty ? " ●" : "")</PageTitle>
+
+@if (!Loader.IsLoaded)
+{
+    <LoadingSpinner Message="Lade Schemas…" />
+}
+else if (Session.CurrentRootSchema is null)
+{
+    <h4>Schema auswählen</h4>
+    <SchemaExplorer OnSchemaSelected="OnSchemaSelected" />
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h4 class="mb-0 d-inline">@Session.CurrentRootSchemaInfo?.DisplayName</h4>
+            <span class="badge bg-info ms-2">@Session.CurrentRootSchemaInfo?.ModelArea</span>
+            <span class="badge ms-2 @GetLoadStateBadgeClass()">@GetLoadStateLabel()</span>
+            <span class="badge ms-2 @GetExportStateBadgeClass()">@GetExportStateLabel()</span>
+            <div class="small text-muted mt-1">@Session.StatusMessage</div>
+        </div>
+        <div class="d-flex align-items-center gap-1 flex-wrap">
+            <button class="btn btn-sm btn-outline-secondary" @onclick="OnUndo"
+                    disabled="@(!Session.CanUndo)" title="Rückgängig (Ctrl+Z)">↩</button>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="OnRedo"
+                    disabled="@(!Session.CanRedo)" title="Wiederherstellen (Ctrl+Y)">↪</button>
+            <span class="vr mx-1"></span>
+            <button class="btn btn-sm btn-outline-secondary" @onclick="NewDocument"
+                    title="Neues leeres Dokument">🗋 Neu</button>
+            <button class="btn btn-sm btn-outline-primary" @onclick="LoadFromReference"
+                    title="Referenz-Contract laden">📂 Referenz</button>
+            <button class="btn btn-sm btn-outline-primary" @onclick="TriggerFileImport"
+                    title="JSON-Datei importieren">📄 Import</button>
+            <button class="btn btn-sm btn-outline-success" @onclick="CopyJson"
+                    title="JSON in Zwischenablage (Ctrl+Shift+C)">
+                @(_copied ? "✓ Kopiert" : "📋 Kopieren")
+            </button>
+            <button class="btn btn-sm btn-success" @onclick="DownloadJson"
+                    disabled="@(!Session.CanExport)"
+                    title="JSON als Datei herunterladen (Ctrl+S)">⬇ Download</button>
+        </div>
+    </div>
+
+    <InputFile id="json-file-input" style="display:none" accept=".json,application/json"
+               OnChange="OnFileImported" />
+
+    @if (_showReferencePicker)
+    {
+        <CatalogPicker SchemaType="@Session.CurrentRootSchemaInfo?.FileName"
+                       OnSelected="OnReferenceSelected"
+                       OnCancel="() => _showReferencePicker = false" />
+    }
+
+    @if (_importError is not null)
+    {
+        <div class="alert alert-warning alert-dismissible py-1 small mb-2">
+            @_importError
+            <button type="button" class="btn-close" style="font-size:0.65rem"
+                    @onclick="() => _importError = null"></button>
+        </div>
+    }
+
+    @if (Session.RepairActions.Count > 0)
+    {
+        <div class="card mb-3 border-warning">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Reparaturaktionen</span>
+                <button class="btn btn-sm btn-outline-warning"
+                        @onclick="ApplyAllRepairActions">
+                    Alle anwenden
+                </button>
+            </div>
+            <div class="list-group list-group-flush">
+                @foreach (var repairAction in Session.RepairActions)
+                {
+                    <div class="list-group-item d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="fw-semibold">@repairAction.Title</div>
+                            <div class="small text-muted">@repairAction.Description</div>
+                            <code class="small">@repairAction.Pointer</code>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary"
+                                @onclick="() => ApplyRepairAction(repairAction.ActionId)">
+                            Anwenden
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Editor</span>
+                    @if (Session.CurrentRootSchema.Description is not null)
+                    {
+                        <small class="text-muted">@Session.CurrentRootSchema.Description</small>
+                    }
+                </div>
+                <div class="card-body" style="max-height: 75vh; overflow-y: auto;">
+                    <PropertyEditor Schema="@Session.CurrentRootSchema" Path="@JsonPointer.Root" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <JsonPreview />
+        </div>
+    </div>
+}
+
+@code {
+    // Verbindet Editor, Tastaturbefehle und Sitzungsspeicherung zur Wiederherstellung nach einem Neuladen.
+    [Parameter]
+    public string? SchemaFileName { get; set; }
+
+    private bool _showReferencePicker;
+    private bool _copied;
+    private string? _importError;
+    private DotNetObjectReference<Composer>? _selfRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Loader.LoadAllAsync();
+        Session.StateChanged += OnSessionChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _selfRef = DotNetObjectReference.Create(this);
+            try
+            {
+                await JsInterop.RegisterKeyboardShortcutsAsync(_selfRef);
+            }
+            catch
+            {
+                // Fehlgeschlagene Registrierung der Tastaturkürzel verhindert den weiteren Seitenaufbau nicht.
+            }
+
+            if (SchemaFileName is null && Session.CurrentRootSchema is null)
+            {
+                await RestoreSessionAsync();
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (SchemaFileName is not null
+            && Loader.ParsedSchemas.TryGetValue(SchemaFileName, out var schema))
+        {
+            var info = ComposerRootCatalog.FindByFileName(SchemaFileName);
+            if (info is not null && Session.CurrentRootSchemaInfo?.FileName != SchemaFileName)
+            {
+                Session.SelectRootSchema(info, schema);
+            }
+        }
+    }
+
+    private async Task RestoreSessionAsync()
+    {
+        var (savedSchema, savedDoc) = await Persistence.LoadSessionAsync();
+        if (savedSchema is not null
+            && Loader.ParsedSchemas.TryGetValue(savedSchema, out var schema))
+        {
+            var info = ComposerRootCatalog.FindByFileName(savedSchema);
+            if (info is not null)
+            {
+                Session.SelectRootSchema(info, schema);
+                if (savedDoc is not null)
+                {
+                    try
+                    {
+                        Session.RestoreDocument(savedDoc);
+                    }
+                    catch
+                    {
+                        // Ein nicht wiederherstellbares gespeichertes Dokument wird nicht übernommen.
+                    }
+                }
+
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void OnSessionChanged()
+    {
+        _ = InvokeAsync(PersistSessionAsync);
+    }
+
+    private async Task PersistSessionAsync()
+    {
+        try
+        {
+            await Persistence.SaveSessionAsync(
+                Session.CurrentRootSchemaInfo?.FileName,
+                Session.GetJson());
+            await JsInterop.SetDirtyFlagAsync(Session.IsDirty);
+            StateHasChanged();
+        }
+        catch
+        {
+        }
+    }
+
+    private void OnSchemaSelected(ComposerRootSchemaInfo info)
+    {
+        if (Loader.ParsedSchemas.TryGetValue(info.FileName, out var schema))
+        {
+            Session.SelectRootSchema(info, schema);
+        }
+    }
+
+    private void NewDocument() => Session.NewDocument();
+
+    private void OnUndo() => Session.Undo();
+
+    private void OnRedo() => Session.Redo();
+
+    private void LoadFromReference() => _showReferencePicker = true;
+
+    private void OnReferenceSelected(string json)
+    {
+        Session.LoadReferenceContract(json);
+        _showReferencePicker = false;
+    }
+
+    private async Task TriggerFileImport()
+    {
+        try
+        {
+            await JsInterop.TriggerFileInputAsync("json-file-input");
+        }
+        catch
+        {
+            // Eine fehlgeschlagene Öffnung der Dateiauswahl beendet die Sitzung nicht.
+        }
+    }
+
+    private async Task OnFileImported(InputFileChangeEventArgs e)
+    {
+        _importError = null;
+        try
+        {
+            using var stream = e.File.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+            using var reader = new System.IO.StreamReader(stream);
+            var json = await reader.ReadToEndAsync();
+
+            JsonDocument.Parse(json).Dispose();
+            Session.ImportJsonDocument(json);
+            if (Session.LoadState == ExampleSessionLoadState.LoadedInvalidButParsable)
+            {
+                Toasts.Warning($"Importiert, aber nicht exportierbar: {Session.StatusMessage}");
+            }
+            else
+            {
+                Toasts.Success($"Importiert: {e.File.Name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _importError = $"Import fehlgeschlagen: {ex.Message}";
+            Toasts.Error($"Import fehlgeschlagen: {ex.Message}");
+        }
+    }
+
+    private async Task CopyJson()
+    {
+        try
+        {
+            await JsInterop.CopyToClipboardAsync(Session.GetJson());
+            _copied = true;
+            Toasts.Success("JSON in die Zwischenablage kopiert");
+            StateHasChanged();
+            await Task.Delay(2000);
+            _copied = false;
+            StateHasChanged();
+        }
+        catch
+        {
+            // Ein fehlgeschlagener Zugriff auf die Zwischenablage beendet die Sitzung nicht.
+        }
+    }
+
+    private async Task DownloadJson()
+    {
+        if (!Session.CanExport)
+        {
+            Toasts.Error("Download ist nur für exportierbare Examples freigegeben.");
+            return;
+        }
+
+        var filename = Session.CurrentRootSchemaInfo is not null
+            ? Session.CurrentRootSchemaInfo.FileName.Replace(".schema.json", ".example.json")
+            : "document.json";
+        try
+        {
+            await JsInterop.DownloadJsonAsync(filename, Session.GetJson());
+            Session.MarkClean();
+            await JsInterop.SetDirtyFlagAsync(false);
+            Toasts.Success($"Heruntergeladen: {filename}");
+        }
+        catch
+        {
+        }
+    }
+
+    private void ApplyRepairAction(string actionId)
+    {
+        if (!Session.Repairs.ApplyRepairAction(actionId))
+        {
+            Toasts.Warning("Die gewählte Reparaturaktion ist nicht mehr verfügbar.");
+            return;
+        }
+
+        if (Session.CanExport)
+        {
+            Toasts.Success("Reparatur angewendet. Das Example ist jetzt exportierbar.");
+        }
+        else
+        {
+            Toasts.Info($"Reparatur angewendet. {Session.StatusMessage}");
+        }
+    }
+
+    private void ApplyAllRepairActions()
+    {
+        if (!Session.Repairs.ApplyAllRepairActions())
+        {
+            Toasts.Warning("Keine Reparaturaktionen verfügbar.");
+            return;
+        }
+
+        if (Session.CanExport)
+        {
+            Toasts.Success("Alle verfügbaren Reparaturaktionen wurden angewendet.");
+        }
+        else
+        {
+            Toasts.Info($"Reparaturen angewendet. {Session.StatusMessage}");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnKeyboardDownload() => await DownloadJson();
+
+    [JSInvokable]
+    public async Task OnKeyboardCopy() => await CopyJson();
+
+    [JSInvokable]
+    public Task OnKeyboardUndo()
+    {
+        Session.Undo();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task OnKeyboardRedo()
+    {
+        Session.Redo();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private string GetLoadStateLabel() => Session.LoadState switch
+    {
+        ExampleSessionLoadState.SchemaDraft => "Entwurf",
+        ExampleSessionLoadState.LoadedValid => "Import valide",
+        ExampleSessionLoadState.LoadedInvalidButParsable => "Import reparierbar",
+        ExampleSessionLoadState.LoadedUnchecked => "Import ungeprüft",
+        _ => "Kein Dokument",
+    };
+
+    private string GetLoadStateBadgeClass() => Session.LoadState switch
+    {
+        ExampleSessionLoadState.SchemaDraft => "bg-secondary",
+        ExampleSessionLoadState.LoadedValid => "bg-success",
+        ExampleSessionLoadState.LoadedInvalidButParsable => "bg-warning text-dark",
+        ExampleSessionLoadState.LoadedUnchecked => "bg-info text-dark",
+        _ => "bg-secondary",
+    };
+
+    private string GetExportStateLabel() => Session.ExportState switch
+    {
+        ExampleSessionExportState.Exportable => "Exportierbar",
+        ExampleSessionExportState.BlockedByCanonicalValidation => "Export blockiert",
+        _ => "Export unbekannt",
+    };
+
+    private string GetExportStateBadgeClass() => Session.ExportState switch
+    {
+        ExampleSessionExportState.Exportable => "bg-success",
+        ExampleSessionExportState.BlockedByCanonicalValidation => "bg-danger",
+        _ => "bg-secondary",
+    };
+
+    public void Dispose()
+    {
+        Session.StateChanged -= OnSessionChanged;
+
+        try
+        {
+            _ = JsInterop.SetDirtyFlagAsync(false);
+            _ = JsInterop.UnregisterKeyboardShortcutsAsync();
+        }
+        catch
+        {
+        }
+
+        _selfRef?.Dispose();
+    }
+}

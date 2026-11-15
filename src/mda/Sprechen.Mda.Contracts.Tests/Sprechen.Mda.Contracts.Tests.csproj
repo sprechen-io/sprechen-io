@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" Version="9.2.0" />
+    <ProjectReference Include="..\\Sprechen.Mda.Contracts\\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\Sprechen.Mda.Preflight\Sprechen.Mda.Preflight.csproj" />
+    <ProjectReference Include="..\Sprechen.Mda.SchemaBundle\Sprechen.Mda.SchemaBundle.csproj" />
+    <PackageReference Include="coverlet.collector" Version="10.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.analyzers" Version="1.27.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Using Include="Sprechen.Speech.WakeWord.Contracts" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sprechen.Mda.Contracts.FileSystem.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Wahrheitstabellen des Modells als Prüforakel; nur in dieser Testassembly, nicht im Produkt. -->
+    <EmbeddedResource Include="..\..\model\evaluationsmodell\reference-contracts\task-end\task-end-projection.reference.json" LogicalName="ReferenceTables.task-end-projection.reference.json" />
+    <EmbeddedResource Include="..\..\model\evaluationsmodell\reference-contracts\canonical-transitions\canonical-transition-projection.reference.json" LogicalName="ReferenceTables.canonical-transition-projection.reference.json" />
+  </ItemGroup>
+
+</Project>

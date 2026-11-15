@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Sprechen.ServiceDefaults/Sprechen.ServiceDefaults.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="Sprechen.ServiceDefaults.Tests/Sprechen.ServiceDefaults.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,207 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+option csharp_namespace = "Sprechen.Proto";
+
+package sprechen;
+
+enum AudioMimeType {
+  AUDIO_MIME_UNSPECIFIED = 0;
+  AUDIO_MP3              = 1;
+  AUDIO_WAV              = 2;
+  AUDIO_OGG_OPUS         = 3;
+  AUDIO_FLAC             = 4;
+  AUDIO_WEBM_OPUS        = 5;
+  AUDIO_PCM              = 6;
+}
+
+enum TextToSpeechPolitenessLevel {
+  TTS_POLITENESS_UNSPECIFIED = 0;
+  TTS_POLITENESS_FORMAL = 1;
+  TTS_POLITENESS_INFORMAL = 2;
+}
+
+// DE: Stabile Fehlercodes der Anwendung in gRPC-Trailern; siehe SprechenGrpcErrorMetadata.
+// EN: Stable application error codes in gRPC trailers; see SprechenGrpcErrorMetadata.
+enum SprechenErrorCode {
+  reserved 16;
+  SPRECHEN_ERROR_CODE_UNSPECIFIED = 0;
+  AUTH_MISSING_API_KEY = 1;
+  AUTH_INVALID_API_KEY = 2;
+  TEXT_REQUIRED = 3;
+  LANGUAGE_CODE_REQUIRED = 4;
+  LANGUAGE_CODE_INVALID = 5;
+  LANGUAGE_CODE_UNSUPPORTED = 6;
+  AUDIO_INPUT_MIME_TYPE_REQUIRED = 7;
+  AUDIO_INPUT_MIME_TYPE_UNSUPPORTED = 8;
+  AUDIO_OUTPUT_MIME_TYPE_REQUIRED = 9;
+  AUDIO_OUTPUT_MIME_TYPE_UNSUPPORTED = 10;
+  PROVIDER_FAILURE = 11;
+  PROVIDER_RATE_LIMITED = 12;
+  VOICE_CONFIGURATION_INVALID_REQUEST = 13;
+  VOICE_CONFIGURATION_UNSUPPORTED_VERSION = 14;
+  VOICE_CONFIGURATION_INVALID_CONFIGURATION = 15;
+  SPEECH_KEYTERMS_INVALID = 17;
+}
+
+// DE: Erkennungsprofil; UNSPECIFIED wird als CONVERSATIONAL behandelt.
+// EN: Recognition profile; UNSPECIFIED is treated as CONVERSATIONAL.
+enum RecognitionProfile {
+  RECOGNITION_PROFILE_UNSPECIFIED = 0;   // DE: Wie CONVERSATIONAL. EN: Treated as CONVERSATIONAL.
+  RECOGNITION_PROFILE_CONVERSATIONAL = 1;
+  RECOGNITION_PROFILE_SPELLING = 2;
+  RECOGNITION_PROFILE_DIGITS = 3;
+}
+
+// DE: Bestimmt, ob Anfragebegriffe das Vokabular des gewählten Serverprofils
+// ergänzen oder ersetzen. Einmal im ersten Audioblock setzen.
+// UNSPECIFIED wird als WITH_SERVER_BASE behandelt.
+// EN: Controls whether request keyterms extend or replace the selected server profile vocabulary.
+// Set once on the first audio chunk. UNSPECIFIED is treated as WITH_SERVER_BASE.
+enum KeytermComposition {
+  KEYTERM_COMPOSITION_UNSPECIFIED = 0;          // DE: Wie WITH_SERVER_BASE. EN: Treated as WITH_SERVER_BASE.
+  KEYTERM_COMPOSITION_WITH_SERVER_BASE = 1;     // DE: Servervokabular und Anfragebegriffe. EN: Server vocabulary plus request keyterms.
+  KEYTERM_COMPOSITION_WITHOUT_SERVER_BASE = 2;  // DE: Nur Anfragebegriffe, auch eine leere Liste. EN: Request keyterms only, including an empty list.
+}
+
+message AudioChunk {
+  bytes         data     = 1;
+  AudioMimeType mimeType = 2;
+  string        languageCode = 3;
+  RecognitionProfile recognitionProfile = 4;   // DE: Einmal im ersten Audioblock setzen. EN: Set once on the first audio chunk.
+  // DE: Nur modellierte, statische Erkennungsbegriffe, keine Transkripte oder Variablenwerte.
+  // Einmal im ersten Audioblock setzen. Nach Entfernen äußerer Leerzeichen gelten je Begriff
+  // höchstens 128 UTF-16-Codeeinheiten und 256 UTF-8-Bytes.
+  // WITH_SERVER_BASE und UNSPECIFIED: höchstens 12 Begriffe und insgesamt 512 UTF-8-Bytes.
+  // WITHOUT_SERVER_BASE: höchstens 100 Begriffe und insgesamt 4096 UTF-8-Bytes.
+  // EN: Modeled static recognition keyterms only, never transcripts or variable values.
+  // Set once on the first audio chunk. After trimming, each term is limited to
+  // 128 UTF-16 code units and 256 UTF-8 bytes.
+  // WITH_SERVER_BASE and UNSPECIFIED: at most 12 terms and 512 UTF-8 bytes in total.
+  // WITHOUT_SERVER_BASE: at most 100 terms and 4096 UTF-8 bytes in total.
+  repeated string keyterms = 5;
+  // DE: Das separate Feld unterscheidet eine ausdrücklich leere Begriffsliste ohne
+  // Servervokabular von der Standardkombination. Eine leere repeated-Liste allein
+  // überträgt diese Entscheidung nicht.
+  // EN: The separate field distinguishes an explicitly empty list without server
+  // vocabulary from the default combination. An empty repeated list alone does not convey this choice.
+  KeytermComposition keytermComposition = 6;
+  // DE: Kennzeichnet einen Dialogschritt aus einer Diagnosesitzung als Voraussetzung
+  // für das Speichern seiner Audiodaten im Diagnoseverzeichnis des Servers.
+  // Einmal im ersten Audioblock setzen. Ohne Angabe gilt false.
+  // EN: Marks a turn as diagnostic, which is required for storing its audio in the
+  // server diagnostic directory. Set once on the first audio chunk; absent means false.
+  bool diagnosticSession = 7;
+}
+
+message SupportedLanguage {
+  string isoCode = 1;
+  string displayName = 2;
+}
+
+message SupportedLanguagesResponse {
+  string defaultIsoCode = 1;
+  repeated SupportedLanguage languages = 2;
+}
+
+message SpeechTranscript {
+  string text = 1;
+  optional int32 confidence = 2; // DE: Konfidenz in Prozent (0 bis 100). EN: Confidence percentage (0 to 100).
+  reserved 3, 4;
+  reserved "ambiguous", "alternatives";
+}
+
+message SpeechConversationTranscriptUpdate {
+  string text = 1;
+  optional int32 confidence = 2;
+  optional int32 turnIndex = 3;
+  reserved 4, 5;
+  reserved "ambiguous", "alternatives";
+}
+
+message SpeechConversationTranscriptFinalized {
+  string text = 1;
+  optional int32 confidence = 2;
+  optional int32 turnIndex = 3;
+  reserved 4, 5;
+  reserved "ambiguous", "alternatives";
+}
+
+message SpeechConversationTurnStarted {
+  int32 turnIndex = 1;
+}
+
+message SpeechConversationEndOfTurn {
+  int32 turnIndex = 1;
+  string transcript = 2;
+  reserved 3, 4;
+  reserved "ambiguous", "alternatives";
+}
+
+message SpeechConversationEagerEndOfTurn {
+  int32 turnIndex = 1;
+  string transcript = 2;
+}
+
+message SpeechConversationTurnResumed {
+  int32 turnIndex = 1;
+}
+
+message SpeechConversationLanguageDetected {
+  repeated string languageCodes = 1;
+  optional int32 turnIndex = 2;
+  repeated string hintedLanguageCodes = 3;
+}
+
+message SpeechConversationLanguageLocked {
+  string languageCode = 1;
+  optional int32 turnIndex = 2;
+}
+
+message SpeechConversationCompleted {
+}
+
+message SpeechConversationCancelled {
+}
+
+message SpeechConversationFailed {
+  string errorCode = 1;
+  string detail = 2;
+}
+
+message SpeechConversationEventMessage {
+  oneof payload {
+    SpeechConversationTranscriptUpdate transcriptUpdate = 1;
+    SpeechConversationTranscriptFinalized transcriptFinalized = 2;
+    SpeechConversationTurnStarted turnStarted = 3;
+    SpeechConversationEndOfTurn endOfTurn = 4;
+    SpeechConversationEagerEndOfTurn eagerEndOfTurn = 5;
+    SpeechConversationTurnResumed turnResumed = 6;
+    SpeechConversationLanguageDetected languageDetected = 7;
+    SpeechConversationLanguageLocked languageLocked = 8;
+    SpeechConversationCompleted conversationCompleted = 9;
+    SpeechConversationCancelled conversationCancelled = 10;
+    SpeechConversationFailed conversationFailed = 11;
+  }
+}
+
+message TextRequest {
+  string text         = 1;
+  string languageCode = 2;
+  AudioMimeType desiredMimeType = 3;
+  TextToSpeechPolitenessLevel politenessLevel = 4;
+  optional float speechRate = 5;
+}
+
+message AudioResponse {
+  bytes         data     = 1;
+  AudioMimeType mimeType = 2;
+  int32         sampleRateHz = 3;
+}
+
+service Speech {
+  rpc GetSupportedLanguages (google.protobuf.Empty) returns (SupportedLanguagesResponse);
+  rpc SpeechToText      (stream AudioChunk)    returns (SpeechTranscript);
+  rpc SpeechToTextStream(stream AudioChunk)    returns (stream SpeechTranscript);
+  rpc SpeechToConversationStream(stream AudioChunk) returns (stream SpeechConversationEventMessage);
+  rpc TextToSpeechToStream(TextRequest)        returns (stream AudioResponse);
+}

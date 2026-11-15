@@ -1,0 +1,1389 @@
+{
+  "$schema": "../../schemas/contract-rule-evaluation.schema.json",
+  "artifactId": "contract-rule-evaluation",
+  "description": "What a rule of the form contract means for a value, authored once for both channels. A pattern rule describes the shape of the whole value; it does not search inside it. A length rule measures the value the channel captured. A choice rule compares that value with the ones the contract lists. A rule about a magnitude compares the value the field holds, and which kind of value that is, is said by the field rather than guessed from the text the channel captured; a capture that kind cannot read is a value the field cannot carry, not a missing one. None of them is asked at all of a field the person left blank - a blank field breaks exactly one rule, the one that says it may not be blank, and it is blank by the value the channel captured, whatever kind of value the field would hold. A bound a rule states is read exactly as the value it is held against: in either notation the contract vocabulary offers for a whole number, at the same width, and - when it cannot be read as one at all - as a broken contract rather than as an absent bound. Which of those rules a channel then carries in the surface it enforces with is the same reading again, not a second one: only the blocking ones reach the surface, the narrower of two rules bounding the same side is the one carried, and the surface never answers back into the derivation that wrote it.",
+  "patternRuleCases": [
+    {
+      "case": "a value that is exactly the shape satisfies the rule",
+      "pattern": "[0-9]{5}",
+      "value": "12345",
+      "expectedBroken": false
+    },
+    {
+      "case": "a value that only ends with the shape breaks the rule",
+      "pattern": "[0-9]{5}",
+      "value": "abc12345",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value that only starts with the shape breaks the rule",
+      "pattern": "[0-9]{5}",
+      "value": "12345abc",
+      "expectedBroken": true
+    },
+    {
+      "case": "an anchor the contract wrote itself does not change what the rule means",
+      "pattern": "^[0-9]{5}$",
+      "value": "12345",
+      "expectedBroken": false
+    },
+    {
+      "case": "a line break at the end is part of the value, not something to drop",
+      "pattern": "[0-9]{5}",
+      "value": "12345\n",
+      "expectedBroken": true
+    },
+    {
+      "case": "an alternation is the shape of the whole value, not of one branch",
+      "pattern": "ja|nein",
+      "value": "nein danke",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value that only starts with one branch of an alternation breaks the rule",
+      "pattern": "ja|nein",
+      "value": "ja danke",
+      "expectedBroken": true
+    },
+    {
+      "case": "each branch of an alternation is a shape the whole value may have",
+      "pattern": "ja|nein",
+      "value": "nein",
+      "expectedBroken": false
+    },
+    {
+      "case": "a rule is read with the case it was written in",
+      "pattern": "[A-Z]{2}",
+      "value": "de",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value the shape allows in full satisfies the rule even when it repeats",
+      "pattern": "(?:[0-9]{2}-)+[0-9]{2}",
+      "value": "12-34-56",
+      "expectedBroken": false
+    }
+  ],
+  "lengthRuleCases": [
+    {
+      "case": "a value shorter than the minimum breaks the rule",
+      "minLength": 5,
+      "value": "1234",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value of exactly the minimum satisfies it",
+      "minLength": 5,
+      "value": "12345",
+      "expectedBroken": false
+    },
+    {
+      "case": "a value longer than the maximum breaks the rule",
+      "maxLength": 3,
+      "value": "abcd",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value of exactly the maximum satisfies it",
+      "maxLength": 3,
+      "value": "abc",
+      "expectedBroken": false
+    },
+    {
+      "case": "a value between both bounds satisfies them",
+      "minLength": 2,
+      "maxLength": 4,
+      "value": "abc",
+      "expectedBroken": false
+    },
+    {
+      "case": "spaces inside a value are part of it and count toward its length",
+      "minLength": 5,
+      "value": "a b c",
+      "expectedBroken": false
+    },
+    {
+      "case": "a value is measured as the channel captured it, so a trailing space is not silently dropped",
+      "maxLength": 3,
+      "value": "abc ",
+      "expectedBroken": true
+    },
+    {
+      "case": "a line break counts toward the length like any other character",
+      "maxLength": 2,
+      "value": "ab\n",
+      "expectedBroken": true
+    }
+  ],
+  "choiceRuleCases": [
+    {
+      "case": "a value the contract lists satisfies the rule",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "nein",
+      "expectedBroken": false
+    },
+    {
+      "case": "a value the contract does not list breaks the rule",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "vielleicht",
+      "expectedBroken": true
+    },
+    {
+      "case": "a list of values is read with the case it was written in",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "Ja",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value that only contains a listed one breaks the rule",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "ja bitte",
+      "expectedBroken": true
+    },
+    {
+      "case": "a value is compared as the channel captured it, so a trailing space is not silently dropped",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "ja ",
+      "expectedBroken": true
+    },
+    {
+      "case": "a list of a single value is a rule like any other",
+      "values": [
+        "email"
+      ],
+      "value": "email",
+      "expectedBroken": false
+    }
+  ],
+  "boundedRuleCases": [
+    {
+      "case": "a number between the bounds satisfies the rule",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "5",
+      "expectedBroken": false
+    },
+    {
+      "case": "the lower bound itself is still allowed",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "1",
+      "expectedBroken": false
+    },
+    {
+      "case": "a number below the lower bound breaks the rule",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "0",
+      "expectedBroken": true
+    },
+    {
+      "case": "a number above the upper bound breaks the rule",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "11",
+      "expectedBroken": true
+    },
+    {
+      "case": "the same number with spaces around it is the same number",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": " 5 ",
+      "expectedBroken": false
+    },
+    {
+      "case": "a capture a whole-number field cannot carry at all breaks the rule",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "abc",
+      "expectedBroken": true
+    },
+    {
+      "case": "a capture that only begins with a number is not that number",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "5x",
+      "expectedBroken": true
+    },
+    {
+      "case": "a fractional capture is not a value a whole-number field can carry, however well it would sit between the bounds",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 10,
+      "value": "4.5",
+      "expectedBroken": true
+    },
+    {
+      "case": "a date between the bounds satisfies the rule",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31",
+      "value": "2026-06-15",
+      "expectedBroken": false
+    },
+    {
+      "case": "a date before the earliest allowed one breaks the rule",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31",
+      "value": "2025-12-31",
+      "expectedBroken": true
+    },
+    {
+      "case": "a date after the latest allowed one breaks the rule",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31",
+      "value": "2027-01-01",
+      "expectedBroken": true
+    },
+    {
+      "case": "a capture a date field cannot carry as a date breaks the rule",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31",
+      "value": "15.06.2026",
+      "expectedBroken": true
+    },
+    {
+      "case": "a capture in the shape of a date that the calendar does not have is not a date",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "maxDate": "2026-12-31",
+      "value": "2026-02-30",
+      "expectedBroken": true
+    },
+    {
+      "case": "a bound the contract writes as its decimal string is the same bound",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": "18",
+      "value": "17",
+      "expectedBroken": true
+    },
+    {
+      "case": "the value a decimal-string bound allows still satisfies it",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": "18",
+      "value": "18",
+      "expectedBroken": false
+    },
+    {
+      "case": "a capture wider than a whole number this field can carry is not one",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "value": "3000000000",
+      "expectedBroken": true
+    },
+    {
+      "case": "the widest whole number this field can carry is still one",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "value": "2147483647",
+      "expectedBroken": false
+    },
+    {
+      "case": "the lowest whole number this field can carry is still one",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "max": -1,
+      "value": "-2147483648",
+      "expectedBroken": false
+    },
+    {
+      "case": "a lower bound the rule states on its own is the same lower bound",
+      "ruleKind": "min",
+      "valueTypeKind": "integer",
+      "min": 18,
+      "value": "17",
+      "expectedBroken": true
+    },
+    {
+      "case": "the value a lower bound stated on its own allows still satisfies it",
+      "ruleKind": "min",
+      "valueTypeKind": "integer",
+      "min": 18,
+      "value": "18",
+      "expectedBroken": false
+    },
+    {
+      "case": "a capture a whole-number field cannot carry breaks a lower bound stated on its own",
+      "ruleKind": "min",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "value": "abc",
+      "expectedBroken": true
+    },
+    {
+      "case": "an upper bound the rule states on its own is the same upper bound",
+      "ruleKind": "max",
+      "valueTypeKind": "integer",
+      "max": "10",
+      "value": "11",
+      "expectedBroken": true
+    },
+    {
+      "case": "the value an upper bound stated on its own allows still satisfies it",
+      "ruleKind": "max",
+      "valueTypeKind": "integer",
+      "max": "10",
+      "value": "10",
+      "expectedBroken": false
+    },
+    {
+      "case": "an earliest date the rule states on its own is the same earliest date",
+      "ruleKind": "dateMin",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "value": "2025-12-31",
+      "expectedBroken": true
+    },
+    {
+      "case": "the date an earliest date stated on its own allows still satisfies it",
+      "ruleKind": "dateMin",
+      "valueTypeKind": "date",
+      "minDate": "2026-01-01",
+      "value": "2026-01-01",
+      "expectedBroken": false
+    },
+    {
+      "case": "a latest date the rule states on its own is the same latest date",
+      "ruleKind": "dateMax",
+      "valueTypeKind": "date",
+      "maxDate": "2026-12-31",
+      "value": "2027-01-01",
+      "expectedBroken": true
+    },
+    {
+      "case": "a capture a date field cannot carry breaks a latest date stated on its own",
+      "ruleKind": "dateMax",
+      "valueTypeKind": "date",
+      "maxDate": "2026-12-31",
+      "value": "15.06.2026",
+      "expectedBroken": true
+    }
+  ],
+  "unreadableBoundCases": [
+    {
+      "case": "a bound written in words is not a bound the channel may drop",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": "achtzehn",
+      "value": "20"
+    },
+    {
+      "case": "a bound wider than a whole number the field can carry cannot be read",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "max": 3000000000,
+      "value": "5"
+    },
+    {
+      "case": "a bound with a fractional part is not a whole-number bound",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "max": 4.5,
+      "value": "4"
+    },
+    {
+      "case": "a decimal-string bound with a fractional part is not one either",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": "18.5",
+      "value": "20"
+    },
+    {
+      "case": "a bound in the shape of a date that the calendar does not have cannot be read",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "2026-02-30",
+      "value": "2026-03-05"
+    },
+    {
+      "case": "a bound written the way people write dates is not an invariant date",
+      "ruleKind": "dateRange",
+      "valueTypeKind": "date",
+      "minDate": "01.03.2026",
+      "value": "2026-03-05"
+    },
+    {
+      "case": "an unreadable bound is refused where the rule states that bound on its own too",
+      "ruleKind": "min",
+      "valueTypeKind": "integer",
+      "min": "achtzehn",
+      "value": "20"
+    },
+    {
+      "case": "an unreadable latest date is refused where the rule states that date on its own too",
+      "ruleKind": "dateMax",
+      "valueTypeKind": "date",
+      "maxDate": "01.03.2026",
+      "value": "2026-02-20"
+    }
+  ],
+  "blankValueCases": [
+    {
+      "case": "a field left empty is not a value of the wrong shape",
+      "ruleKind": "pattern",
+      "pattern": "[0-9]{5}",
+      "value": "",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field that carries only spaces is not a value of the wrong shape either",
+      "ruleKind": "pattern",
+      "pattern": "[0-9]{5}",
+      "value": "   ",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field left empty is not a value that is too short",
+      "ruleKind": "minLength",
+      "minLength": 5,
+      "value": "",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field that carries only spaces is not a value that is too short",
+      "ruleKind": "minLength",
+      "minLength": 5,
+      "value": "   ",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field left empty is not a value that is too long, however low the maximum",
+      "ruleKind": "maxLength",
+      "maxLength": 0,
+      "value": "",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field that carries only spaces is not a value that is too long",
+      "ruleKind": "maxLength",
+      "maxLength": 2,
+      "value": "   ",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field left empty breaks the one rule that says it may not be left empty",
+      "ruleKind": "required",
+      "value": "",
+      "expectedBroken": true
+    },
+    {
+      "case": "a field that carries only spaces is left empty too",
+      "ruleKind": "required",
+      "value": "   ",
+      "expectedBroken": true
+    },
+    {
+      "case": "a number field left empty is empty like any other field",
+      "ruleKind": "required",
+      "valueTypeKind": "integer",
+      "value": "",
+      "expectedBroken": true
+    },
+    {
+      "case": "a date field left empty is empty like any other field",
+      "ruleKind": "required",
+      "valueTypeKind": "date",
+      "value": "",
+      "expectedBroken": true
+    },
+    {
+      "case": "a field left empty is not a value outside the list",
+      "ruleKind": "oneOf",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "",
+      "expectedBroken": false
+    },
+    {
+      "case": "a field that carries only spaces is not a value outside the list either",
+      "ruleKind": "oneOf",
+      "values": [
+        "ja",
+        "nein"
+      ],
+      "value": "   ",
+      "expectedBroken": false
+    },
+    {
+      "case": "a number field left empty is not a value out of range",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 5,
+      "value": "",
+      "expectedBroken": false
+    },
+    {
+      "case": "a number field that carries only spaces is not a value out of range either",
+      "ruleKind": "range",
+      "valueTypeKind": "integer",
+      "min": 1,
+      "max": 5,
+      "value": "   ",
+      "expectedBroken": false
+    }
+  ],
+  "valueTypeStatedRuleCases": [
+    {
+      "case": "a text field whose type states its shortest length states that length as a rule",
+      "valueType": {
+        "kind": "string",
+        "minLength": 3
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.minLength",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "minLength",
+          "boundName": "minLength",
+          "bound": 3
+        }
+      ]
+    },
+    {
+      "case": "a text field whose type states its longest length states that length as a rule",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 120
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.maxLength",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "maxLength",
+          "boundName": "maxLength",
+          "bound": 120
+        }
+      ]
+    },
+    {
+      "case": "a type that states both lengths states two rules, not one rule with two sides",
+      "valueType": {
+        "kind": "string",
+        "minLength": 5,
+        "maxLength": 5
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.minLength",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "minLength",
+          "boundName": "minLength",
+          "bound": 5
+        },
+        {
+          "constraintId": "valueType.maxLength",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "maxLength",
+          "boundName": "maxLength",
+          "bound": 5
+        }
+      ]
+    },
+    {
+      "case": "a text field whose type states no length states no rule",
+      "valueType": {
+        "kind": "string",
+        "formatHint": "email"
+      },
+      "expectedRules": []
+    },
+    {
+      "case": "a whole-number field whose type states its lowest value states that bound as a rule",
+      "valueType": {
+        "kind": "integer",
+        "min": 18
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.min",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "min",
+          "boundName": "min",
+          "bound": 18
+        }
+      ]
+    },
+    {
+      "case": "a whole-number field whose type states its highest value states that bound as a rule",
+      "valueType": {
+        "kind": "integer",
+        "max": 99
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.max",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "max",
+          "boundName": "max",
+          "bound": 99
+        }
+      ]
+    },
+    {
+      "case": "a type that states both ends states two rules, so which of them is the open one stays decidable",
+      "valueType": {
+        "kind": "integer",
+        "min": 1,
+        "max": 10
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.min",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "min",
+          "boundName": "min",
+          "bound": 1
+        },
+        {
+          "constraintId": "valueType.max",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "max",
+          "boundName": "max",
+          "bound": 10
+        }
+      ]
+    },
+    {
+      "case": "a bound the type states in the decimal-string notation is the same bound and reaches the rule unchanged",
+      "valueType": {
+        "kind": "integer",
+        "min": "18"
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.min",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "min",
+          "boundName": "min",
+          "bound": "18"
+        }
+      ]
+    },
+    {
+      "case": "a bound the type states and nobody can read still reaches the rule, which then reports the contract",
+      "valueType": {
+        "kind": "integer",
+        "min": "achtzehn"
+      },
+      "expectedRules": [
+        {
+          "constraintId": "valueType.min",
+          "code": "form.valueType.invalid",
+          "severity": "error",
+          "ruleKind": "min",
+          "boundName": "min",
+          "bound": "achtzehn"
+        }
+      ]
+    },
+    {
+      "case": "a whole-number field whose type states no bound states no rule",
+      "valueType": {
+        "kind": "integer"
+      },
+      "expectedRules": []
+    },
+    {
+      "case": "a calendar day states no bound of its own, so its type states no rule",
+      "valueType": {
+        "kind": "date"
+      },
+      "expectedRules": []
+    },
+    {
+      "case": "how many values a set capture selects is no rule the vocabulary carries, so the type states none",
+      "valueType": {
+        "kind": "set",
+        "minSelected": 1,
+        "maxSelected": 3
+      },
+      "expectedRules": []
+    },
+    {
+      "case": "a list of allowed values is not a bound, so an enumerated type states no rule",
+      "valueType": {
+        "kind": "enum"
+      },
+      "expectedRules": []
+    }
+  ],
+  "enforcedRuleProjectionCases": [
+    {
+      "case": "a blocking rule reaches the surface and the surface carries it under that rule",
+      "statedRules": [
+        {
+          "constraintId": "postalCodeShape",
+          "ruleKind": "pattern",
+          "severity": "error",
+          "pattern": "^[0-9]{5}$"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "pattern",
+          "constraintId": "postalCodeShape",
+          "pattern": "^[0-9]{5}$"
+        }
+      ]
+    },
+    {
+      "case": "an advisory rule does not reach the surface, so the surface does not reject a value the contract only advises against",
+      "statedRules": [
+        {
+          "constraintId": "postalCodeShape",
+          "ruleKind": "pattern",
+          "severity": "warning",
+          "pattern": "^[0-9]{5}$"
+        }
+      ],
+      "expectedCarried": []
+    },
+    {
+      "case": "an informational rule does not reach the surface either",
+      "statedRules": [
+        {
+          "constraintId": "shortHint",
+          "ruleKind": "minLength",
+          "severity": "info",
+          "bound": 4
+        }
+      ],
+      "expectedCarried": []
+    },
+    {
+      "case": "an advisory required rule does not make the field required on the surface",
+      "statedRules": [
+        {
+          "constraintId": "pleaseFill",
+          "ruleKind": "required",
+          "severity": "warning"
+        }
+      ],
+      "expectedCarried": []
+    },
+    {
+      "case": "a blocking required rule makes the field required on the surface under that rule",
+      "statedRules": [
+        {
+          "constraintId": "mustFill",
+          "ruleKind": "required",
+          "severity": "error"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "required",
+          "constraintId": "mustFill"
+        }
+      ]
+    },
+    {
+      "case": "two blocking shortest-length rules both hold, and the surface carries the longer of the two shortest lengths",
+      "statedRules": [
+        {
+          "constraintId": "atLeastThree",
+          "ruleKind": "minLength",
+          "severity": "error",
+          "bound": 3
+        },
+        {
+          "constraintId": "atLeastEight",
+          "ruleKind": "minLength",
+          "severity": "error",
+          "bound": 8
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "minLength",
+          "constraintId": "atLeastEight",
+          "bound": 8
+        }
+      ]
+    },
+    {
+      "case": "the narrower of two blocking shortest-length rules is carried whichever of them the contract authored first",
+      "statedRules": [
+        {
+          "constraintId": "atLeastEight",
+          "ruleKind": "minLength",
+          "severity": "error",
+          "bound": 8
+        },
+        {
+          "constraintId": "atLeastThree",
+          "ruleKind": "minLength",
+          "severity": "error",
+          "bound": 3
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "minLength",
+          "constraintId": "atLeastEight",
+          "bound": 8
+        }
+      ]
+    },
+    {
+      "case": "an advisory shortest-length rule beside a blocking one neither reaches the surface nor widens the bound the blocking rule states",
+      "statedRules": [
+        {
+          "constraintId": "atLeastThree",
+          "ruleKind": "minLength",
+          "severity": "error",
+          "bound": 3
+        },
+        {
+          "constraintId": "preferablyEight",
+          "ruleKind": "minLength",
+          "severity": "warning",
+          "bound": 8
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "minLength",
+          "constraintId": "atLeastThree",
+          "bound": 3
+        }
+      ]
+    },
+    {
+      "case": "two blocking longest-length rules both hold, and the surface carries the shorter of the two longest lengths",
+      "statedRules": [
+        {
+          "constraintId": "atMostTwenty",
+          "ruleKind": "maxLength",
+          "severity": "error",
+          "bound": 20
+        },
+        {
+          "constraintId": "atMostFive",
+          "ruleKind": "maxLength",
+          "severity": "error",
+          "bound": 5
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "maxLength",
+          "constraintId": "atMostFive",
+          "bound": 5
+        }
+      ]
+    },
+    {
+      "case": "an advisory longest-length rule does not shorten what the surface accepts",
+      "statedRules": [
+        {
+          "constraintId": "atMostTwenty",
+          "ruleKind": "maxLength",
+          "severity": "error",
+          "bound": 20
+        },
+        {
+          "constraintId": "preferablyFive",
+          "ruleKind": "maxLength",
+          "severity": "warning",
+          "bound": 5
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "maxLength",
+          "constraintId": "atMostTwenty",
+          "bound": 20
+        }
+      ]
+    },
+    {
+      "case": "two blocking pattern rules cannot both be carried, so the surface carries the one the open-error precedence names and its own pattern with it",
+      "statedRules": [
+        {
+          "constraintId": "shapeB",
+          "ruleKind": "pattern",
+          "severity": "error",
+          "pattern": "^[0-9]+$"
+        },
+        {
+          "constraintId": "shapeA",
+          "ruleKind": "pattern",
+          "severity": "error",
+          "pattern": "^[0-9]{5}$"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "pattern",
+          "constraintId": "shapeA",
+          "pattern": "^[0-9]{5}$"
+        }
+      ]
+    },
+    {
+      "case": "two blocking required rules name one field required once, under the rule the open-error precedence names",
+      "statedRules": [
+        {
+          "constraintId": "mustFillB",
+          "ruleKind": "required",
+          "severity": "error"
+        },
+        {
+          "constraintId": "mustFillA",
+          "ruleKind": "required",
+          "severity": "error"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "required",
+          "constraintId": "mustFillA"
+        }
+      ]
+    },
+    {
+      "case": "a blocking rule of a kind no side of the surface carries reaches no side, and is still a rule of the field the channel counts",
+      "statedRules": [
+        {
+          "constraintId": "allowedCities",
+          "ruleKind": "oneOf",
+          "severity": "error",
+          "values": [
+            "Wien",
+            "Graz"
+          ]
+        }
+      ],
+      "expectedCarried": []
+    },
+    {
+      "case": "a field whose rules are all advisory carries nothing at all, whatever the page was served with",
+      "statedRules": [
+        {
+          "constraintId": "pleaseFill",
+          "ruleKind": "required",
+          "severity": "warning"
+        },
+        {
+          "constraintId": "preferablyFive",
+          "ruleKind": "maxLength",
+          "severity": "warning",
+          "bound": 5
+        },
+        {
+          "constraintId": "postalCodeShape",
+          "ruleKind": "pattern",
+          "severity": "info",
+          "pattern": "^[0-9]{5}$"
+        }
+      ],
+      "expectedCarried": []
+    },
+    {
+      "case": "a field that states no rule at all carries nothing",
+      "statedRules": [],
+      "expectedCarried": []
+    },
+    {
+      "case": "every side is carried at once, each from the blocking rule that states it",
+      "statedRules": [
+        {
+          "constraintId": "mustFill",
+          "ruleKind": "required",
+          "severity": "error"
+        },
+        {
+          "constraintId": "shape",
+          "ruleKind": "pattern",
+          "severity": "error",
+          "pattern": "^[A-Z]+$"
+        },
+        {
+          "constraintId": "atLeastTwo",
+          "ruleKind": "minLength",
+          "severity": "error",
+          "bound": 2
+        },
+        {
+          "constraintId": "atMostSix",
+          "ruleKind": "maxLength",
+          "severity": "error",
+          "bound": 6
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "required",
+          "constraintId": "mustFill"
+        },
+        {
+          "side": "pattern",
+          "constraintId": "shape",
+          "pattern": "^[A-Z]+$"
+        },
+        {
+          "side": "minLength",
+          "constraintId": "atLeastTwo",
+          "bound": 2
+        },
+        {
+          "side": "maxLength",
+          "constraintId": "atMostSix",
+          "bound": 6
+        }
+      ]
+    },
+    {
+      "case": "the same two blocking pattern rules in the other authoring order name the same carried rule",
+      "statedRules": [
+        {
+          "constraintId": "shapeA",
+          "ruleKind": "pattern",
+          "severity": "error",
+          "pattern": "^[0-9]{5}$"
+        },
+        {
+          "constraintId": "shapeB",
+          "ruleKind": "pattern",
+          "severity": "error",
+          "pattern": "^[0-9]+$"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "pattern",
+          "constraintId": "shapeA",
+          "pattern": "^[0-9]{5}$"
+        }
+      ]
+    },
+    {
+      "case": "the same two blocking required rules in the other authoring order name the same carried rule",
+      "statedRules": [
+        {
+          "constraintId": "mustFillA",
+          "ruleKind": "required",
+          "severity": "error"
+        },
+        {
+          "constraintId": "mustFillB",
+          "ruleKind": "required",
+          "severity": "error"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "required",
+          "constraintId": "mustFillA"
+        }
+      ]
+    },
+    {
+      "case": "a blocking rule about a magnitude reaches the surface, which carries its bound under that rule",
+      "statedRules": [
+        {
+          "constraintId": "atLeastEighteen",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "atLeastEighteen",
+          "boundText": "18"
+        }
+      ]
+    },
+    {
+      "case": "an advisory rule about a magnitude does not reach the surface, so the browser does not reject a value the contract only advises against",
+      "statedRules": [
+        {
+          "constraintId": "preferablyEighteen",
+          "ruleKind": "min",
+          "severity": "warning",
+          "min": 18
+        }
+      ],
+      "expectedCarried": []
+    },
+    {
+      "case": "two blocking lowest-value rules both hold, and the surface carries the higher of the two lowest values",
+      "statedRules": [
+        {
+          "constraintId": "atLeastOne",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 1
+        },
+        {
+          "constraintId": "atLeastEighteen",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "atLeastEighteen",
+          "boundText": "18"
+        }
+      ]
+    },
+    {
+      "case": "the narrower of the two lowest values is carried whichever of them the contract authored first",
+      "statedRules": [
+        {
+          "constraintId": "atLeastEighteen",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        },
+        {
+          "constraintId": "atLeastOne",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 1
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "atLeastEighteen",
+          "boundText": "18"
+        }
+      ]
+    },
+    {
+      "case": "two blocking rules stating the SAME lowest value cannot be told apart by width, so the surface carries the one the open-error precedence names",
+      "statedRules": [
+        {
+          "constraintId": "boundB",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        },
+        {
+          "constraintId": "boundA",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "boundA",
+          "boundText": "18"
+        }
+      ]
+    },
+    {
+      "case": "the same two blocking rules stating one lowest value in the other authoring order name the same carried rule",
+      "statedRules": [
+        {
+          "constraintId": "boundA",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        },
+        {
+          "constraintId": "boundB",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 18
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "boundA",
+          "boundText": "18"
+        }
+      ]
+    },
+    {
+      "case": "an advisory highest-value rule does not narrow what the surface accepts",
+      "statedRules": [
+        {
+          "constraintId": "atMostNinetyNine",
+          "ruleKind": "max",
+          "severity": "error",
+          "max": 99
+        },
+        {
+          "constraintId": "preferablyTen",
+          "ruleKind": "max",
+          "severity": "warning",
+          "max": 10
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "max",
+          "constraintId": "atMostNinetyNine",
+          "boundText": "99"
+        }
+      ]
+    },
+    {
+      "case": "a rule that states both ends carries both sides of the surface, each under that one rule",
+      "statedRules": [
+        {
+          "constraintId": "betweenOneAndTen",
+          "ruleKind": "range",
+          "severity": "error",
+          "min": 1,
+          "max": 10
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "betweenOneAndTen",
+          "boundText": "1"
+        },
+        {
+          "side": "max",
+          "constraintId": "betweenOneAndTen",
+          "boundText": "10"
+        }
+      ]
+    },
+    {
+      "case": "each end is carried from the rule that states the narrower bound for it, so one rule may carry one side and another rule the other",
+      "statedRules": [
+        {
+          "constraintId": "atLeastFive",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": 5
+        },
+        {
+          "constraintId": "betweenOneAndTen",
+          "ruleKind": "range",
+          "severity": "error",
+          "min": 1,
+          "max": 10
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "atLeastFive",
+          "boundText": "5"
+        },
+        {
+          "side": "max",
+          "constraintId": "betweenOneAndTen",
+          "boundText": "10"
+        }
+      ]
+    },
+    {
+      "case": "a bound the contract states in the decimal-string notation is the same bound and reaches the surface as the text the browser reads there",
+      "statedRules": [
+        {
+          "constraintId": "atLeastEighteen",
+          "ruleKind": "min",
+          "severity": "error",
+          "min": "18"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "atLeastEighteen",
+          "boundText": "18"
+        }
+      ]
+    },
+    {
+      "case": "a blocking rule about a calendar day carries that day, so a magnitude side is not a whole number by assumption",
+      "statedRules": [
+        {
+          "constraintId": "notBeforeTwentyTwentySix",
+          "ruleKind": "dateMin",
+          "severity": "error",
+          "minDate": "2026-01-01"
+        }
+      ],
+      "expectedCarried": [
+        {
+          "side": "min",
+          "constraintId": "notBeforeTwentyTwentySix",
+          "boundText": "2026-01-01"
+        }
+      ]
+    },
+    {
+      "case": "an advisory calendar-day rule stays off the surface like every other advisory rule",
+      "statedRules": [
+        {
+          "constraintId": "preferablyThisYear",
+          "ruleKind": "dateMax",
+          "severity": "warning",
+          "maxDate": "2026-12-31"
+        }
+      ],
+      "expectedCarried": []
+    }
+  ]
+}

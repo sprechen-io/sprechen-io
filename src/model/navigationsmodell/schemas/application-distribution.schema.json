@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/application-distribution.schema.json",
+  "title": "ApplicationDistributionDocument",
+  "description": "One application distribution: the named set of ApplicationDescriptor entries whose owner lies outside the neutral model. The runtime appends the descriptors of every distribution to the neutral forms-catalog root in deterministic order and validates the composed result against forms-catalog.schema.json; a distribution document is therefore not a catalog itself and states neither a catalog head nor a selection dialog. Which folder a distribution lives in, whether an applicationId collides across distributions, and whether an owned form contract is declared here are closure rules over several artifacts and are stated by the reading that walks them, not by this document.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "distributionId",
+    "applications"
+  ],
+  "properties": {
+    "distributionId": {
+      "$ref": "https://Sprechen/schemas/forms-catalog.schema.json#/$defs/Id",
+      "description": "Identity of the distribution, in the same identifier vocabulary the catalog uses. The folder that carries the distribution is this id dash-normalized (dot to dash, lowercase, one segment)."
+    },
+    "applications": {
+      "type": "array",
+      "description": "The applications this distribution declares. At least one: a distribution that declares none contributes nothing to the composed catalog and would still be carried through composition. NOTE: applicationId uniqueness across all distributions is enforced by the closure reading, not by this document.",
+      "minItems": 1,
+      "items": {
+        "$ref": "https://Sprechen/schemas/forms-catalog.schema.json#/$defs/ApplicationDescriptorDocument"
+      }
+    }
+  }
+}

@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "1",
+  "contractVersion": "2",
+  "applicationId": "voice-complex-app",
+  "formId": "voice-complex-form",
+  "displayName": {
+    "de": "Komplexer Voice Ablauf",
+    "en": "Complex Voice Flow"
+  },
+  "description": {
+    "de": "Mehrstufige Erfassung von Kontakt und Adressdaten mit Voice Commands.",
+    "en": "Multi-step capture of contact and address data with voice commands."
+  },
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "entryFieldGroupId": "root",
+  "strictLocalization": false,
+  "defaultLanguage": "de",
+  "fieldCatalog": {
+    "fieldDefinitionsId": "sample.voice-complex.fields",
+    "catalogVersion": "1"
+  },
+  "variableCatalog": {
+    "variableDefinitionsId": "sample.voice-complex.variables",
+    "catalogVersion": "1"
+  },
+  "variables": [
+    {
+      "variableId": "email",
+      "variableDefinitionId": "email"
+    },
+    {
+      "variableId": "phone",
+      "variableDefinitionId": "phone"
+    },
+    {
+      "variableId": "street",
+      "variableDefinitionId": "street"
+    },
+    {
+      "variableId": "postalCode",
+      "variableDefinitionId": "postalCode"
+    },
+    {
+      "variableId": "city",
+      "variableDefinitionId": "city"
+    },
+    {
+      "variableId": "notes",
+      "variableDefinitionId": "notes"
+    }
+  ],
+  "fields": [
+    {
+      "fieldId": "emailField",
+      "variableId": "email",
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.emailField"
+    },
+    {
+      "fieldId": "phoneField",
+      "variableId": "phone",
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.phoneField"
+    },
+    {
+      "fieldId": "streetField",
+      "variableId": "street",
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.streetField"
+    },
+    {
+      "fieldId": "postalCodeField",
+      "variableId": "postalCode",
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.postalCodeField"
+    },
+    {
+      "fieldId": "cityField",
+      "variableId": "city",
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.cityField"
+    },
+    {
+      "fieldId": "notesField",
+      "variableId": "notes",
+      "fieldDefinitionId": "voice-complex-app.voice-complex-form.notesField"
+    }
+  ],
+  "fieldGroups": [
+    {
+      "fieldGroupId": "root",
+      "title": {
+        "de": "Gesamtformular",
+        "en": "Complete form"
+      },
+      "voiceSummary": {
+        "de": "Wir erfassen Kontakt, Adresse und optionale Hinweise.",
+        "en": "We collect contact data, address data, and optional notes."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "emailField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "phoneField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "streetField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "postalCodeField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "cityField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "notesField"
+        }
+      ]
+    }
+  ],
+  "rules": [],
+  "constraints": [
+    {
+      "constraintId": "emailRequired",
+      "target": {
+        "kind": "field",
+        "fieldId": "emailField"
+      },
+      "severity": "error",
+      "code": "form.required",
+      "message": {
+        "de": "Die E-Mail ist erforderlich.",
+        "en": "Email is required."
+      },
+      "kind": "required"
+    },
+    {
+      "constraintId": "emailPattern",
+      "target": {
+        "kind": "field",
+        "fieldId": "emailField"
+      },
+      "severity": "error",
+      "code": "form.email.invalid",
+      "message": {
+        "de": "Bitte geben Sie eine gueltige E-Mail ein.",
+        "en": "Please enter a valid email address."
+      },
+      "kind": "pattern",
+      "pattern": "^[^@]\u002B@[^@]\u002B\\.[^@]\u002B$"
+    },
+    {
+      "constraintId": "phoneRequired",
+      "target": {
+        "kind": "field",
+        "fieldId": "phoneField"
+      },
+      "severity": "error",
+      "code": "form.required",
+      "message": {
+        "de": "Die Telefonnummer ist erforderlich.",
+        "en": "Phone number is required."
+      },
+      "kind": "required"
+    },
+    {
+      "constraintId": "streetRequired",
+      "target": {
+        "kind": "field",
+        "fieldId": "streetField"
+      },
+      "severity": "error",
+      "code": "form.required",
+      "message": {
+        "de": "Die Strasse ist erforderlich.",
+        "en": "Street is required."
+      },
+      "kind": "required"
+    },
+    {
+      "constraintId": "postalRequired",
+      "target": {
+        "kind": "field",
+        "fieldId": "postalCodeField"
+      },
+      "severity": "error",
+      "code": "form.required",
+      "message": {
+        "de": "Die Postleitzahl ist erforderlich.",
+        "en": "Postal code is required."
+      },
+      "kind": "required"
+    },
+    {
+      "constraintId": "postalPattern",
+      "target": {
+        "kind": "field",
+        "fieldId": "postalCodeField"
+      },
+      "severity": "error",
+      "code": "form.postal.invalid",
+      "message": {
+        "de": "Bitte geben Sie genau 5 Ziffern ein.",
+        "en": "Please enter exactly 5 digits."
+      },
+      "kind": "pattern",
+      "pattern": "^[0-9]{5}$"
+    },
+    {
+      "constraintId": "cityRequired",
+      "target": {
+        "kind": "field",
+        "fieldId": "cityField"
+      },
+      "severity": "error",
+      "code": "form.required",
+      "message": {
+        "de": "Der Ort ist erforderlich.",
+        "en": "City is required."
+      },
+      "kind": "required"
+    }
+  ],
+  "projections": {
+    "voice": {
+      "hints": {
+        "commandModelId": "voice.global.default.v1"
+      },
+      "formVoiceProfile": {
+        "formVoiceProfileId": "sample.form-voice.voice-complex",
+        "profileVersion": "1"
+      }
+    }
+  }
+}
+

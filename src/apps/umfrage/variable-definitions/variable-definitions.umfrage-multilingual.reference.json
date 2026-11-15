@@ -1,0 +1,481 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "variableDefinitionsId": "study.umfrage.variables.multilingual",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": true,
+  "definitions": [
+    {
+      "variableDefinitionId": "quizkategorien",
+      "name": "quizkategorien",
+      "semanticTag": "study.umfrage.quizkategorien",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "set",
+        "minSelected": 1,
+        "values": [
+          {
+            "code": "musik",
+            "displayName": {
+              "de": "Musik",
+              "en": "Music",
+              "fr": "Musique",
+              "es": "M\u00fasica",
+              "it": "Musica"
+            }
+          },
+          {
+            "code": "natur",
+            "displayName": {
+              "de": "Natur",
+              "en": "Nature",
+              "fr": "Nature",
+              "es": "Naturaleza",
+              "it": "Natura"
+            }
+          },
+          {
+            "code": "kueche",
+            "displayName": {
+              "de": "K\u00fcche",
+              "en": "Cooking",
+              "fr": "Cuisine",
+              "es": "Cocina",
+              "it": "Cucina"
+            }
+          },
+          {
+            "code": "sport",
+            "displayName": {
+              "de": "Sport",
+              "en": "Sport",
+              "fr": "Sport",
+              "es": "Deporte",
+              "it": "Sport"
+            }
+          },
+          {
+            "code": "weltraum",
+            "displayName": {
+              "de": "Weltraum",
+              "en": "Space",
+              "fr": "Espace",
+              "es": "Espacio",
+              "it": "Spazio"
+            }
+          },
+          {
+            "code": "geschichte",
+            "displayName": {
+              "de": "Geschichte",
+              "en": "History",
+              "fr": "Histoire",
+              "es": "Historia",
+              "it": "Storia"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "quizrundenalter",
+      "name": "quizrundenalter",
+      "semanticTag": "study.umfrage.quizrundenalter",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "unter-1-jahr",
+            "displayName": {
+              "de": "weniger als ein Jahr",
+              "en": "less than one year",
+              "fr": "moins d\u2019un an",
+              "es": "menos de un a\u00f1o",
+              "it": "meno di un anno"
+            }
+          },
+          {
+            "code": "1-bis-3-jahre",
+            "displayName": {
+              "de": "ein bis drei Jahre",
+              "en": "one to three years",
+              "fr": "un \u00e0 trois ans",
+              "es": "de uno a tres a\u00f1os",
+              "it": "da uno a tre anni"
+            }
+          },
+          {
+            "code": "4-bis-6-jahre",
+            "displayName": {
+              "de": "vier bis sechs Jahre",
+              "en": "four to six years",
+              "fr": "quatre \u00e0 six ans",
+              "es": "de cuatro a seis a\u00f1os",
+              "it": "da quattro a sei anni"
+            }
+          },
+          {
+            "code": "7-bis-10-jahre",
+            "displayName": {
+              "de": "sieben bis zehn Jahre",
+              "en": "seven to ten years",
+              "fr": "sept \u00e0 dix ans",
+              "es": "de siete a diez a\u00f1os",
+              "it": "da sette a dieci anni"
+            }
+          },
+          {
+            "code": "ueber-10-jahre",
+            "displayName": {
+              "de": "mehr als zehn Jahre",
+              "en": "more than ten years",
+              "fr": "plus de dix ans",
+              "es": "m\u00e1s de diez a\u00f1os",
+              "it": "pi\u00f9 di dieci anni"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "uebungstreffen",
+      "name": "uebungstreffen",
+      "semanticTag": "study.umfrage.uebungstreffen",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "taeglich",
+            "displayName": {
+              "de": "t\u00e4glich",
+              "en": "daily",
+              "fr": "quotidiennement",
+              "es": "a diario",
+              "it": "ogni giorno"
+            }
+          },
+          {
+            "code": "mehrmals-woechentlich",
+            "displayName": {
+              "de": "mehrmals pro Woche",
+              "en": "several times a week",
+              "fr": "plusieurs fois par semaine",
+              "es": "varias veces por semana",
+              "it": "pi\u00f9 volte alla settimana"
+            }
+          },
+          {
+            "code": "woechentlich",
+            "displayName": {
+              "de": "w\u00f6chentlich",
+              "en": "weekly",
+              "fr": "chaque semaine",
+              "es": "semanalmente",
+              "it": "ogni settimana"
+            }
+          },
+          {
+            "code": "seltener",
+            "displayName": {
+              "de": "seltener",
+              "en": "less often",
+              "fr": "plus rarement",
+              "es": "con menos frecuencia",
+              "it": "meno spesso"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "zusatzpunkte",
+      "name": "zusatzpunkte",
+      "semanticTag": "study.umfrage.zusatzpunkte",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "nie",
+            "displayName": {
+              "de": "nie",
+              "en": "never",
+              "fr": "jamais",
+              "es": "nunca",
+              "it": "mai"
+            }
+          },
+          {
+            "code": "selten",
+            "displayName": {
+              "de": "selten",
+              "en": "rarely",
+              "fr": "rarement",
+              "es": "rara vez",
+              "it": "raramente"
+            }
+          },
+          {
+            "code": "gelegentlich",
+            "displayName": {
+              "de": "gelegentlich",
+              "en": "occasionally",
+              "fr": "de temps en temps",
+              "es": "de vez en cuando",
+              "it": "ogni tanto"
+            }
+          },
+          {
+            "code": "haeufig",
+            "displayName": {
+              "de": "h\u00e4ufig",
+              "en": "often",
+              "fr": "souvent",
+              "es": "a menudo",
+              "it": "spesso"
+            }
+          },
+          {
+            "code": "sehr-haeufig",
+            "displayName": {
+              "de": "sehr h\u00e4ufig",
+              "en": "very often",
+              "fr": "tr\u00e8s souvent",
+              "es": "muy a menudo",
+              "it": "molto spesso"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "weltraumVertrautheit",
+      "name": "weltraumVertrautheit",
+      "semanticTag": "study.umfrage.weltraumVertrautheit",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "gar-nicht",
+            "displayName": {
+              "de": "gar nicht",
+              "en": "not at all",
+              "fr": "pas du tout",
+              "es": "nada",
+              "it": "per niente"
+            }
+          },
+          {
+            "code": "wenig",
+            "displayName": {
+              "de": "wenig",
+              "en": "a little",
+              "fr": "un peu",
+              "es": "poco",
+              "it": "poco"
+            }
+          },
+          {
+            "code": "mittel",
+            "displayName": {
+              "de": "mittel",
+              "en": "moderately",
+              "fr": "moyennement",
+              "es": "medianamente",
+              "it": "mediamente"
+            }
+          },
+          {
+            "code": "hoch",
+            "displayName": {
+              "de": "hoch",
+              "en": "well",
+              "fr": "bien",
+              "es": "bastante",
+              "it": "molto"
+            }
+          },
+          {
+            "code": "sehr-hoch",
+            "displayName": {
+              "de": "sehr hoch",
+              "en": "very well",
+              "fr": "tr\u00e8s bien",
+              "es": "much\u00edsimo",
+              "it": "moltissimo"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "bonusfrage",
+      "name": "bonusfrage",
+      "semanticTag": "study.umfrage.bonusfrage",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "enum",
+        "values": [
+          {
+            "code": "blauwal",
+            "displayName": {
+              "de": "Blauwal",
+              "en": "blue whale",
+              "fr": "baleine bleue",
+              "es": "ballena azul",
+              "it": "balenottera azzurra"
+            }
+          },
+          {
+            "code": "elefant",
+            "displayName": {
+              "de": "Elefant",
+              "en": "elephant",
+              "fr": "\u00e9l\u00e9phant",
+              "es": "elefante",
+              "it": "elefante"
+            }
+          },
+          {
+            "code": "giraffe",
+            "displayName": {
+              "de": "Giraffe",
+              "en": "giraffe",
+              "fr": "girafe",
+              "es": "jirafa",
+              "it": "giraffa"
+            }
+          },
+          {
+            "code": "krokodil",
+            "displayName": {
+              "de": "Krokodil",
+              "en": "crocodile",
+              "fr": "crocodile",
+              "es": "cocodrilo",
+              "it": "coccodrillo"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variableDefinitionId": "siegerehrung",
+      "name": "siegerehrung",
+      "semanticTag": "study.umfrage.siegerehrung",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "boolean"
+      }
+    },
+    {
+      "variableDefinitionId": "hauptpreis",
+      "name": "hauptpreis",
+      "semanticTag": "study.umfrage.hauptpreis",
+      "privacyClass": "personal",
+      "valueType": {
+        "kind": "string",
+        "minLength": 3,
+        "maxLength": 120,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungKategorien",
+      "name": "anleitungKategorien",
+      "semanticTag": "study.umfrage.anleitungKategorien",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungQuizrundenalter",
+      "name": "anleitungQuizrundenalter",
+      "semanticTag": "study.umfrage.anleitungQuizrundenalter",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungUebungstreffen",
+      "name": "anleitungUebungstreffen",
+      "semanticTag": "study.umfrage.anleitungUebungstreffen",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungZusatzpunkte",
+      "name": "anleitungZusatzpunkte",
+      "semanticTag": "study.umfrage.anleitungZusatzpunkte",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungWeltraum",
+      "name": "anleitungWeltraum",
+      "semanticTag": "study.umfrage.anleitungWeltraum",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungBonusfrage",
+      "name": "anleitungBonusfrage",
+      "semanticTag": "study.umfrage.anleitungBonusfrage",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungSiegerehrung",
+      "name": "anleitungSiegerehrung",
+      "semanticTag": "study.umfrage.anleitungSiegerehrung",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    },
+    {
+      "variableDefinitionId": "anleitungHauptpreis",
+      "name": "anleitungHauptpreis",
+      "semanticTag": "study.umfrage.anleitungHauptpreis",
+      "privacyClass": "public",
+      "valueType": {
+        "kind": "string",
+        "maxLength": 160,
+        "formatHint": "text"
+      }
+    }
+  ]
+}

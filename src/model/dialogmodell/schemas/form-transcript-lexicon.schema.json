@@ -1,0 +1,572 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/form-transcript-lexicon.schema.json",
+  "title": "FormTranscriptLexicon",
+  "description": "The form transcript lexicon: the fachlich-observable vocabulary a blind/audio-only user speaks or hears while filling form fields. spellingTokens owns broad accepted spelling aliases; spellingAlphabets and spokenSpellingFormatByLanguage own canonical phonetic output. Number words, diacritic descriptors, connectors, and fillers remain input-side model data. Matching, normalization, rendering composition, and fallback order stay in code; this artifact owns the vocabulary and format facts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spellingTokens",
+    "spellingAlphabets",
+    "spokenSpellingFormatByLanguage"
+  ],
+  "properties": {
+    "spellingTokens": {
+      "type": "object",
+      "description": "Spelling-alphabet word -> single canonical letter (e.g. 'anton' -> 'a', 'alpha' -> 'a').",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "spellingAlphabets": {
+      "type": "object",
+      "description": "Named output alphabets used by phonetic readback. Exactly one German national and one international ICAO/NATO projection are authored; input aliases remain in spellingTokens.",
+      "required": [
+        "german",
+        "nato"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "german": {
+          "$ref": "#/$defs/spellingAlphabet"
+        },
+        "nato": {
+          "$ref": "#/$defs/spellingAlphabet"
+        }
+      }
+    },
+    "spokenSpellingFormatByLanguage": {
+      "type": "object",
+      "description": "Per-language output formatting for phonetic spelling: named alphabet reference, connector, uppercase marker, and audible names for the supported technical characters.",
+      "required": [
+        "de",
+        "en",
+        "fr",
+        "es",
+        "it"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "de": {
+          "$ref": "#/$defs/spokenSpellingFormat"
+        },
+        "en": {
+          "$ref": "#/$defs/spokenSpellingFormat"
+        },
+        "fr": {
+          "$ref": "#/$defs/spokenSpellingFormat"
+        },
+        "es": {
+          "$ref": "#/$defs/spokenSpellingFormat"
+        },
+        "it": {
+          "$ref": "#/$defs/spokenSpellingFormat"
+        }
+      }
+    },
+    "spellingConnectorsByLanguage": {
+      "type": "object",
+      "description": "Per-language connector tokens between a letter and its clarifier word in spelling mode (iso code -> words: de 'wie', en 'as/for', fr 'comme', es 'como', it 'come'). Language-keyed on purpose: the Romance connectors are short everyday words (a union list would skip 'con'/'come' in every language and shred spelled words that contain them). The per-language values stay aligned with the code-side descriptor's spelling connector per language (model owns the vocabulary; the descriptor picks the output wording).",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "diacriticsConnectorTokensByLanguage": {
+      "type": "object",
+      "description": "Per-language connector tokens introducing a diacritic descriptor (iso code -> words: de 'mit', en 'with', fr 'avec', es/it 'con'). Language-keyed for the same short-word reason as the spelling connectors.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "uppercaseMarkersByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken markers that uppercase the adjacent spelled letter in spelling mode; which side is adjacent is declared by uppercaseMarkerPlacementByLanguage (iso code -> words: de 'gross/grosses' for the German alphabet convention 'grosses M' - STT orthography variants with ss for the sharp s are listed alongside -, en 'capital', fr 'majuscule', es 'mayuscula', it 'maiuscola'). Language-keyed for the same reason as the connectors: the marker words are user-language vocabulary and a union list would let one language's marker mutate values in every other language. A marker with no following letter token is dropped deterministically; case survives composition verbatim and the confirmation readback marks uppercase letters audibly.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "uppercaseMarkerPlacementByLanguage": {
+      "type": "object",
+      "description": "Per-language position of the uppercase marker relative to its letter (iso code -> beforeLetter | afterLetter). German and English put the marker first (\"grosses M\", \"capital M\"); French, Spanish and Italian put it last (\"P majuscule\", \"P mayuscula\", \"P maiuscola\"). The placement is language vocabulary, not a parser preference: accepting both sides everywhere would turn a stray trailing marker in German - which must be dropped - into an uppercase letter, and requiring the leading side everywhere leaves the romance convention unspellable, so an uppercase-constrained value stays unreachable by voice. A language without an entry is read as beforeLetter.",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "beforeLetter",
+          "afterLetter"
+        ]
+      }
+    },
+    "umlautDescriptors": {
+      "type": "array",
+      "description": "Descriptor tokens denoting an umlaut diacritic (e.g. 'umlaut').",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "acuteDescriptors": {
+      "type": "array",
+      "description": "Descriptor tokens denoting an acute-accent diacritic (e.g. 'akut').",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "umlautByBaseToken": {
+      "type": "object",
+      "description": "Base letter/word -> its umlaut form (e.g. 'o' -> '\u00f6' rendering target).",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "acuteByBaseToken": {
+      "type": "object",
+      "description": "Base letter/word -> its acute-accented form.",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "numberWordsByLanguage": {
+      "type": "object",
+      "description": "Spoken number-word groups per language (iso code -> { units, teens, tens, scales }, each mapping a number word to its integer value). The deterministic word parser is a robustness fallback to Deepgram SmartFormat digitization. de uses within-token composition (dreiundzwanzig); en uses cross-token composition (twenty three). de + en carry the full composition tables; fr/es/it carry the canonical spoken-digit words 0-9 (the units group) as the per-language fallback the digit-capture path consults so an isolated spoken digit digitizes without relying on Deepgram alone.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "dateInputVocabularyByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken DATE-input vocabulary (iso code -> vocabulary). de carries the full set: relativeDayOffsets (relative day word -> day offset from today, folded forms incl. the explicit 'uebermorgen' spelling), leadingParticles (optional articles before the day, e.g. 'am/der/den/die'), ordinalEndings (declension endings stripped before stem lookup, longest first), ordinalDayStems (ordinal day STEM -> day number, folded forms with the ss and sharp-s spellings of the dreissig-family listed side by side). Month names are deliberately NOT here: the culture-derived month index stays the single month owner.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relativeDayOffsets",
+          "leadingParticles",
+          "ordinalEndings",
+          "ordinalDayStems"
+        ],
+        "properties": {
+          "relativeDayOffsets": {
+            "type": "object",
+            "description": "Relative day word -> signed day offset from today (e.g. 'gestern' -> -1, 'morgen' -> 1).",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "leadingParticles": {
+            "type": "array",
+            "description": "Optional leading particles before the day in 'am dritten Mai' / 'der dritte Mai'.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ordinalEndings": {
+            "type": "array",
+            "description": "Ordinal declension endings stripped before stem lookup; longer endings first.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "ordinalDayStems": {
+            "type": "object",
+            "description": "Ordinal day stem (ending already removed) -> day of month 1-31 (e.g. 'dritt' -> 3, 'zwanzigst' -> 20).",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 31
+            }
+          }
+        }
+      }
+    },
+    "timeInputKeywordsByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken TIME-input keywords (iso code -> keywords by semantic role). de only: halfHour ('halb' in 'halb drei' = 02:30), quarter ('viertel'), before ('vor'), after ('nach'), clockMarker ('uhr'). Role-keyed on purpose: the parser composes the colloquial conventions from the roles, so the data must keep them distinguishable rather than flattened into one word list.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "halfHour",
+          "quarter",
+          "before",
+          "after",
+          "clockMarker"
+        ],
+        "properties": {
+          "halfHour": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quarter": {
+            "type": "string",
+            "minLength": 1
+          },
+          "before": {
+            "type": "string",
+            "minLength": 1
+          },
+          "after": {
+            "type": "string",
+            "minLength": 1
+          },
+          "clockMarker": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "numberGrammarByLanguage": {
+      "type": "object",
+      "description": "Per-language number-GRAMMAR tokens around the number-word tables (iso code -> grammar): andConnector (the infix the language's composition splits on, de 'und' in 'dreiundzwanzig' - also the fused tens-units infix the spoken year renderer emits, 'neunzehnhundertvierundachtzig'), unsupportedMagnitudeWords (quantity words with no place in the 0-9999 grammar, always rejected as out-of-range, de 'dutzend/dutzende'), signWords (leading spoken minus-sign words; de 'minus/negativ', en 'minus/negative' - only de and en have spoken number input, so only they carry sign words), boundOnePrefix (de only: the bound one-prefix of fused compounds, 'ein' in 'einhundert'/'einundzwanzig', distinct from the free standalone 'eins' of the units table), ohWord (en only: the spoken zero of the century-pair year form, 'oh' in 'nineteen oh five'), hundredWord/thousandWord (the scale words the spoken year renderer composes with, de 'hundert'/'tausend', en 'hundred'/'thousand' - the same words the scales table of numberWordsByLanguage owns for input, kept here as the renderer's composition roles).",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "andConnector": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unsupportedMagnitudeWords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "signWords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "boundOnePrefix": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ohWord": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hundredWord": {
+            "type": "string",
+            "minLength": 1
+          },
+          "thousandWord": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "dateInputParticlesByLanguage": {
+      "type": "object",
+      "description": "Per-language particles/fillers stripped before spoken DATE parsing (iso code -> words): en 'the/of/on/in' (the English parser calls them fillers); fr/es/it carry the SHARED romance union of leading articles and 'de'/'di'/'du' connectors ('le/la/l/el/lo/los/las/il/i/gli/the/d/de/del/di/du/of') - the romance parser is one union parser for all three languages, so the three entries must stay identical. de is absent on purpose: German strips its leading particles via dateInputVocabularyByLanguage.leadingParticles (one owner per concept).",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ordinalDaysByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken ordinal DAY words (iso code -> vocabulary): days (ordinal day word -> day of month 1-31; en 'first'..'nineteenth' plus the round tens 'twentieth'/'thirtieth', fr/es/it the SHARED first-day union 'premier/premiere/primero/primer/primo' -> 1, identical across the three entries because the romance parser is one union parser), compoundOnes (en only: the ones-position ordinals 'first'..'ninth' a tens cardinal compounds with in 'twenty first' - the parser uses this table structurally in its compound branch, so the data keeps it distinguishable from the single-token days). de is absent on purpose: German ordinal days are stem+ending compositions in dateInputVocabularyByLanguage.ordinalDayStems (one owner per concept).",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "days"
+        ],
+        "properties": {
+          "days": {
+            "type": "object",
+            "description": "Ordinal day word -> day of month 1-31 (e.g. 'eighth' -> 8, 'premier' -> 1).",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 31
+            }
+          },
+          "compoundOnes": {
+            "type": "object",
+            "description": "Ones-position ordinal -> ones value 1-9, compounded after a tens cardinal ('twenty first' -> 21). en only.",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            }
+          }
+        }
+      }
+    },
+    "spokenOrdinalDayByLanguage": {
+      "type": "object",
+      "description": "Per-language SPOKEN (output-side) ordinal day forms (iso code -> day of month -> written ordinal word): de carries the full 1-31 written ordinals the readback voices ('achter Januar' - TTS would read '8.' as the cardinal 'acht'), fr carries day 1 only ('1er'; every other day stays the digit). These are the canonical OUTPUT spellings (unfolded: 'f\u00fcnfter', 'drei\u00dfigster'), deliberately NOT the folded input stems of dateInputVocabularyByLanguage.ordinalDayStems: input accepts folded variants, output emits the canonical form. en/es/it are absent on purpose: they read the digit day.",
+      "additionalProperties": {
+        "type": "object",
+        "description": "Day of month (1-31) -> written ordinal day word.",
+        "propertyNames": {
+          "pattern": "^([1-9]|[12][0-9]|3[01])$"
+        },
+        "additionalProperties": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "spokenDateConnectorByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken DATE-composition connector (iso code -> word): es 'de' in '8 de enero de 1980'. Only Spanish composes the readback date with an explicit connector; de/en/fr/it juxtapose day, month and year.",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "spokenTimeFormatByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken TIME-format words by semantic role (iso code -> roles). All five languages carry an entry because every language has a spoken time readback: de clockMarker ('Uhr' in '14 Uhr 30'), en anteMeridiem/postMeridiem (the 'AM'/'PM' suffixes of the idiomatic 12-hour readback), fr hourWordSingular/hourWordPlural ('heure' for hours 0-1, 'heures' above), es articleSingular/articlePlural + minuteConnector ('la 1 y 30' / 'las 14 y 30' - the article carries through to the minute form), it articlePlural + oneOClockForm + minuteConnector ('le 14 e 30' / the idiomatic 'l'una e 30' - the one-o'clock form replaces article+hour wholesale). Role-keyed on purpose: the renderer composes pluralization and the one-o'clock special cases from the roles, so the data must keep them distinguishable rather than flattened into one word list. These are the canonical OUTPUT words; the input-side time keywords live in timeInputKeywordsByLanguage.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clockMarker": {
+            "type": "string",
+            "minLength": 1
+          },
+          "anteMeridiem": {
+            "type": "string",
+            "minLength": 1
+          },
+          "postMeridiem": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hourWordSingular": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hourWordPlural": {
+            "type": "string",
+            "minLength": 1
+          },
+          "articleSingular": {
+            "type": "string",
+            "minLength": 1
+          },
+          "articlePlural": {
+            "type": "string",
+            "minLength": 1
+          },
+          "oneOClockForm": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minuteConnector": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "choiceConnectivesByLanguage": {
+      "type": "object",
+      "description": "Per-language spoken list connectives (iso code -> connective words) that separate option names in one multi-select utterance (de 'und', en 'and', fr 'et', es 'y', it 'e'). Language-keyed on purpose: the short Romance connectives 'e'/'y' are also plausible label tokens (spelled letters, initials), so they may only split lists in their own language; a union table would shred labels elsewhere.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "fillerTokensByLanguage": {
+      "type": "object",
+      "description": "Per-language filler/politeness tokens (iso code -> words) the transcript parsers drop from choice, spelling and digit utterances (de 'bitte/danke/gern/gerne', en 'please/thanks', fr 'merci', es 'gracias', it 'grazie'). Language-keyed on purpose: fillers are user-language words - a blind French user says 'merci', and a German-only union list could never strip it; multi-word phrases (e.g. 'por favor', 's'il vous plait') stay code-side residuals because the mechanism strips single tokens.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "commandPolitePaddingTokensByLanguage": {
+      "type": "object",
+      "description": "Per-language polite PADDING tokens of the global and workflow command parsers (iso code -> words: de 'bitte/mal/doch/einmal/kurz', en 'please/kindly/just'). These are imperative softeners around a command utterance, NOT the gratitude fillers of fillerTokensByLanguage - a different vocabulary (the only overlap is 'bitte'/'please'), so folding the two would change matching behavior in both directions. The DATA is language-keyed so per-language consumption stays a possible later modeling decision, but consumption today is one language-agnostic UNION over all entries ('bitte' softens a command even in an English session); per-language application would be a behavior change. fr/es/it carry no entry. Multi-word padding ('por favor') stays out: the mechanism strips single tokens.",
+      "required": [
+        "de",
+        "en"
+      ],
+      "properties": {
+        "de": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "en": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "spellingAlphabet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "letterWords"
+      ],
+      "properties": {
+        "letterWords": {
+          "type": "object",
+          "minProperties": 26,
+          "maxProperties": 26,
+          "propertyNames": {
+            "pattern": "^[a-z]$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "spokenSpellingFormat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alphabet",
+        "connector",
+        "uppercaseMarker",
+        "characterNames"
+      ],
+      "properties": {
+        "alphabet": {
+          "type": "string",
+          "enum": [
+            "german",
+            "nato"
+          ]
+        },
+        "connector": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uppercaseMarker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digitWords": {
+          "type": "object",
+          "description": "Optional per-language spoken words for the ten digits. Where present, the readback pairs a digit with its word the way it pairs a letter (de '7 wie sieben'), so a digit never stands alone between two spoken segment boundaries. Where absent, the digit is spoken as the bare character. A language that declares this MUST declare all ten, and each word MUST round-trip to its digit through spellingTokens.",
+          "additionalProperties": false,
+          "required": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+          "properties": {
+            "0": {
+              "type": "string",
+              "minLength": 1
+            },
+            "1": {
+              "type": "string",
+              "minLength": 1
+            },
+            "2": {
+              "type": "string",
+              "minLength": 1
+            },
+            "3": {
+              "type": "string",
+              "minLength": 1
+            },
+            "4": {
+              "type": "string",
+              "minLength": 1
+            },
+            "5": {
+              "type": "string",
+              "minLength": 1
+            },
+            "6": {
+              "type": "string",
+              "minLength": 1
+            },
+            "7": {
+              "type": "string",
+              "minLength": 1
+            },
+            "8": {
+              "type": "string",
+              "minLength": 1
+            },
+            "9": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "characterNames": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            ".",
+            "@",
+            "-",
+            "_"
+          ],
+          "properties": {
+            ".": {
+              "type": "string",
+              "minLength": 1
+            },
+            "@": {
+              "type": "string",
+              "minLength": 1
+            },
+            "-": {
+              "type": "string",
+              "minLength": 1
+            },
+            "_": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

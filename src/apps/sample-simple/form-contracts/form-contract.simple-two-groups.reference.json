@@ -1,0 +1,314 @@
+{
+  "schemaVersion": "1",
+  "contractVersion": "1",
+  "applicationId": "sample.simple",
+  "formId": "two-groups",
+  "displayName": {
+    "de": "Einfaches Beispiel",
+    "en": "Simple example",
+    "fr": "Exemple simple",
+    "es": "Ejemplo sencillo",
+    "it": "Esempio semplice"
+  },
+  "description": {
+    "de": "Minimalformular mit drei adressierbaren Feldgruppen und sieben adressierbaren Feldern.",
+    "en": "Minimal form with three addressable field groups and seven addressable fields.",
+    "fr": "Formulaire minimal avec trois groupes de champs adressables et sept champs adressables.",
+    "es": "Formulario m\u00EDnimo con tres grupos de campos direccionables y siete campos direccionables.",
+    "it": "Modulo minimo con tre gruppi di campi indirizzabili e sette campi indirizzabili."
+  },
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "entryFieldGroupId": "basics",
+  "strictLocalization": true,
+  "defaultLanguage": "de",
+  "fieldCatalog": {
+    "fieldDefinitionsId": "sample.simple.fields.multilingual",
+    "catalogVersion": "1"
+  },
+  "variableCatalog": {
+    "variableDefinitionsId": "sample.simple.variables.multilingual",
+    "catalogVersion": "1"
+  },
+  "variables": [
+    {
+      "variableId": "freeText",
+      "variableDefinitionId": "freeText"
+    },
+    {
+      "variableId": "favoriteColor",
+      "variableDefinitionId": "favoriteColor"
+    },
+    {
+      "variableId": "quantity",
+      "variableDefinitionId": "quantity"
+    },
+    {
+      "variableId": "dueDate",
+      "variableDefinitionId": "dueDate"
+    },
+    {
+      "variableId": "contactChannels",
+      "variableDefinitionId": "contactChannels"
+    },
+    {
+      "variableId": "newsletterTopics",
+      "variableDefinitionId": "newsletterTopics"
+    },
+    {
+      "variableId": "preferredTime",
+      "variableDefinitionId": "preferredTime"
+    }
+  ],
+  "fields": [
+    {
+      "fieldId": "freeTextField",
+      "variableId": "freeText",
+      "fieldDefinitionId": "sample.simple.two-groups.freeTextField"
+    },
+    {
+      "fieldId": "favoriteColorField",
+      "variableId": "favoriteColor",
+      "fieldDefinitionId": "sample.simple.two-groups.favoriteColorField"
+    },
+    {
+      "fieldId": "quantityField",
+      "variableId": "quantity",
+      "fieldDefinitionId": "sample.simple.two-groups.quantityField"
+    },
+    {
+      "fieldId": "dueDateField",
+      "variableId": "dueDate",
+      "fieldDefinitionId": "sample.simple.two-groups.dueDateField"
+    },
+    {
+      "fieldId": "contactChannelsField",
+      "variableId": "contactChannels",
+      "fieldDefinitionId": "sample.simple.two-groups.contactChannelsField"
+    },
+    {
+      "fieldId": "newsletterTopicsField",
+      "variableId": "newsletterTopics",
+      "fieldDefinitionId": "sample.simple.two-groups.newsletterTopicsField"
+    },
+    {
+      "fieldId": "preferredTimeField",
+      "variableId": "preferredTime",
+      "fieldDefinitionId": "sample.simple.two-groups.preferredTimeField"
+    }
+  ],
+  "fieldGroups": [
+    {
+      "fieldGroupId": "basics",
+      "title": {
+        "de": "Grunddaten",
+        "en": "Basic data",
+        "fr": "Donn\u00E9es de base",
+        "es": "Datos b\u00E1sicos",
+        "it": "Dati di base"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00E4lt freien Text und eine Farbauswahl.",
+        "en": "This field group contains free text and a color selection.",
+        "fr": "Ce groupe de champs contient du texte libre et une s\u00E9lection de couleur.",
+        "es": "Este grupo de campos contiene texto libre y una selecci\u00F3n de color.",
+        "it": "Questo gruppo di campi contiene testo libero e una selezione di colore."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "freeTextField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "favoriteColorField"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "details"
+        },
+        {
+          "kind": "fieldGroup",
+          "fieldGroupId": "preferences"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "details",
+      "title": {
+        "de": "Weitere Angaben",
+        "en": "More details",
+        "fr": "Autres informations",
+        "es": "Otros datos",
+        "it": "Ulteriori dati"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00E4lt eine Zahl und ein Datum.",
+        "en": "This field group contains a number and a date.",
+        "fr": "Ce groupe de champs contient un nombre et une date.",
+        "es": "Este grupo de campos contiene un n\u00FAmero y una fecha.",
+        "it": "Questo gruppo di campi contiene un numero e una data."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "quantityField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "dueDateField"
+        }
+      ]
+    },
+    {
+      "fieldGroupId": "preferences",
+      "title": {
+        "de": "Pr\u00E4ferenzen",
+        "en": "Preferences",
+        "fr": "Pr\u00E9f\u00E9rences",
+        "es": "Preferencias",
+        "it": "Preferenze"
+      },
+      "voiceSummary": {
+        "de": "Diese Feldgruppe enth\u00E4lt Kontaktkan\u00E4le zur Mehrfachauswahl, optionale Interessen zur Mehrfachauswahl und eine bevorzugte Uhrzeit.",
+        "en": "This field group contains contact channels for multi-selection, optional interests for multi-selection, and a preferred time.",
+        "fr": "Ce groupe de champs contient des canaux de contact \u00E0 s\u00E9lection multiple, des centres d\u0027int\u00E9r\u00EAt facultatifs \u00E0 s\u00E9lection multiple et une heure pr\u00E9f\u00E9r\u00E9e.",
+        "es": "Este grupo de campos contiene canales de contacto de selecci\u00F3n m\u00FAltiple, intereses opcionales de selecci\u00F3n m\u00FAltiple y una hora preferida.",
+        "it": "Questo gruppo di campi contiene canali di contatto a selezione multipla, interessi facoltativi a selezione multipla e un orario preferito."
+      },
+      "members": [
+        {
+          "kind": "field",
+          "fieldId": "contactChannelsField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "newsletterTopicsField"
+        },
+        {
+          "kind": "field",
+          "fieldId": "preferredTimeField"
+        }
+      ]
+    }
+  ],
+  "rules": [],
+  "constraints": [],
+  "projections": {
+    "html": {
+      "profile": "a11yFirst"
+    },
+    "voice": {
+      "hints": {
+        "commandModelId": "voice.global.default.v1",
+        "fieldNameSynonyms": {
+          "freeTextField": {
+            "primaryName": {
+              "de": "freier Text",
+              "en": "free text",
+              "fr": "texte libre",
+              "es": "texto libre",
+              "it": "testo libero"
+            },
+            "synonyms": [
+              {
+                "de": "Text",
+                "en": "text",
+                "fr": "texte",
+                "es": "texto",
+                "it": "testo"
+              },
+              {
+                "de": "Notiz",
+                "en": "note",
+                "fr": "note",
+                "es": "nota",
+                "it": "nota"
+              }
+            ]
+          },
+          "favoriteColorField": {
+            "primaryName": {
+              "de": "Farbe",
+              "en": "color",
+              "fr": "couleur",
+              "es": "color",
+              "it": "colore"
+            },
+            "synonyms": [
+              {
+                "de": "Lieblingsfarbe",
+                "en": "favorite color",
+                "fr": "couleur pr\u00E9f\u00E9r\u00E9e",
+                "es": "color favorito",
+                "it": "colore preferito"
+              },
+              {
+                "de": "Farbauswahl",
+                "en": "color choice",
+                "fr": "s\u00E9lection de couleur",
+                "es": "selecci\u00F3n de color",
+                "it": "selezione colore"
+              }
+            ]
+          },
+          "quantityField": {
+            "primaryName": {
+              "de": "Zahl",
+              "en": "number",
+              "fr": "nombre",
+              "es": "n\u00FAmero",
+              "it": "numero"
+            },
+            "synonyms": [
+              {
+                "de": "Menge",
+                "en": "quantity",
+                "fr": "quantit\u00E9",
+                "es": "cantidad",
+                "it": "quantit\u00E0"
+              },
+              {
+                "de": "Anzahl",
+                "en": "amount",
+                "fr": "nombre total",
+                "es": "cantidad total",
+                "it": "numero totale"
+              }
+            ]
+          },
+          "dueDateField": {
+            "primaryName": {
+              "de": "Datum",
+              "en": "date",
+              "fr": "date",
+              "es": "fecha",
+              "it": "data"
+            },
+            "synonyms": [
+              {
+                "de": "F\u00E4lligkeitsdatum",
+                "en": "due date",
+                "fr": "date d\u0027\u00E9ch\u00E9ance",
+                "es": "fecha de vencimiento",
+                "it": "data di scadenza"
+              },
+              {
+                "de": "Termin",
+                "en": "appointment date",
+                "fr": "date de rendez-vous",
+                "es": "fecha de cita",
+                "it": "data appuntamento"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

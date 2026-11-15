@@ -1,0 +1,103 @@
+<Solution>
+  <Folder Name="/_shared/">
+    <Project Path="_shared/Sprechen.Common.Cqrs/Sprechen.Common.Cqrs.csproj" />
+  </Folder>
+  <Folder Name="/contracts/">
+    <Project Path="contracts/Sprechen.Contracts.ApiClient/Sprechen.Contracts.ApiClient.csproj" />
+    <Project Path="contracts/Sprechen.Contracts.FormSurfaces/Sprechen.Contracts.FormSurfaces.csproj" />
+    <Project Path="contracts/Sprechen.Contracts.MdaFormAccess/Sprechen.Contracts.MdaFormAccess.csproj" />
+    <Project Path="contracts/Sprechen.Contracts.Tests/Sprechen.Contracts.Tests.csproj" />
+    <Project Path="contracts/Sprechen.Contracts.Host/Sprechen.Contracts.Host.csproj" />
+    <Project Path="contracts/Sprechen.Proto.Transport/Sprechen.Proto.Transport.csproj" />
+    <Project Path="contracts/Sprechen.Proto/Sprechen.Proto.csproj" />
+  </Folder>
+  <Folder Name="/forms/">
+    <Project Path="forms/Sprechen.Forms.Tests/Sprechen.Forms.Tests.csproj" />
+    <Project Path="forms/Sprechen.Forms/Sprechen.Forms.csproj" />
+    <Project Path="evaluation-telemetry/Sprechen.EvaluationTelemetry.Ingestion/Sprechen.EvaluationTelemetry.Ingestion.csproj" />
+    <Project Path="forms/Sprechen.Forms.TypeScriptCodegen/Sprechen.Forms.TypeScriptCodegen.csproj" />
+  </Folder>
+  <Folder Name="/hosting/">
+    <Project Path="hosting/Sprechen.ServiceDefaults.Tests/Sprechen.ServiceDefaults.Tests.csproj" />
+    <Project Path="hosting/Sprechen.ServiceDefaults/Sprechen.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/mda-composer/">
+    <Project Path="mda-composer/Sprechen.MdaComposer.SchemaEngine.Tests/Sprechen.MdaComposer.SchemaEngine.Tests.csproj" />
+    <Project Path="mda-composer/Sprechen.MdaComposer.SchemaEngine/Sprechen.MdaComposer.SchemaEngine.csproj" />
+    <Project Path="mda-composer/Sprechen.MdaComposer/Sprechen.MdaComposer.csproj" />
+  </Folder>
+  <Folder Name="/mda/">
+    <Project Path="mda/Sprechen.Mda.Contracts.Generator/Sprechen.Mda.Contracts.Generator.csproj" />
+    <Project Path="mda/Sprechen.Mda.Contracts.Tests/Sprechen.Mda.Contracts.Tests.csproj" />
+    <Project Path="mda/Sprechen.Mda.Contracts/Sprechen.Mda.Contracts.csproj" />
+    <Project Path="mda/Sprechen.Mda.Preflight/Sprechen.Mda.Preflight.csproj" />
+    <Project Path="mda/Sprechen.Mda.SchemaBundle/Sprechen.Mda.SchemaBundle.csproj" />
+  </Folder>
+  <Folder Name="/service/">
+    <Project Path="service/Sprechen.Service.Abstractions/Sprechen.Service.Abstractions.csproj" />
+    <Project Path="service/Sprechen.Service.Benchmarks/Sprechen.Service.Benchmarks.csproj" />
+    <Project Path="service/Sprechen.Service.Core.Tests/Sprechen.Service.Core.Tests.csproj" />
+    <Project Path="service/Sprechen.Service.Core/Sprechen.Service.Core.csproj" />
+    <Project Path="service/Sprechen.Service.Deepgram.Tests/Sprechen.Service.Deepgram.Tests.csproj" />
+    <Project Path="service/Sprechen.Service.Deepgram/Sprechen.Service.Deepgram.csproj" />
+    <Project Path="service/Sprechen.Service.Tests/Sprechen.Service.Tests.csproj" />
+    <Project Path="service/Sprechen.Service/Sprechen.Service.csproj" />
+    <Project Path="service/Sprechen.Service.Application/Sprechen.Service.Application.csproj" />
+    <Project Path="service/Sprechen.Service.Audit/Sprechen.Service.Audit.csproj" />
+  </Folder>
+  <Folder Name="/speech/">
+    <Project Path="speech/Sprechen.Speech.App.BrowserInfrastructure/Sprechen.Speech.App.BrowserInfrastructure.csproj" />
+    <Project Path="speech/Sprechen.Speech.App.MicrophoneRecording/Sprechen.Speech.App.MicrophoneRecording.csproj" />
+    <Project Path="speech/Sprechen.Speech.App.CaptureRuntime/Sprechen.Speech.App.CaptureRuntime.csproj" />
+    <Project Path="speech/Sprechen.Speech.App.ClientInfrastructure/Sprechen.Speech.App.ClientInfrastructure.csproj" />
+    <Project Path="speech/Sprechen.Speech.FormSurface/Sprechen.Speech.FormSurface.csproj" />
+    <Project Path="speech/Sprechen.Speech.CaptureSurface/Sprechen.Speech.CaptureSurface.csproj" />
+    <Project Path="speech/Sprechen.Speech.WakeWord.ClientInfrastructure/Sprechen.Speech.WakeWord.ClientInfrastructure.csproj" />
+    <Project Path="speech/Sprechen.Speech.App.Contracts/Sprechen.Speech.App.Contracts.csproj" />
+    <Project Path="speech/Sprechen.Speech.LanguageContracts/Sprechen.Speech.LanguageContracts.csproj" />
+    <Project Path="speech/Sprechen.Speech.WakeWord.Contracts/Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Project Path="speech/Sprechen.Speech.TextNormalization/Sprechen.Speech.TextNormalization.csproj" />
+    <Project Path="speech/Sprechen.Speech.App.GrpcInfrastructure/Sprechen.Speech.App.GrpcInfrastructure.csproj" />
+    <Project Path="speech/Sprechen.Speech.App.Runtime/Sprechen.Speech.App.Runtime.csproj" />
+    <Project Path="speech/Sprechen.Speech.Benchmarks/Sprechen.Speech.Benchmarks.csproj" />
+    <Project Path="speech/Sprechen.Speech.DialogRuntime.Contracts/Sprechen.Speech.DialogRuntime.Contracts.csproj" />
+    <Project Path="speech/Sprechen.Speech.ModelRuntime/Sprechen.Speech.ModelRuntime.csproj" />
+    <Project Path="speech/Sprechen.Speech.Runtime.Tests/Sprechen.Speech.Runtime.Tests.csproj" />
+    <Project Path="speech/Sprechen.Speech.State.Tests/Sprechen.Speech.State.Tests.csproj" />
+    <Project Path="speech/Sprechen.Speech.State/Sprechen.Speech.State.csproj" />
+    <Project Path="speech/Sprechen.Speech.TestDoubles/Sprechen.Speech.TestDoubles.csproj" />
+  </Folder>
+  <Folder Name="/voice-assistant/">
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.Behavior.Tests/Sprechen.VoiceAssistant.Behavior.Tests.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.CommandParsing/Sprechen.VoiceAssistant.CommandParsing.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.EvaluationTelemetry/Sprechen.VoiceAssistant.EvaluationTelemetry.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.FormEngine/Sprechen.VoiceAssistant.FormEngine.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.InputParsing/Sprechen.VoiceAssistant.InputParsing.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.Orchestration/Sprechen.VoiceAssistant.Orchestration.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.Prompting/Sprechen.VoiceAssistant.Prompting.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.SelectionRuntime/Sprechen.VoiceAssistant.SelectionRuntime.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.SelectionDialogRuntime/Sprechen.VoiceAssistant.SelectionDialogRuntime.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.VoiceCommands/Sprechen.VoiceAssistant.VoiceCommands.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.VoiceInteraction/Sprechen.VoiceAssistant.VoiceInteraction.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.VoiceRuntime/Sprechen.VoiceAssistant.VoiceRuntime.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant.WakeRuntime/Sprechen.VoiceAssistant.WakeRuntime.csproj" />
+    <Project Path="voice-assistant/Sprechen.VoiceAssistant/Sprechen.VoiceAssistant.csproj" />
+  </Folder>
+  <Folder Name="/voice/">
+    <Project Path="voice/Sprechen.Voice.App.Tests/Sprechen.Voice.App.Tests.csproj" />
+    <Project Path="voice/Sprechen.Voice.App/Sprechen.Voice.App.csproj" />
+    <Project Path="voice/Sprechen.Voice.Host/Sprechen.Voice.Host.csproj" />
+    <Project Path="voice/Sprechen.Voice.Tests/Sprechen.Voice.Tests.csproj" />
+    <Project Path="voice/Sprechen.Voice.EvaluationTelemetry.BrowserInfrastructure/Sprechen.Voice.EvaluationTelemetry.BrowserInfrastructure.csproj" />
+  </Folder>
+  <Folder Name="/web/">
+    <Project Path="web/Sprechen.Web.FormSurfaces/Sprechen.Web.FormSurfaces.csproj" />
+    <Project Path="web/Sprechen.Web.HostSupport/Sprechen.Web.HostSupport.csproj" />
+    <Project Path="web/Sprechen.Web.SpeechClient/Sprechen.Web.SpeechClient.csproj" />
+    <Project Path="web/Sprechen.Web.SpeechComponents/Sprechen.Web.SpeechComponents.csproj" />
+  </Folder>
+  <Folder Name="/evaluation-telemetry/">
+    <Project Path="evaluation-telemetry/Sprechen.EvaluationTelemetry.Api/Sprechen.EvaluationTelemetry.Api.csproj" />
+    <Project Path="evaluation-telemetry/Sprechen.EvaluationTelemetry.JsonlStore/Sprechen.EvaluationTelemetry.JsonlStore.csproj" />
+  </Folder>
+</Solution>

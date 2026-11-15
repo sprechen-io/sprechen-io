@@ -1,0 +1,7 @@
+# On-demand axe-core install. The repo root already ignores node_modules;
+# this file also covers a checkout that is copied without the root ignore.
+node_modules/
+package.json
+package-lock.json
+# Text reports written next to the driver. The default path is artifacts/wcag-abfrage/.
+*.txt

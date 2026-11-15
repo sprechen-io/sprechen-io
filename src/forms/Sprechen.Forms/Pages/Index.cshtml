@@ -1,0 +1,392 @@
+@page "/{app?}"
+@model Sprechen.Forms.Pages.IndexModel
+@using System.Text.Json
+@using Sprechen.Forms.ViewComponents
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var themePreference = Sprechen.Forms.Pages.FormsThemePreference.From(
+        Sprechen.Forms.Pages.FormsThemePreferenceCookie.Read(Model.HttpContext.Request));
+    // data-theme nur bei einer ausdrücklichen Themenwahl ausgeben; bei "system" fehlt das Attribut,
+    // damit die @@media (prefers-color-scheme)-Abfrage gilt. Zulässige Werte sind light und dark.
+    var themeAttribute = themePreference.DataThemeAttribute is { } themeValue
+        ? $" data-theme=\"{themeValue}\""
+        : string.Empty;
+}
+<!doctype html>
+<html lang="@Model.SelectedLanguage"@Html.Raw(themeAttribute)>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(string.IsNullOrWhiteSpace(Model.FormDisplayName) ? "Forms" : $"{Model.FormDisplayName} - Forms")</title>
+    <link rel="stylesheet" href="~/css/forms-theme.css" asp-append-version="true" />
+</head>
+<body>
+@{
+    var language = (Model.SelectedLanguage ?? string.Empty).Trim().ToLowerInvariant();
+    var chrome = Sprechen.Forms.Pages.FormsChromeCopyResolver.For(Model.SelectedLanguage);
+    var labelLanguage = chrome.LabelLanguage;
+    var labelApplication = chrome.LabelApplication;
+    var labelForm = chrome.LabelForm;
+    var actionLoad = chrome.ActionLoad;
+    var placeholderChoose = chrome.PlaceholderChoose;
+    var placeholderSelect = chrome.PlaceholderSelect;
+    var examplesLabel = chrome.ExamplesLabel;
+    var referenceTitle = chrome.ReferenceTitle;
+    var selectionTitle = chrome.SelectionTitle;
+    var selectionHelp = chrome.SelectionHelp;
+    var referenceHelp = chrome.ReferenceHelp;
+    var errorLabel = chrome.ErrorLabel;
+    var readOnlyEmptyValue = chrome.ReadOnlyEmptyValue;
+    var studyContextLabel = chrome.StudyContextLabel;
+    var studyParticipantLabel = chrome.StudyParticipantLabel;
+    var studyConditionLabel = chrome.StudyConditionLabel;
+    var referenceHeading = string.IsNullOrWhiteSpace(Model.FormDisplayName) ? referenceTitle : $"{referenceTitle}: {Model.FormDisplayName}";
+
+    var referenceDescribedByIds = new List<string> { "reference-help" };
+    if (!string.IsNullOrWhiteSpace(Model.FormDescription))
+    {
+        referenceDescribedByIds.Add("reference-description");
+    }
+    var referenceDescribedBy = string.Join(" ", referenceDescribedByIds);
+}
+<a class="skip-link" href="#main-content">@chrome.SkipToContent</a>
+<main id="main-content" role="main">
+@if (Model.IsStudyLinkRejected)
+{
+    <h1>@Model.StudyLinkRejectionHeading</h1>
+    <p role="alert" aria-live="assertive">@Model.StudyLinkRejectionMessage</p>
+}
+else
+{
+<h1>Forms</h1>
+<p class="settings-link"><a href="/Settings?lang=@language">@chrome.Settings</a></p>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorCode))
+{
+    @* Unbekannte Fehlercodes verwenden Model.ErrorMessage als Ersatztext. *@
+    var errorMessage = chrome.ErrorMessageFor(Model.ErrorCode) ?? Model.ErrorMessage;
+    <div class="error" role="alert" aria-live="assertive" tabindex="-1">
+        <strong>@errorLabel:</strong> @errorMessage (@Model.ErrorCode)
+    </div>
+}
+
+@if (Model.Surface is null || Model.Surface.FieldGroups.Length == 0)
+{
+<section aria-labelledby="selection-title">
+    <h2 id="selection-title">@selectionTitle</h2>
+    <p id="selection-help">@selectionHelp</p>
+
+    <form id="selection-form" method="get" class="row" aria-describedby="selection-help" action="/">
+        <fieldset>
+            <legend class="sr-only">@selectionTitle</legend>
+            @* Die Studienkennung wird über /umfrage/<token> übertragen, nicht als GET-Formularfeld. *@
+            <input type="hidden" name="prevApp" value="@Model.SelectedApplicationId" />
+
+            <div>
+                <label for="lang">@labelLanguage</label>
+                <select id="lang" name="lang">
+                    @foreach (var lang in Model.Languages)
+                    {
+                        <option value="@lang" selected="@(string.Equals(lang, Model.SelectedLanguage, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@Sprechen.Forms.Pages.LanguageEndonyms.For(lang)</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label for="app">@labelApplication</label>
+                <select id="app" name="app">
+                    <option value="">@placeholderChoose</option>
+                    @foreach (var app in Model.Applications)
+                    {
+                        <option value="@app.Id" selected="@(string.Equals(app.Id, Model.SelectedApplicationId, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@app.DisplayName</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label for="form">@labelForm</label>
+                <select id="form" name="form" @(Model.SelectedApplicationId.Length == 0 ? "disabled" : null) aria-disabled="@(Model.SelectedApplicationId.Length == 0 ? "true" : null)">
+                    <option value="">@placeholderChoose</option>
+                    @foreach (var form in Model.Forms)
+                    {
+                        <option value="@form.Id" selected="@(string.Equals(form.Id, Model.SelectedFormId, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@form.DisplayName</option>
+                    }
+                </select>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+                <button type="submit">@actionLoad</button>
+            </div>
+        </fieldset>
+    </form>
+    @* Auch die Auswahlseite setzt window.studyIdentity aus /umfrage/<token>,
+       damit formSelection die Kennung in den Link zum gewählten Formular übernehmen kann. *@
+    <script src="~/js/studyIdentityHash.js" asp-append-version="true"></script>
+    <script src="~/js/formSelection.js" asp-append-version="true"></script>
+</section>
+}
+
+@if (Model.Surface is not null && Model.Surface.FieldGroups.Length > 0)
+{
+    @* Das Studien-Token kommt aus dem vom Server gelesenen Pfad; diese Oberfläche verwendet Bedingung A. *@
+    <dl class="study-info" role="status" aria-live="polite" aria-label="@studyContextLabel" data-study-info-block @(string.IsNullOrEmpty(Model.StudyParticipantId) ? "hidden" : null)>
+        <dt>@studyParticipantLabel:</dt>
+        <dd data-study-info-participant>@Model.StudyParticipantId</dd>
+        <dt>@studyConditionLabel:</dt>
+        <dd data-study-info-condition>A</dd>
+    </dl>
+
+    <section class="fields" aria-live="polite" aria-labelledby="reference-title">
+        <h2 id="reference-title">@referenceHeading</h2>
+        <form id="reference-form" autocomplete="on" aria-describedby="@referenceDescribedBy" inert="@(Model.IsOperationalProbe ? "inert" : null)" aria-busy="@(Model.IsOperationalProbe ? "true" : null)" novalidate>
+            <p id="reference-help" class="help">@referenceHelp</p>
+            @if (!string.IsNullOrWhiteSpace(Model.FormDescription))
+            {
+                <p id="reference-description" class="help">@Model.FormDescription</p>
+            }
+
+            <script type="application/json" id="form-contract">@Html.Raw(Model.FormContractJson)</script>
+            <script type="application/json" id="app-navigation-manifest">@Html.Raw(Model.NavigationManifestJson)</script>
+
+            <div id="validation-summary" class="validation-summary" role="alert" aria-live="assertive" tabindex="-1" style="display:none"></div>
+            <div id="runtime-status" class="help" role="status" aria-live="polite"></div>
+
+            @* data-field-group-id ordnet Überschrift, Hilfstexte und Feldelemente derselben Feldgruppe zu.
+               Es gibt kein gemeinsames umschließendes Element: verschachtelte Feldgruppen würden
+               sonst beim Ausblenden der Einstiegsgruppe das gesamte Formular verbergen. Mehrere
+               Elemente tragen daher dieselbe Kennung; Treffer mit querySelectorAll lesen oder nach
+               Elementtyp beziehungsweise data-field-id eingrenzen. *@
+            @foreach (var fieldGroup in Model.Surface.FieldGroups)
+            {
+                if (!fieldGroup.IsEntryFieldGroup)
+                {
+                    <h3 class="field-group-title" data-field-group-id="@fieldGroup.FieldGroup.FieldGroupId">@fieldGroup.FieldGroup.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(fieldGroup.FieldGroup.Description))
+                    {
+                        <p class="help" data-field-group-id="@fieldGroup.FieldGroup.FieldGroupId">@fieldGroup.FieldGroup.Description</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(fieldGroup.FieldGroup.VoiceSummary))
+                    {
+                        <p class="help" data-field-group-id="@fieldGroup.FieldGroup.FieldGroupId">@fieldGroup.FieldGroup.VoiceSummary</p>
+                    }
+                }
+
+                @foreach (var fieldPresentation in fieldGroup.Fields)
+                {
+                    var field = fieldPresentation.Field;
+                    var inputId = $"ref-{Model.SelectedApplicationId}-{Model.SelectedFormId}-{field.FieldId}";
+                    var helpId = $"{inputId}-help";
+                    var examplesId = $"{inputId}-examples";
+                    var srDescId = $"{inputId}-srdesc";
+                    var errorId = $"{inputId}-error";
+
+                    var describedByIds = new List<string>();
+                    if (!string.IsNullOrWhiteSpace(field.HelpText))
+                    {
+                        describedByIds.Add(helpId);
+                    }
+                    if (field.Examples is { Count: > 0 })
+                    {
+                        describedByIds.Add(examplesId);
+                    }
+                    if (!string.IsNullOrWhiteSpace(field.AccessibleDescription))
+                    {
+                        describedByIds.Add(srDescId);
+                    }
+                    var describedBy = describedByIds.Count > 0 ? string.Join(" ", describedByIds) : null;
+
+                    @* readOnly-Felder werden als per Tab erreichbare Anzeige mit role="note" gerendert.
+                       formNavigation setzt den Wert aus dem Variablenspeicher einschließlich initialValue
+                       und Regeln. Der Server hinterlegt den lokalisierten Leertext nur als data-Attribut.
+                       Bei Computed/Unknown bleibt die nachfolgende Eingabedarstellung zuständig. *@
+                    if (field.IsReadOnlyDisplay)
+                    {
+                        @* Die Wertanzeige bleibt bis zur Initialisierung leer. Erst die Laufzeit setzt den Wert
+                           oder den lokalisierten Leertext, damit ein Skriptfehler vorhandene Werte
+                           nicht fälschlich als "kein Inhalt" ausweist. *@
+                        <div class="field" data-field-id="@field.FieldId" data-field-group-id="@field.FieldGroupId" data-value-type-kind="@field.ValueTypeKind" data-code-style="@(field.CodeStyle ? "true" : "false")" data-readonly-display="true">
+                            <div id="@inputId" class="readonly-note" role="note" tabindex="0" aria-labelledby="@($"{inputId}-label")" aria-describedby="@describedBy">
+                                <span id="@($"{inputId}-label")" class="readonly-note-label">@field.Label</span>
+                                <span class="readonly-note-value" data-readonly-display-value data-empty-text="@readOnlyEmptyValue"></span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(field.HelpText))
+                            {
+                                <div id="@helpId" class="help">@field.HelpText</div>
+                            }
+                            @if (field.Examples is { Count: > 0 })
+                            {
+                                <div id="@examplesId" class="help">@examplesLabel: @string.Join(", ", field.Examples)</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(field.AccessibleDescription))
+                            {
+                                <div id="@srDescId" class="sr-only">@field.AccessibleDescription</div>
+                            }
+                        </div>
+
+                        continue;
+                    }
+
+                    if (string.Equals(field.ValueTypeKind, "set", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <fieldset class="field" data-field-id="@field.FieldId" data-field-group-id="@field.FieldGroupId" data-value-type-kind="@field.ValueTypeKind" data-code-style="@(field.CodeStyle ? "true" : "false")" data-required="@(field.Required ? "true" : "false")">
+                            <legend>@field.Label@(field.Required ? " *" : "")</legend>
+                            @if (!string.IsNullOrWhiteSpace(field.HelpText))
+                            {
+                                <div id="@helpId" class="help">@field.HelpText</div>
+                            }
+                            @if (field.Examples is { Count: > 0 })
+                            {
+                                <div id="@examplesId" class="help">@examplesLabel: @string.Join(", ", field.Examples)</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(field.AccessibleDescription))
+                            {
+                                <div id="@srDescId" class="sr-only">@field.AccessibleDescription</div>
+                            }
+                            @if (field.Options is { Count: > 0 })
+                            {
+                                var optionIndex = 0;
+                                foreach (var option in field.Options)
+                                {
+                                    var optionId = $"{inputId}-opt-{optionIndex++}";
+                                    <div class="choice">
+                                        <input id="@optionId"
+                                               type="checkbox"
+                                               name="@field.FieldId"
+                                               value="@option.Value"
+                                               @(field.IsUserEditable ? null : "disabled")
+                                               aria-describedby="@describedBy" />
+                                        <label for="@optionId">@option.Label</label>
+                                    </div>
+                                }
+                            }
+                            <div id="@errorId" class="field-error" hidden></div>
+                        </fieldset>
+
+                        continue;
+                    }
+
+                    <div class="field" data-field-id="@field.FieldId" data-field-group-id="@field.FieldGroupId" data-value-type-kind="@field.ValueTypeKind" data-code-style="@(field.CodeStyle ? "true" : "false")">
+                        <label for="@inputId">@field.Label@(field.Required ? " *" : "")</label>
+                        @if (!string.IsNullOrWhiteSpace(field.HelpText))
+                        {
+                            <div id="@helpId" class="help">@field.HelpText</div>
+                        }
+                        @if (field.Examples is { Count: > 0 })
+                        {
+                            <div id="@examplesId" class="help">@examplesLabel: @string.Join(", ", field.Examples)</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(field.AccessibleDescription))
+                        {
+                            <div id="@srDescId" class="sr-only">@field.AccessibleDescription</div>
+                        }
+
+                        @if (string.Equals(field.InputType, "select", StringComparison.OrdinalIgnoreCase)
+                            && field.Options is { Count: > 0 })
+                        {
+                            <select id="@inputId"
+                                    name="@field.FieldId"
+                                    required="@field.Required"
+                                    aria-required="@(field.Required ? "true" : null)"
+                                     aria-describedby="@describedBy"
+                                     autocomplete="@field.Autocomplete"
+                                     @(field.IsUserEditable ? null : "disabled")>
+                                <option value="">@placeholderSelect</option>
+                                @foreach (var option in field.Options)
+                                {
+                                    <option value="@option.Value">@option.Label</option>
+                                }
+                            </select>
+                        }
+                        else if (string.Equals(field.InputType, "textarea", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <textarea id="@inputId"
+                                      name="@field.FieldId"
+                                      required="@field.Required"
+                                      aria-required="@(field.Required ? "true" : null)"
+                                      minlength="@field.MinLength"
+                                      maxlength="@field.MaxLength"
+                                      autocomplete="@field.Autocomplete"
+                                      inputmode="@field.InputMode"
+                                      placeholder="@(field.Placeholder ?? " ")"
+                                      aria-describedby="@describedBy"
+                                      @(field.IsUserEditable ? null : "readonly")></textarea>
+                        }
+                        else
+                        {
+                            <input id="@inputId"
+                                   name="@field.FieldId"
+                                   type="@field.InputType"
+                                   required="@field.Required"
+                                   aria-required="@(field.Required ? "true" : null)"
+                                   pattern="@field.Pattern"
+                                   minlength="@field.MinLength"
+                                   maxlength="@field.MaxLength"
+                                   min="@field.Min"
+                                   max="@field.Max"
+                                   autocomplete="@field.Autocomplete"
+                                   inputmode="@field.InputMode"
+                                   placeholder="@(field.Placeholder ?? " ")"
+                                   aria-describedby="@describedBy"
+                                   @(field.IsUserEditable ? null : "readonly") />
+                        }
+
+                        <div id="@errorId" class="field-error" hidden></div>
+                    </div>
+                }
+            }
+
+            @{
+                var navModel = new FormNavigationModel
+                {
+                    ApplicationId = Model.SelectedApplicationId,
+                    CurrentFormId = Model.SelectedFormId,
+                    Language = Model.SelectedLanguage ?? "de",
+                    ParticipantId = Model.StudyParticipantId,
+                    TaskId = Model.StudyTaskId,
+                    Condition = Model.StudyCondition,
+                    FormSequence = Model.Forms.Select(f => f.Id).ToArray()
+                };
+            }
+            @await Component.InvokeAsync("FormNavigation", navModel)
+        </form>
+    </section>
+
+    @* Das erzeugte Telemetrie-Vokabular muss vor seinen Verbrauchern geladen werden.
+       studyIdentityHash setzt window.studyIdentity vor formNavigation; normalizeCondition
+       verwendet die aus dem Vokabular erzeugten Union-Typen. *@
+    <script src="~/js/Generated/telemetryVocabulary.generated.js" asp-append-version="true"></script>
+    <script src="~/js/Generated/telemetryCheckpointSchemas.generated.js" asp-append-version="true"></script>
+    <script src="~/js/studyIdentityHash.js" asp-append-version="true"></script>
+    <script src="~/js/taskEndProjection.js" asp-append-version="true"></script>
+    <script src="~/js/taskCardComparisonKey.js" asp-append-version="true"></script>
+    <script src="~/js/taskCardMismatchAssessor.js" asp-append-version="true"></script>
+    <script src="~/js/canonicalTransitions.js" asp-append-version="true"></script>
+    <script src="~/js/openErrorIdentity.js" asp-append-version="true"></script>
+    <script src="~/js/contractRuleEvaluation.js" asp-append-version="true"></script>
+    <script src="~/js/telemetryCheckpointSchemaValidator.js" asp-append-version="true"></script>
+    <script src="~/js/evaluationTelemetry.js" asp-append-version="true"></script>
+    <script src="~/js/Generated/formNavigationTextMap.generated.js" asp-append-version="true"></script>
+    <script src="~/js/formGroupPager.js" asp-append-version="true"></script>
+    <script src="~/js/formNavigation.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.formNavigation) {
+                var identity = window.studyIdentity || { participantId: "", condition: "A" };
+                window.formNavigation.init({
+                    formSelector: '#reference-form',
+                    applicationId: @Html.Raw(JsonSerializer.Serialize(Model.SelectedApplicationId)),
+                    formId: @Html.Raw(JsonSerializer.Serialize(Model.SelectedFormId)),
+                    requestedLanguage: @Html.Raw(JsonSerializer.Serialize(Model.SelectedLanguage)),
+                    participantId: identity.participantId,
+                    condition: identity.condition,
+                    operationalProbe: @Html.Raw(JsonSerializer.Serialize(Model.IsOperationalProbe))
+                });
+            }
+        });
+    </script>
+}
+}
+
+</main>
+</body>
+</html>

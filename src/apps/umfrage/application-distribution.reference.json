@@ -1,0 +1,64 @@
+{
+  "distributionId": "umfrage",
+  "applications": [
+    {
+      "applicationId": "study.umfrage",
+      "displayName": {
+        "de": "Umfrage",
+        "en": "Survey",
+        "fr": "Enqu\u00eate",
+        "es": "Encuesta",
+        "it": "Sondaggio"
+      },
+      "description": {
+        "de": "Messartefakt der Nutzerstudie: ein fiktiver Quizabend nach der Aufgabenkarte. Abschnitt A (Interview) wird nicht hier erhoben. Die Aufgabenmessung laeuft ueber diese App.",
+        "en": "Study measurement artefact: a fictional quiz night from the task card. Section A (interview) is not collected here. Task measurement runs through this app.",
+        "fr": "Artefact de mesure de l\u2019\u00e9tude : une soir\u00e9e quiz fictive d\u2019apr\u00e8s la fiche. La section A (entretien) n\u2019est pas collect\u00e9e ici. La mesure des t\u00e2ches passe par cette application.",
+        "es": "Artefacto de medici\u00f3n del estudio: una noche de quiz ficticia seg\u00fan la tarjeta. La secci\u00f3n A (entrevista) no se recoge aqu\u00ed. La medici\u00f3n de tareas pasa por esta aplicaci\u00f3n.",
+        "it": "Artefatto di misura dello studio: una serata quiz fittizia secondo la scheda. La sezione A (intervista) non viene raccolta qui. La misura dei compiti passa da questa applicazione."
+      },
+      "tags": [
+        "study",
+        "questionnaire",
+        "umfrage",
+        "survey",
+        "enquete",
+        "encuesta",
+        "sondaggio"
+      ],
+      "supportedLanguages": [
+        "de",
+        "en",
+        "fr",
+        "es",
+        "it"
+      ],
+      "defaultLanguage": "de",
+      "isStudyApplication": true,
+      "forms": [
+        {
+          "formId": "hintergrund-und-setup",
+          "displayName": {
+            "de": "Quizabend",
+            "en": "Quiz night",
+            "fr": "Soir\u00e9e quiz",
+            "es": "Noche de quiz",
+            "it": "Serata quiz"
+          },
+          "description": {
+            "de": "Acht Feldgruppen: acht Angaben stehen auf der Aufgabenkarte. Die letzte Feldgruppe erscheint nur, wenn eine Siegerehrung geplant wird.",
+            "en": "Eight field groups: eight entries are on the task card. The last field group appears only if an awards ceremony is planned.",
+            "fr": "Huit groupes de champs : huit indications sont sur la fiche. Le dernier groupe de champs n\u2019appara\u00eet que si une remise des prix est pr\u00e9vue.",
+            "es": "Ocho grupos de campos: ocho datos est\u00e1n en la tarjeta. El \u00faltimo grupo de campos aparece solo si se planea una premiaci\u00f3n.",
+            "it": "Otto gruppi di campi: otto indicazioni sono sulla scheda. L\u2019ultimo gruppo di campi compare solo se \u00e8 prevista una premiazione."
+          },
+          "latestContractVersion": "1",
+          "availableContractVersions": [
+            "1"
+          ],
+          "sequence": 1
+        }
+      ]
+    }
+  ]
+}

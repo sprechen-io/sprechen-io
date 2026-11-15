@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.DialogRuntime.Contracts\Sprechen.Speech.DialogRuntime.Contracts.csproj" />
+  </ItemGroup>
+
+  <!-- Das gemeinsame Transkriptlexikon des Dialogmodells wird unter dem Ressourcennamen eingebunden, den FormTranscriptLexiconResourceNames.Default erwartet. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\model\dialogmodell\reference-contracts\voice-interface\form-transcript-lexicon.reference.json">
+      <Link>Resources\form-transcript-lexicon.reference.json</Link>
+      <LogicalName>Sprechen.VoiceAssistant.Dialogs.SpeechAssistant.Resources.form-transcript-lexicon.default.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.TextNormalization\Sprechen.Speech.TextNormalization.csproj" />
+    <Using Include="Sprechen.Speech.TextNormalization" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,1529 @@
+{
+  "$schema": "../../schemas/canonical-transition-projection.schema.json",
+  "artifactId": "canonical-transition-projection",
+  "description": "The authored truth table of the canonical transition projection, taken from the study event specification. An interaction step is exactly one canonical business state change, so the step metric is only comparable between the two conditions if both channels project identically - this table is what proves they do. Written by hand rather than generated, so the table stays independent of the implementations it checks.",
+  "cases": [
+    {
+      "case": "a focus change takes a new field target",
+      "event": "focus_change",
+      "input": {
+        "fieldId": "contactEmail"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_target_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a navigation change that moves the field target only",
+      "event": "navigation_changed",
+      "input": {
+        "fieldId": "contactEmail",
+        "fieldGroupId": null
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_target_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a navigation change that moves the field group target only",
+      "event": "navigation_changed",
+      "input": {
+        "fieldId": null,
+        "fieldGroupId": "contact"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_group_target_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a navigation change that moves both target levels yields two transitions",
+      "event": "navigation_changed",
+      "input": {
+        "fieldId": "contactEmail",
+        "fieldGroupId": "contact"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_target_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "targeted"
+        },
+        {
+          "canonicalClass": "field_group_target_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a confirmed value change never carries the value itself",
+      "event": "value_change",
+      "input": {
+        "fieldId": "contactEmail"
+      },
+      "expected": [
+        {
+          "canonicalClass": "confirmed_field_value_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "confirmed_changed"
+        }
+      ]
+    },
+    {
+      "case": "a field that became complete",
+      "event": "field_completion_changed",
+      "input": {
+        "fieldId": "contactEmail",
+        "completed": true
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_completion_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "complete"
+        }
+      ]
+    },
+    {
+      "case": "a field that became incomplete again",
+      "event": "field_completion_changed",
+      "input": {
+        "fieldId": "contactEmail",
+        "completed": false
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_completion_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "incomplete"
+        }
+      ]
+    },
+    {
+      "case": "a field group that became complete",
+      "event": "field_group_completion_changed",
+      "input": {
+        "fieldGroupId": "contact",
+        "completed": true
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_group_completion_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "complete"
+        }
+      ]
+    },
+    {
+      "case": "a field group that became incomplete again",
+      "event": "field_group_completion_changed",
+      "input": {
+        "fieldGroupId": "contact",
+        "completed": false
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_group_completion_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "incomplete"
+        }
+      ]
+    },
+    {
+      "case": "a manual field target uses the same complete transition language",
+      "event": "manual_step",
+      "input": {
+        "canonicalClass": "field_target_changed",
+        "scope": "field",
+        "objectId": "contactEmail",
+        "resultingState": "targeted"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_target_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a manual field-group target uses the same complete transition language",
+      "event": "manual_step",
+      "input": {
+        "canonicalClass": "field_group_target_changed",
+        "scope": "field_group",
+        "objectId": "contact",
+        "resultingState": "targeted"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_group_target_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a manual confirmed value change uses the same complete transition language",
+      "event": "manual_step",
+      "input": {
+        "canonicalClass": "confirmed_field_value_changed",
+        "scope": "field",
+        "objectId": "contactEmail",
+        "resultingState": "confirmed_changed"
+      },
+      "expected": [
+        {
+          "canonicalClass": "confirmed_field_value_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "confirmed_changed"
+        }
+      ]
+    },
+    {
+      "case": "a manual field completion uses the same complete transition language",
+      "event": "manual_step",
+      "input": {
+        "canonicalClass": "field_completion_changed",
+        "scope": "field",
+        "objectId": "contactEmail",
+        "resultingState": "complete"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_completion_changed",
+          "scope": "field",
+          "objectId": "contactEmail",
+          "resultingState": "complete"
+        }
+      ]
+    },
+    {
+      "case": "a manual field-group completion uses the same complete transition language",
+      "event": "manual_step",
+      "input": {
+        "canonicalClass": "field_group_completion_changed",
+        "scope": "field_group",
+        "objectId": "contact",
+        "resultingState": "incomplete"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_group_completion_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "incomplete"
+        }
+      ]
+    },
+    {
+      "case": "the task bracket carries no state change",
+      "event": "task_start",
+      "input": {},
+      "expected": []
+    },
+    {
+      "case": "a validation error is a diagnostic line, not a step",
+      "event": "validation_error_opened",
+      "input": {},
+      "expected": []
+    },
+    {
+      "case": "a status snapshot is not a step",
+      "event": "status_snapshot",
+      "input": {},
+      "expected": []
+    },
+    {
+      "case": "a navigation with no current field names the placeholder, which is not an object",
+      "event": "navigation_changed",
+      "input": {
+        "fieldId": "n/a",
+        "fieldGroupId": "contact"
+      },
+      "expected": [
+        {
+          "canonicalClass": "field_group_target_changed",
+          "scope": "field_group",
+          "objectId": "contact",
+          "resultingState": "targeted"
+        }
+      ]
+    },
+    {
+      "case": "a focus change on the placeholder projects nothing rather than a phantom object",
+      "event": "focus_change",
+      "input": {
+        "fieldId": "n/a"
+      },
+      "expected": []
+    }
+  ],
+  "adoptionSequences": [
+    {
+      "sequence": "focus, its navigation snapshot, and a same-group field target change record each target once",
+      "steps": [
+        {
+          "event": "focus_change",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": null,
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 1,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "event": "navigation_changed",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 1,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "event": "focus_change",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 2,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "event": "navigation_changed",
+          "priorStateVersion": 2,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 2,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": []
+        }
+      ]
+    },
+    {
+      "sequence": "a same-group field return creates one transition for each actual field adoption",
+      "steps": [
+        {
+          "event": "navigation_changed",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": null,
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 1,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "event": "navigation_changed",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 2,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "restoreBoundaryBefore": true,
+          "event": "navigation_changed",
+          "priorStateVersion": 2,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 3,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": "each confirmed value change is a distinct occurrence even for the same field",
+      "steps": [
+        {
+          "event": "focus_change",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": null,
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 1,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "event": "value_change",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ],
+          "expectedStateVersion": 2,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ]
+        },
+        {
+          "restoreBoundaryBefore": true,
+          "event": "value_change",
+          "priorStateVersion": 2,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ],
+          "expectedStateVersion": 3,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "confirmed_field_value_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "confirmed_changed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": "multi-field and multi-group completion snapshots adopt one version across reload",
+      "steps": [
+        {
+          "event": "navigation_changed",
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": null,
+          "projected": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedStateVersion": 1,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ]
+        },
+        {
+          "events": [
+            "field_completion_changed",
+            "field_completion_changed",
+            "field_group_completion_changed",
+            "field_group_completion_changed"
+          ],
+          "statusChanges": {
+            "fields": [
+              {
+                "fieldId": "field-a",
+                "fieldGroupId": "group-a",
+                "relevant": true,
+                "required": true,
+                "completed": true,
+                "blockingErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              },
+              {
+                "fieldId": "field-b",
+                "fieldGroupId": "group-b",
+                "relevant": true,
+                "required": true,
+                "completed": true,
+                "blockingErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              }
+            ],
+            "fieldGroups": [
+              {
+                "fieldGroupId": "group-a",
+                "relevant": true,
+                "completed": true,
+                "openGroupErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              },
+              {
+                "fieldGroupId": "group-b",
+                "relevant": true,
+                "completed": true,
+                "openGroupErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              }
+            ]
+          },
+          "priorStateVersion": 1,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "complete"
+            }
+          ],
+          "expectedStateVersion": 2,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "complete"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "complete"
+            }
+          ]
+        },
+        {
+          "restoreBoundaryBefore": true,
+          "events": [
+            "field_completion_changed",
+            "field_completion_changed",
+            "field_group_completion_changed",
+            "field_group_completion_changed"
+          ],
+          "statusChanges": {
+            "fields": [
+              {
+                "fieldId": "field-a",
+                "fieldGroupId": "group-a",
+                "relevant": true,
+                "required": true,
+                "completed": false,
+                "blockingErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              },
+              {
+                "fieldId": "field-b",
+                "fieldGroupId": "group-b",
+                "relevant": true,
+                "required": true,
+                "completed": false,
+                "blockingErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              }
+            ],
+            "fieldGroups": [
+              {
+                "fieldGroupId": "group-a",
+                "relevant": true,
+                "completed": false,
+                "openGroupErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              },
+              {
+                "fieldGroupId": "group-b",
+                "relevant": true,
+                "completed": false,
+                "openGroupErrorCodes": [],
+                "relevanceChanged": false,
+                "completionChanged": true
+              }
+            ]
+          },
+          "priorStateVersion": 2,
+          "priorAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "complete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "complete"
+            }
+          ],
+          "projected": [
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "incomplete"
+            }
+          ],
+          "expectedStateVersion": 3,
+          "expectedAdoptedTransitions": [
+            {
+              "canonicalClass": "field_target_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_group_target_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "targeted"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "incomplete"
+            }
+          ],
+          "expectedDelta": [
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-b",
+              "resultingState": "incomplete"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "transitionAdoptionLedgerSequences": [
+    {
+      "sequence": "completion baselines and ordered event batches survive reload without inferred grouping",
+      "operations": [
+        {
+          "operation": "initial_target",
+          "kind": "event_batch",
+          "events": [
+            "navigation_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_target_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "targeted"
+              },
+              {
+                "canonicalClass": "field_group_target_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "targeted"
+              }
+            ]
+          ],
+          "expectedStateVersion": 1,
+          "expectedDeltaByEvent": [
+            [
+              {
+                "canonicalClass": "field_target_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "targeted"
+              },
+              {
+                "canonicalClass": "field_group_target_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "targeted"
+              }
+            ]
+          ]
+        },
+        {
+          "operation": "initial_completion_baseline",
+          "kind": "completion_baseline",
+          "completionTransitions": [
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "incomplete"
+            }
+          ],
+          "expectedStateVersion": 1
+        },
+        {
+          "operation": "metadata_only",
+          "kind": "event_batch",
+          "events": [
+            "status_snapshot"
+          ],
+          "metadataOnlyStatusChanges": {
+            "fields": [
+              {
+                "fieldId": "field-a",
+                "fieldGroupId": "group-a",
+                "relevant": true,
+                "required": true,
+                "completed": false,
+                "blockingErrorCodes": [
+                  "required-metadata-changed"
+                ],
+                "relevanceChanged": false,
+                "completionChanged": false
+              }
+            ],
+            "fieldGroups": [
+              {
+                "fieldGroupId": "group-a",
+                "relevant": true,
+                "completed": false,
+                "openGroupErrorCodes": [
+                  "open-group-error-metadata-changed"
+                ],
+                "relevanceChanged": false,
+                "completionChanged": false
+              }
+            ]
+          },
+          "projectedByEvent": [
+            []
+          ],
+          "expectedStateVersion": 1,
+          "expectedDeltaByEvent": [
+            []
+          ]
+        },
+        {
+          "operation": "first_same_version_detail_batch",
+          "kind": "event_batch",
+          "events": [
+            "field_completion_changed",
+            "field_completion_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "incomplete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-b",
+                "resultingState": "incomplete"
+              }
+            ]
+          ],
+          "expectedStateVersion": 1,
+          "expectedDeltaByEvent": [
+            [],
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-b",
+                "resultingState": "incomplete"
+              }
+            ]
+          ]
+        },
+        {
+          "operation": "second_same_version_detail_batch",
+          "kind": "event_batch",
+          "events": [
+            "field_completion_changed",
+            "field_completion_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-b",
+                "resultingState": "incomplete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-c",
+                "resultingState": "incomplete"
+              }
+            ]
+          ],
+          "expectedStateVersion": 1,
+          "expectedDeltaByEvent": [
+            [],
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-c",
+                "resultingState": "incomplete"
+              }
+            ]
+          ]
+        },
+        {
+          "operation": "reload_target",
+          "kind": "event_batch",
+          "restoreBoundaryBefore": true,
+          "events": [
+            "navigation_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_target_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "targeted"
+              },
+              {
+                "canonicalClass": "field_group_target_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "targeted"
+              }
+            ]
+          ],
+          "expectedStateVersion": 1,
+          "expectedDeltaByEvent": [
+            []
+          ]
+        },
+        {
+          "operation": "reload_completion_baseline",
+          "kind": "completion_baseline",
+          "completionTransitions": [
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-a",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-b",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-c",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_completion_changed",
+              "scope": "field",
+              "objectId": "field-d",
+              "resultingState": "incomplete"
+            },
+            {
+              "canonicalClass": "field_group_completion_changed",
+              "scope": "field_group",
+              "objectId": "group-a",
+              "resultingState": "incomplete"
+            }
+          ],
+          "expectedStateVersion": 1
+        },
+        {
+          "operation": "post_reload_same_version_detail_batch",
+          "kind": "event_batch",
+          "events": [
+            "field_completion_changed",
+            "field_completion_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-d",
+                "resultingState": "incomplete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-e",
+                "resultingState": "incomplete"
+              }
+            ]
+          ],
+          "expectedStateVersion": 1,
+          "expectedDeltaByEvent": [
+            [],
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-e",
+                "resultingState": "incomplete"
+              }
+            ]
+          ]
+        },
+        {
+          "operation": "multi_completion_flip",
+          "kind": "event_batch",
+          "events": [
+            "field_completion_changed",
+            "field_group_completion_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "complete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_group_completion_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "complete"
+              }
+            ]
+          ],
+          "expectedStateVersion": 2,
+          "expectedDeltaByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "complete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_group_completion_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "complete"
+              }
+            ]
+          ]
+        },
+        {
+          "operation": "second_multi_completion_flip",
+          "kind": "event_batch",
+          "events": [
+            "field_completion_changed",
+            "field_group_completion_changed"
+          ],
+          "projectedByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "incomplete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_group_completion_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "incomplete"
+              }
+            ]
+          ],
+          "expectedStateVersion": 3,
+          "expectedDeltaByEvent": [
+            [
+              {
+                "canonicalClass": "field_completion_changed",
+                "scope": "field",
+                "objectId": "field-a",
+                "resultingState": "incomplete"
+              }
+            ],
+            [
+              {
+                "canonicalClass": "field_group_completion_changed",
+                "scope": "field_group",
+                "objectId": "group-a",
+                "resultingState": "incomplete"
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

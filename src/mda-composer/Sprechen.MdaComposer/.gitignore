@@ -1,0 +1,10 @@
+# Beim Build erzeugte Kopien aus dem MSBuild-Ziel CopySchemas
+wwwroot/schemas/
+wwwroot/reference-contracts/
+wwwroot/examples/
+
+# TypeScript-Buildausgabe aus TypeScript/ durch tsc
+wwwroot/js/
+
+# npm-Abhängigkeiten, wiederhergestellt durch RestoreWebNodeModules
+node_modules/

@@ -1,0 +1,67 @@
+unitName: ""
+
+namespace: ""
+
+metadataDomain: ""
+
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: IfNotPresent
+
+sourceRevision: ""
+
+imagePullSecrets:
+  - name: registry-credentials
+
+service:
+  port: 80
+  targetPort: 8080
+  healthPort: 8081
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+
+issuer:
+  enabled: true
+  email: ""
+  name: letsencrypt-prod
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 384Mi
+
+probes:
+  readinessPath: /healthz/ready
+  livenessPath: /healthz/live
+
+persistence:
+  size: 5Gi
+
+replicaCount: 1
+
+terminationGracePeriodSeconds: 30
+
+networkPolicy:
+  enabled: true
+  ingressNamespace: kube-system
+  ingressPodSelector:
+    app.kubernetes.io/name: traefik
+
+speechService:
+  baseAddress: ""
+
+contractsService:
+  baseAddress: ""
+
+logging:
+  profile: "development"
+  profiles:
+    development: "Debug"
+    study: "Information"

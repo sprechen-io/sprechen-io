@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/task-end-projection.schema.json",
+  "title": "Task-end projection truth table",
+  "description": "The authored truth table both channels are pinned to when they close a task. It exists because the rule has two implementations. It states the end state and nothing else: whether that end state was the right one is a judgement of the separate post-task assessment record, not of the channel.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifactId",
+    "cases"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../schemas/task-end-projection.schema.json"
+    },
+    "artifactId": {
+      "type": "string",
+      "const": "task-end-projection"
+    },
+    "description": {
+      "type": "string"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "case",
+          "input",
+          "expected"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the case is about, in words, so a failing row says why it matters."
+          },
+          "input": {
+            "type": "object",
+            "required": [
+              "processSubmitted",
+              "requiredFieldsTotal",
+              "requiredFieldsCompleted",
+              "openBlockingValidationCount",
+              "terminationClassification"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "processSubmitted": {
+                "type": "boolean"
+              },
+              "requiredFieldsTotal": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "requiredFieldsCompleted": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "openBlockingValidationCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "terminationClassification": {
+                "type": "string",
+                "enum": [
+                  "completed",
+                  "participant_cancelled",
+                  "session_abandoned",
+                  "study_directed_abort",
+                  "technical_failure"
+                ]
+              }
+            }
+          },
+          "expected": {
+            "type": "object",
+            "required": [
+              "endState"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "endState": {
+                "$ref": "https://Sprechen/schemas/telemetry-fragments.schema.json#/$defs/TaskEndState"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

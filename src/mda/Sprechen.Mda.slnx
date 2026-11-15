@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../model/informationsmodell/schemas/form-contract.schema.json" />
+    <File Path="../model/navigationsmodell/schemas/forms-catalog.schema.json" />
+    <File Path="../model/navigationsmodell/reference-contracts/forms-catalog/forms-catalog.reference.json" />
+    <File Path="../model/contracts-v1.proto" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="../speech/Sprechen.Speech.WakeWord.Contracts/Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <Project Path="../speech/Sprechen.Speech.App.Contracts/Sprechen.Speech.App.Contracts.csproj" />
+    <Project Path="../speech/Sprechen.Speech.LanguageContracts/Sprechen.Speech.LanguageContracts.csproj" />
+    <Project Path="../speech/Sprechen.Speech.TextNormalization/Sprechen.Speech.TextNormalization.csproj" />
+    <Project Path="../contracts/Sprechen.Contracts.FormSurfaces/Sprechen.Contracts.FormSurfaces.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Sprechen.Mda.Contracts.Tests/Sprechen.Mda.Contracts.Tests.csproj" />
+  </Folder>
+  <Project Path="Sprechen.Mda.Contracts/Sprechen.Mda.Contracts.csproj" />
+  <Project Path="Sprechen.Mda.Preflight/Sprechen.Mda.Preflight.csproj" />
+  <Project Path="Sprechen.Mda.Contracts.Generator/Sprechen.Mda.Contracts.Generator.csproj" />
+  <Project Path="Sprechen.Mda.SchemaBundle/Sprechen.Mda.SchemaBundle.csproj" />
+</Solution>
+

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/wake-word-catalog.schema.json",
+  "title": "WakeWordCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "wakeWordModelId",
+    "commandAnchorLeadIns",
+    "activationProfilesByLanguage",
+    "microphoneAvailabilityPolicy"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "wakeWordModelId": {
+      "$ref": "#/$defs/Id"
+    },
+    "commandAnchorLeadIns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CommandAnchorLeadIn"
+      },
+      "minItems": 1,
+      "description": "Shared command-anchor lead-in set, declared exactly once. Each lead-in (currently 'okay' and 'hey' with role 'activation', plus 'ok' with role 'recognitionOnly') is composed at runtime with each language profile's wakeWordName to derive the effective canonical activation and recognition-only forms. Adding a lead-in variant is a one-line edit that applies to all languages. Preflight requires at least one lead-in, at least one activation-role lead-in, and that each lead-in normalizes to at least one token. Every composed canonical and recognition-only form also participates in cross-artifact catalog-selection preflight and must not equal any resolved application or form display name after phrase normalization."
+    },
+    "activationProfilesByLanguage": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/WakeWordLanguageProfile"
+      },
+      "minItems": 1,
+      "description": "Wake-word profiles per language. Each profile carries only its per-language wakeWordName; the current reference contract uses 'alex' uniformly across de/en/fr/es/it while retaining the per-language field for future divergence. Effective activation and recognition-only forms are composed at runtime from the shared commandAnchorLeadIns set x this name. The owning VoiceInterfaceDocument defines the authoritative supportedLanguages. Preflight enforces exact language coverage, a non-empty wakeWordName per profile, and per-entry soundness of the COMPOSED product (non-empty, no post-normalization duplicates within a profile, recognition-only forms must not collide with a canonical activation form)."
+    },
+    "recoveryFeedback": {
+      "$ref": "#/$defs/WakeWordRecoveryFeedback",
+      "description": "Optional modeled feedback the runtime emits when an utterance is captured during armed listening but cannot be matched against the wake-word inventory. Allows the user to perceive that the system heard speech but did not recognise it as a wake form. The earcon identifier value is validated by a consumer-side drift guard against the canonical EarconId vocabulary; the runtime fails fast on unknown identifiers."
+    },
+    "microphoneAvailabilityPolicy": {
+      "$ref": "#/$defs/MicrophoneAvailabilityPolicy",
+      "description": "Required session-wide policy for audible microphone failure and recovery while armed listening is active. Unlike wake-miss guidance, it applies before and after successful wake activations. The runtime retries automatically, exposes its existing non-voice stop control, and acknowledges recovery after an announced outage."
+    },
+    "activationFeedback": {
+      "$ref": "#/$defs/WakeWordActivationFeedback",
+      "description": "Optional modeled feedback the runtime emits when an utterance IS matched against the wake-word inventory. Without it a successful activation is silent until the next spoken output begins, so an audio-only user cannot tell success from the system doing nothing. The earcon identifier value is validated by a consumer-side drift guard against the canonical EarconId vocabulary; the runtime fails fast on unknown identifiers."
+    },
+    "wakeUtteranceWindow": {
+      "$ref": "#/$defs/WakeUtteranceWindow",
+      "description": "Optional cross-cycle stitching window for incomplete multi-word wake activation forms. When present, the runtime may attach a follow-up STT cycle to a previously partial wake utterance if the inter-cycle pause stays within maxInterCyclePauseMs. Exactly one runtime component makes the attach decision. This window is not the post-activation path for an already successful wake-word-only activation; that path enters the surface-owned application catalog dialog without a prefetched transcript."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "MicrophoneAvailabilityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "failureThreshold",
+        "cooldownSeconds",
+        "maxCooldownSeconds",
+        "automaticRetry",
+        "announceRecovery"
+      ],
+      "properties": {
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cooldownSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Base number of seconds between successfully played outage announcements."
+        },
+        "maxCooldownSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Ceiling for the escalating outage-announcement cooldown. Consumer preflight requires this value to be at least cooldownSeconds."
+        },
+        "automaticRetry": {
+          "type": "boolean",
+          "const": true
+        },
+        "announceRecovery": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "WakeWordActivationFeedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activatedEarconId"
+      ],
+      "properties": {
+        "activatedEarconId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the modeled earcon the runtime plays the moment a wake form is matched. Must equal a value of the canonical EarconId vocabulary; consumer-side drift guards (Sprechen.Mda.Contracts.Tests) enforce alignment."
+        }
+      }
+    },
+    "WakeWordRecoveryFeedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notRecognizedEarconId"
+      ],
+      "properties": {
+        "notRecognizedEarconId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the modeled earcon the runtime plays after a wake-word miss (utterance captured but no inventory match). Must equal a value of the canonical EarconId vocabulary; consumer-side drift guards (Sprechen.Mda.Contracts.Tests) enforce alignment."
+        },
+        "guidanceMissThreshold": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional. Number of consecutive wake misses in the initial activation phase (before the first successful wake of the session) after which the runtime speaks the localized recovery guidance instead of the miss earcon. Present together with guidanceCooldownSeconds and guidanceMaxCooldownSeconds; when the whole guidance block is absent the miss behavior stays earcon-only."
+        },
+        "guidanceCooldownSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional. Base (initial) number of seconds between two spoken recovery guidances. The guidance uses an escalating backoff: this is the wait before the second guidance, then the interval doubles toward guidanceMaxCooldownSeconds. Present together with guidanceMissThreshold and guidanceMaxCooldownSeconds."
+        },
+        "guidanceMaxCooldownSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional. Ceiling in seconds the escalating recovery-guidance backoff holds at. After each spoken guidance the cooldown doubles from guidanceCooldownSeconds until it reaches this value, past which it holds indefinitely; the guidance therefore thins out under continuous ambient speech but never stops entirely, and the first successful wake ends the escalation. Must be at least guidanceCooldownSeconds. Present together with guidanceMissThreshold and guidanceCooldownSeconds."
+        }
+      }
+    },
+    "WakeUtteranceWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxInterCyclePauseMs",
+        "maxCarriedCycles",
+        "prefixOnlyFirstCycleAccepted"
+      ],
+      "properties": {
+        "maxInterCyclePauseMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000,
+          "description": "Maximum allowed pause in milliseconds between the end of one capture cycle and the start of the next for the second transcript to attach to a partial wake utterance from the previous cycle."
+        },
+        "maxCarriedCycles": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1,
+          "description": "Maximum number of preceding cycles whose transcripts may be carried forward to be stitched with the current cycle. Only 1 (the immediately previous cycle) is supported by the runtime stitcher; the bound is pinned to 1 so the model cannot promise multi-cycle stitching that does not exist."
+        },
+        "prefixOnlyFirstCycleAccepted": {
+          "type": "boolean",
+          "description": "If true, the first carried cycle is accepted only when its transcript is a strict prefix of at least one modeled activation form. If false, any non-empty transcript is carried."
+        }
+      }
+    },
+    "CommandAnchorLeadIn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "leadIn",
+        "role"
+      ],
+      "properties": {
+        "leadIn": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The leading lead-in word (currently 'okay' or 'hey' for canonical activation and 'ok' for recognition-only acceptance) composed with a language profile's wakeWordName to form an effective wake-word form."
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "activation",
+            "recognitionOnly"
+          ],
+          "description": "Role of the composed result: 'activation' (user-facing default) or 'recognitionOnly' (acceptance-only semantics, never a user-facing default)."
+        }
+      }
+    },
+    "WakeWordLanguageProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "languageCode",
+        "wakeWordName"
+      ],
+      "properties": {
+        "languageCode": {
+          "$ref": "#/$defs/LanguageCode"
+        },
+        "wakeWordName": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Per-language wake-word name. The current reference contract uses 'alex' for every supported language, while the field may differ across profiles in a future catalog. Composed with each entry of commandAnchorLeadIns it yields the effective canonical activation and recognition-only forms. Preflight requires it to normalize to at least one token, preserves the separate repeated-leading-token rule, and includes every composed form in cross-artifact catalog-selection collision checks against resolved application and form display names."
+        }
+      }
+    }
+  }
+}

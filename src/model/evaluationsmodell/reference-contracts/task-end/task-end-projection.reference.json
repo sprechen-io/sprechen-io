@@ -1,0 +1,150 @@
+{
+  "$schema": "../../schemas/task-end-projection.schema.json",
+  "artifactId": "task-end-projection",
+  "description": "The shared truth table of the task-end projection. Both channels close tasks; this table is the single authored truth and each channel is pinned to it by its own test. The expected values are derived from the study event specification, not generated from either implementation.",
+  "cases": [
+    {
+      "case": "target reached without submitting - the normal end of every task but the closing one",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 4,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "completed"
+      },
+      "expected": {
+        "endState": "task_target_reached"
+      }
+    },
+    {
+      "case": "the closing task submits the whole process",
+      "input": {
+        "processSubmitted": true,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 4,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "completed"
+      },
+      "expected": {
+        "endState": "process_submitted"
+      }
+    },
+    {
+      "case": "a required field is still open",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 3,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "completed"
+      },
+      "expected": {
+        "endState": "not_submitted"
+      }
+    },
+    {
+      "case": "required fields complete but a blocking validation is open",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 4,
+        "openBlockingValidationCount": 1,
+        "terminationClassification": "completed"
+      },
+      "expected": {
+        "endState": "not_submitted"
+      }
+    },
+    {
+      "case": "submitted although a required field is open - submitting is not the target state",
+      "input": {
+        "processSubmitted": true,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 3,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "completed"
+      },
+      "expected": {
+        "endState": "process_submitted"
+      }
+    },
+    {
+      "case": "no required field in scope - nothing for the machine to judge, and silence is not success",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 0,
+        "requiredFieldsCompleted": 0,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "completed"
+      },
+      "expected": {
+        "endState": "not_submitted"
+      }
+    },
+    {
+      "case": "participant cancellation is not a study-directed abort",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 2,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "participant_cancelled"
+      },
+      "expected": {
+        "endState": "not_submitted"
+      }
+    },
+    {
+      "case": "session abandonment is not a study-directed abort",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 2,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "session_abandoned"
+      },
+      "expected": {
+        "endState": "not_submitted"
+      }
+    },
+    {
+      "case": "a technical failure outranks a reached target - the run says nothing about the participant",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 4,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "technical_failure"
+      },
+      "expected": {
+        "endState": "technical_failure"
+      }
+    },
+    {
+      "case": "a deliberate abort outranks a reached target - the observation sheet owns that decision",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 4,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "study_directed_abort"
+      },
+      "expected": {
+        "endState": "aborted"
+      }
+    },
+    {
+      "case": "a technical failure outranks a deliberate abort",
+      "input": {
+        "processSubmitted": false,
+        "requiredFieldsTotal": 4,
+        "requiredFieldsCompleted": 4,
+        "openBlockingValidationCount": 0,
+        "terminationClassification": "technical_failure"
+      },
+      "expected": {
+        "endState": "technical_failure"
+      }
+    }
+  ]
+}

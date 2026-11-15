@@ -1,0 +1,45 @@
+@inject SchemaTextLoader Loader
+
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between">
+        <span>Referenz-Contract laden</span>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="OnCancel">Abbrechen</button>
+    </div>
+    <div class="card-body">
+        @{
+            var matching = Loader.ReferenceContracts
+                .Where(r => SchemaType is null || r.SchemaType == SchemaType)
+                .ToList();
+        }
+
+        @if (matching.Count == 0)
+        {
+            <p class="text-muted">Keine passenden Referenz-Contracts gefunden.</p>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var refContract in matching)
+                {
+                    <button class="list-group-item list-group-item-action"
+                            @onclick="() => Select(refContract)">
+                        <strong>@refContract.FileName</strong>
+                        <br />
+                        <small class="text-muted">@refContract.SchemaType</small>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? SchemaType { get; set; }
+    [Parameter] public EventCallback<string> OnSelected { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private async Task Select(ReferenceContract refContract)
+    {
+        await OnSelected.InvokeAsync(refContract.Json);
+    }
+}

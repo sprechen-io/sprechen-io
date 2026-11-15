@@ -1,0 +1,1340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/form-contract.schema.json",
+  "title": "FormContractDocument",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractVersion",
+    "applicationId",
+    "formId",
+    "supportedLanguages",
+    "entryFieldGroupId",
+    "strictLocalization",
+    "fieldCatalog",
+    "variableCatalog",
+    "variables",
+    "fields",
+    "fieldGroups",
+    "rules",
+    "constraints"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "contractVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "applicationId": {
+      "$ref": "#/$defs/Id"
+    },
+    "formId": {
+      "$ref": "#/$defs/Id"
+    },
+    "displayName": {
+      "$ref": "#/$defs/LocalizedText"
+    },
+    "description": {
+      "$ref": "#/$defs/LocalizedText"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "entryFieldGroupId": {
+      "$ref": "#/$defs/Id"
+    },
+    "strictLocalization": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), missing localizations for supportedLanguages are a preflight error. If false, they are warnings with defaultLanguage fallback."
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "fieldCatalog": {
+      "$ref": "#/$defs/FieldDefinitionsReference"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FormVariableBindingDefinition"
+      }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FormFieldBindingDefinition"
+      }
+    },
+    "fieldGroups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FieldGroupDefinition"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RuleDefinition"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ConstraintDefinition"
+      }
+    },
+    "projections": {
+      "$ref": "#/$defs/ContractProjections"
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "variableCatalog": {
+      "$ref": "#/$defs/VariableDefinitionsReference"
+    }
+  },
+  "$defs": {
+    "AnyNonNull": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AnyNonNull"
+    },
+    "DecimalString": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/DecimalString"
+    },
+    "NumericLiteral": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NumericLiteral"
+    },
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ErrorCode": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ErrorCode"
+    },
+    "DiacriticsStrategy": {
+      "$ref": "https://Sprechen/schemas/form-voice-profile.schema.json#/$defs/DiacriticsStrategy"
+    },
+    "RuleScope": {
+      "description": "When rule evaluates: onInit, onValueChanged, onEnterFieldGroup, or onSubmitAttempt.",
+      "type": "string",
+      "enum": [
+        "onInit",
+        "onValueChanged",
+        "onEnterFieldGroup",
+        "onSubmitAttempt"
+      ]
+    },
+    "ConstraintScope": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintScope"
+    },
+    "CompareOperator": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareOperator"
+    },
+    "TraceInfo": {
+      "description": "Metadata for request tracing: request identifiers for debugging and correlation.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rqIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "VariableDefinition": {
+      "description": "Form variable: type, initial value, privacy class, validation constraints, and metadata.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variableId",
+        "name",
+        "valueType"
+      ],
+      "properties": {
+        "variableId": {
+          "$ref": "#/$defs/Id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "semanticTag": {
+          "type": "string"
+        },
+        "privacyClass": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "sensitiveDataPolicy": {
+          "$ref": "#/$defs/SensitiveDataPolicy"
+        },
+        "valueType": {
+          "$ref": "#/$defs/ValueTypeDefinition"
+        },
+        "initialValue": {
+          "$ref": "#/$defs/AnyNonNull"
+        },
+        "invariantConstraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstraintDefinition"
+          }
+        },
+        "trace": {
+          "$ref": "#/$defs/TraceInfo"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "privacyClass": {
+                "const": "secret"
+              }
+            },
+            "required": [
+              "privacyClass"
+            ]
+          },
+          "then": {
+            "description": "If sensitiveDataPolicy is omitted, runtime defaults for privacyClass='secret' still apply (voiceInputPolicy='forbidden', readbackPolicy='never').",
+            "properties": {
+              "sensitiveDataPolicy": {
+                "type": "object",
+                "properties": {
+                  "voiceInputPolicy": {
+                    "const": "forbidden"
+                  },
+                  "readbackPolicy": {
+                    "const": "never"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "privacyClass": {
+                "const": "sensitive"
+              }
+            },
+            "required": [
+              "privacyClass"
+            ]
+          },
+          "then": {
+            "description": "If sensitiveDataPolicy is omitted, runtime defaults for privacyClass='sensitive' still apply (readbackPolicy='optInRequired').",
+            "properties": {
+              "sensitiveDataPolicy": {
+                "type": "object",
+                "properties": {
+                  "readbackPolicy": {
+                    "enum": [
+                      "never",
+                      "optInRequired"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PrivacyClass": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/PrivacyClass"
+    },
+    "VoiceInputPolicy": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/VoiceInputPolicy"
+    },
+    "ReadbackPolicy": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/ReadbackPolicy"
+    },
+    "SilentInputFallback": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/SilentInputFallback"
+    },
+    "SensitiveDataPolicy": {
+      "$ref": "https://Sprechen/schemas/privacy-policy.schema.json#/$defs/SensitiveDataPolicy"
+    },
+    "ValueTypeDefinition": {
+      "description": "Union of all value types. Note: DecimalType, DateTimeType, ObjectType, ListType, and CustomType are extension points NOT supported by the reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED). Schema-valid contracts using these types will fail preflight.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StringType"
+        },
+        {
+          "$ref": "#/$defs/IntegerType"
+        },
+        {
+          "$ref": "#/$defs/DecimalType"
+        },
+        {
+          "$ref": "#/$defs/BooleanType"
+        },
+        {
+          "$ref": "#/$defs/DateType"
+        },
+        {
+          "$ref": "#/$defs/TimeType"
+        },
+        {
+          "$ref": "#/$defs/DateTimeType"
+        },
+        {
+          "$ref": "#/$defs/EnumType"
+        },
+        {
+          "$ref": "#/$defs/SetType"
+        },
+        {
+          "$ref": "#/$defs/ObjectType"
+        },
+        {
+          "$ref": "#/$defs/ListType"
+        },
+        {
+          "$ref": "#/$defs/CustomType"
+        }
+      ]
+    },
+    "StringType": {
+      "description": "String value type: minLength, maxLength, and formatHint (text, email, phone, etc.).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "string"
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum string length (inclusive). Preflight validates that minLength \u2264 maxLength when both are specified."
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum string length (inclusive). Preflight validates that maxLength \u2265 minLength when both are specified."
+        },
+        "formatHint": {
+          "$ref": "#/$defs/FormatHint"
+        }
+      }
+    },
+    "FormatHint": {
+      "type": "string",
+      "enum": [
+        "text",
+        "email",
+        "phone",
+        "postalCode",
+        "url",
+        "pin",
+        "date",
+        "time",
+        "iban",
+        "digits",
+        "number"
+      ],
+      "description": "Optional string-format hint for presentation and parsing of string-typed variables only. Use DateType/TimeType for structured date/time values with parse validation. 'phone' is the canonical MDA telephone hint and adapters project it to HTML input type 'tel'. 'tel' is an alias of 'phone' and is scheduled for removal."
+    },
+    "IntegerType": {
+      "description": "Integer value type: min, max, and step constraints.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "integer"
+        },
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        }
+      }
+    },
+    "DecimalType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "decimal"
+        },
+        "min": {
+          "$ref": "#/$defs/DecimalString"
+        },
+        "max": {
+          "$ref": "#/$defs/DecimalString"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scale": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of decimal places. Preflight validates that scale \u2264 precision when both are specified."
+        }
+      }
+    },
+    "BooleanType": {
+      "description": "Boolean value type: true/false values only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "boolean"
+        }
+      }
+    },
+    "DateType": {
+      "description": "Date value type: date value without time component.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "date"
+        }
+      }
+    },
+    "TimeType": {
+      "description": "Time value type: time value without date component.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "time"
+        }
+      }
+    },
+    "DateTimeType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "dateTime"
+        }
+      }
+    },
+    "EnumValue": {
+      "description": "Single enum option: code, displayName, icon, and optional description.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "displayName"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "displayName": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    },
+    "EnumType": {
+      "description": "Enumerated value type: list of EnumValue options defining all allowed values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "values"
+      ],
+      "properties": {
+        "kind": {
+          "const": "enum"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/EnumValue"
+          }
+        }
+      }
+    },
+    "SetType": {
+      "description": "Multi-select value type: multiple values from list with optional minSelected/maxSelected constraints.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "values"
+      ],
+      "properties": {
+        "kind": {
+          "const": "set"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/EnumValue"
+          }
+        },
+        "minSelected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum number of selected values (inclusive). Preflight validates that minSelected \u2264 maxSelected when both are specified."
+        },
+        "maxSelected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of selected values (inclusive). Preflight validates that maxSelected \u2265 minSelected when both are specified."
+        }
+      }
+    },
+    "ObjectProperty": {
+      "description": "Property in object type: propertyName and either variable reference or inline type definition.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "propertyName"
+      ],
+      "properties": {
+        "propertyName": {
+          "type": "string"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Id"
+        },
+        "inlineType": {
+          "$ref": "#/$defs/ValueTypeDefinition"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "variableId"
+          ]
+        },
+        {
+          "required": [
+            "inlineType"
+          ]
+        }
+      ]
+    },
+    "ObjectType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "properties"
+      ],
+      "properties": {
+        "kind": {
+          "const": "object"
+        },
+        "properties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ObjectProperty"
+          }
+        }
+      }
+    },
+    "ListType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "itemType"
+      ],
+      "properties": {
+        "kind": {
+          "const": "list"
+        },
+        "itemType": {
+          "$ref": "#/$defs/ValueTypeDefinition"
+        },
+        "minItems": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "CustomType": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "customTypeName"
+      ],
+      "properties": {
+        "kind": {
+          "const": "custom"
+        },
+        "customTypeName": {
+          "type": "string"
+        },
+        "customSchema": {
+          "type": "object"
+        }
+      }
+    },
+    "FieldGroupMember": {
+      "description": "Member of field group: direct field reference or nested field group reference.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "field"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldGroupId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "fieldGroup"
+            },
+            "fieldGroupId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        }
+      ]
+    },
+    "FieldGroupDefinition": {
+      "description": "Logical field grouping: title, voice summary, and members.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldGroupId",
+        "title",
+        "members"
+      ],
+      "properties": {
+        "fieldGroupId": {
+          "$ref": "#/$defs/Id"
+        },
+        "title": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "voiceSummary": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FieldGroupMember"
+          }
+        },
+        "trace": {
+          "$ref": "#/$defs/TraceInfo"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "RuleDefinition": {
+      "description": "Conditional rule: when expression true execute then actions. optionally else actions.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "when",
+        "then"
+      ],
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/Id"
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "scope": {
+          "$ref": "#/$defs/RuleScope"
+        },
+        "when": {
+          "$ref": "#/$defs/ExpressionUnion"
+        },
+        "then": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleAction"
+          }
+        },
+        "else": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleAction"
+          }
+        },
+        "trace": {
+          "$ref": "#/$defs/TraceInfo"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "RuleAction": {
+      "description": "Rule action union: setVisible, setEnabled, setReadOnly, setValue, clearValue, copyValue, navigateToFieldGroup, focusField, speak, customAction.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "target",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "setVisible"
+            },
+            "target": {
+              "$ref": "#/$defs/VisibilityTargetRef"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldId",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "setEnabled"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/Id"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldId",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "setReadOnly"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/Id"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "variableId",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "setValue"
+            },
+            "variableId": {
+              "$ref": "#/$defs/Id"
+            },
+            "value": {
+              "$ref": "#/$defs/AnyNonNull"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "variableId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "clearValue"
+            },
+            "variableId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fromVariableId",
+            "toVariableId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "copyValue"
+            },
+            "fromVariableId": {
+              "$ref": "#/$defs/Id"
+            },
+            "toVariableId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldGroupId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "navigateToFieldGroup"
+            },
+            "fieldGroupId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "focusField"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "promptId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "speak"
+            },
+            "promptId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "customActionName"
+          ],
+          "properties": {
+            "kind": {
+              "const": "customAction"
+            },
+            "customActionName": {
+              "type": "string"
+            },
+            "payload": {
+              "type": "object"
+            }
+          }
+        }
+      ]
+    },
+    "VisibilityTargetRef": {
+      "description": "Target for visibility actions: field or field group.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "field"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldGroupId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "fieldGroup"
+            },
+            "fieldGroupId": {
+              "$ref": "#/$defs/Id"
+            }
+          }
+        }
+      ]
+    },
+    "ConstraintTargetRef": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintTargetRef"
+    },
+    "ConstraintBase": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintBase"
+    },
+    "ConstraintDefinition": {
+      "$ref": "https://Sprechen/schemas/constraint-language.schema.json#/$defs/ConstraintDefinition"
+    },
+    "ValueExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ValueExpression"
+    },
+    "ExpressionUnion": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ExpressionUnion"
+    },
+    "Expression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/Expression"
+    },
+    "AndExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AndExpression"
+    },
+    "OrExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/OrExpression"
+    },
+    "NotExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NotExpression"
+    },
+    "EqualsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/EqualsExpression"
+    },
+    "NotEqualsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NotEqualsExpression"
+    },
+    "CompareExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareExpression"
+    },
+    "InExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/InExpression"
+    },
+    "ContainsExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ContainsExpression"
+    },
+    "StartsWithExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/StartsWithExpression"
+    },
+    "IsSetExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsSetExpression"
+    },
+    "IsNotSetExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsNotSetExpression"
+    },
+    "IsEmptyExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsEmptyExpression"
+    },
+    "IsNotEmptyExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/IsNotEmptyExpression"
+    },
+    "CustomExpression": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CustomExpression"
+    },
+    "FormVoiceProfileReference": {
+      "$ref": "https://Sprechen/schemas/form-voice-profile.schema.json#/$defs/FormVoiceProfileReference"
+    },
+    "ContractProjections": {
+      "description": "Form-level projections for voice and HTML channels.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "voice": {
+          "$ref": "#/$defs/VoiceProjection"
+        },
+        "html": {
+          "$ref": "#/$defs/HtmlProjection"
+        }
+      }
+    },
+    "VoiceProjection": {
+      "description": "Voice channel projection container with voice-specific hints.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hints": {
+          "$ref": "#/$defs/VoiceHintsDefinition"
+        },
+        "formVoiceProfile": {
+          "$ref": "#/$defs/FormVoiceProfileReference"
+        }
+      }
+    },
+    "VoiceHintsDefinition": {
+      "description": "Form-bound voice surface configuration: reusable prompts, intents, synonyms, commands. Pure runtime tuning belongs to standalone form-voice-profile.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prompts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoicePrompt"
+          }
+        },
+        "intents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VoiceIntent"
+          }
+        },
+        "fieldNameSynonyms": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SynonymSet"
+          }
+        },
+        "commandModelId": {
+          "$ref": "#/$defs/Id",
+          "description": "Optional reference to a standalone voice command model (e.g. mda/navigationsmodell/schemas/voice-commands.schema.json). V1 has no catalog/application/field-group override layer for global commands. this selects the per-form baseline model. If omitted, runtimes SHOULD use their default command model."
+        },
+        "globalCommands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GlobalCommandDefinition"
+          },
+          "description": "Optional per-form overrides for global commands. Merging is by commandId: matching ids replace the baseline command for this form, new ids extend it, repeated overrides use the last entry, and enabled=false suppresses the command for this form. Baseline global commands SHOULD come from a standalone command model."
+        }
+      }
+    },
+    "GlobalCommandDefinition": {
+      "description": "Form-level voice command: command ID with localized utterances and enabled flag.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commandId",
+        "utterances"
+      ],
+      "properties": {
+        "commandId": {
+          "type": "string",
+          "enum": [
+            "next",
+            "back",
+            "repeat",
+            "help",
+            "status",
+            "summary",
+            "jumpTo",
+            "cancel",
+            "submit",
+            "nextError",
+            "formList",
+            "formStatus",
+            "switchForm",
+            "backToFormSelection",
+            "backToAppSelection",
+            "inputModeSpelling",
+            "inputModeVoice",
+            "inputModeDigits",
+            "inputModeKeyboard",
+            "inputModeLiteral",
+            "inputModeLiteralOff",
+            "editValue"
+          ],
+          "description": "Predefined global command identifier. Multi-form commands (formList, formStatus, switchForm, backToFormSelection, backToAppSelection) are only relevant for applications with multiple forms. Input-mode commands (inputModeSpelling, inputModeVoice, inputModeDigits, inputModeKeyboard, inputModeLiteral, inputModeLiteralOff) explicitly switch capture behavior for the focused field. Digits workflow repair commands (digitsDeleteLastDigit, digitsDeleteLastBlock, digitsRepeatLastBlock) are not available as globalCommands overrides."
+        },
+        "utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1,
+          "description": "Synonyms/phrases that trigger this command"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the command is enabled. For per-form overrides, enabled=false suppresses the command with the same commandId for this form."
+        }
+      }
+    },
+    "VoicePrompt": {
+      "description": "Reusable voice prompt: prompt ID and localized text.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "promptId",
+        "text"
+      ],
+      "properties": {
+        "promptId": {
+          "$ref": "#/$defs/Id"
+        },
+        "text": {
+          "$ref": "#/$defs/LocalizedText"
+        }
+      }
+    },
+    "VoiceIntent": {
+      "description": "Voice intent definition: intent ID with localized user utterances for NLU.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intentId",
+        "utterances"
+      ],
+      "properties": {
+        "intentId": {
+          "$ref": "#/$defs/Id"
+        },
+        "utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "SynonymSet": {
+      "description": "Synonym group: field name alternatives for robust voice recognition.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primaryName"
+      ],
+      "properties": {
+        "primaryName": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "synonyms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          }
+        }
+      }
+    },
+    "HtmlProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string",
+          "enum": [
+            "a11yFirst"
+          ]
+        }
+      }
+    },
+    "FieldDefinitionsReference": {
+      "description": "Reference to the standalone field catalog that provides reusable field definitions for this form contract.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldDefinitionsId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "fieldDefinitionsId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "FormFieldBindingDefinition": {
+      "description": "Form-local binding between a reusable field definition and the local fieldId/variableId used inside the form contract.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fieldId",
+        "variableId",
+        "fieldDefinitionId"
+      ],
+      "properties": {
+        "fieldId": {
+          "$ref": "#/$defs/Id"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Id"
+        },
+        "fieldDefinitionId": {
+          "$ref": "#/$defs/Id"
+        },
+        "trace": {
+          "$ref": "#/$defs/TraceInfo"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "VariableDefinitionsReference": {
+      "description": "Reference to the standalone variable catalog that provides reusable variable definitions for this form contract.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variableDefinitionsId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "variableDefinitionsId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "FormVariableBindingDefinition": {
+      "description": "Form-local variable binding that references reusable variable semantics from a standalone variable catalog.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variableId",
+        "variableDefinitionId"
+      ],
+      "properties": {
+        "variableId": {
+          "$ref": "#/$defs/Id"
+        },
+        "variableDefinitionId": {
+          "$ref": "#/$defs/Id"
+        },
+        "initialValue": {
+          "$ref": "#/$defs/AnyNonNull"
+        },
+        "invariantConstraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstraintDefinition"
+          }
+        },
+        "trace": {
+          "$ref": "#/$defs/TraceInfo"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

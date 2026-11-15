@@ -1,0 +1,12 @@
+@page "/not-found"
+@using Sprechen.Voice.App.Services
+@inject IUserLanguageState UserLanguageState
+
+<PageTitle>@Copy.Chrome.GetNotFoundHeading(UserLanguageState.SelectedIsoCode)</PageTitle>
+
+<h1>@Copy.Chrome.GetNotFoundHeading(UserLanguageState.SelectedIsoCode)</h1>
+<p>@Copy.Chrome.GetNotFoundMessage(UserLanguageState.SelectedIsoCode)</p>
+
+@code {
+    private VoiceSettingsCopy Copy { get; } = new();
+}

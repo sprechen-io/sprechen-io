@@ -1,0 +1,694 @@
+{
+  "catalogId": "forms.chrome-copy",
+  "catalogVersion": "1",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "defaultLanguage": "de",
+  "entries": [
+    {
+      "id": "ActionLoad",
+      "texts": {
+        "de": "Weiter",
+        "en": "Next",
+        "fr": "Suivant",
+        "es": "Siguiente",
+        "it": "Avanti"
+      }
+    },
+    {
+      "id": "BackLabel",
+      "texts": {
+        "de": "Zur\u00fcck zu den Formularen",
+        "en": "Back to forms",
+        "fr": "Retour aux formulaires",
+        "es": "Volver a los formularios",
+        "it": "Torna ai moduli"
+      }
+    },
+    {
+      "id": "CancelConfirm",
+      "texts": {
+        "de": "Sind Sie sicher, dass Sie abbrechen m\u00f6chten? Ihre Eingaben gehen verloren.",
+        "en": "Are you sure you want to cancel? Your entries will be lost.",
+        "fr": "Voulez-vous vraiment annuler ? Vos saisies seront perdues.",
+        "es": "\u00bfEst\u00e1 seguro de que desea cancelar? Sus datos se perder\u00e1n.",
+        "it": "Conferma l'annullamento? I dati inseriti andranno persi."
+      }
+    },
+    {
+      "id": "CancelTitle",
+      "texts": {
+        "de": "Abgebrochen",
+        "en": "Cancelled",
+        "fr": "Annul\u00e9",
+        "es": "Cancelado",
+        "it": "Annullato"
+      }
+    },
+    {
+      "id": "CancelledText",
+      "texts": {
+        "de": "Die Bearbeitung wurde abgebrochen.",
+        "en": "The form session has been cancelled.",
+        "fr": "La saisie du formulaire a \u00e9t\u00e9 annul\u00e9e.",
+        "es": "La sesi\u00f3n del formulario se ha cancelado.",
+        "it": "La compilazione del modulo \u00e8 stata annullata."
+      }
+    },
+    {
+      "id": "DemonstrationRestartAfterCancelText",
+      "texts": {
+        "de": "Die Bearbeitung wurde abgebrochen. Das Formular startet neu.",
+        "en": "The form session has been cancelled. The form now starts over.",
+        "fr": "La saisie du formulaire a \u00e9t\u00e9 annul\u00e9e. Le formulaire red\u00e9marre.",
+        "es": "La sesi\u00f3n del formulario se ha cancelado. El formulario se reinicia.",
+        "it": "La compilazione del modulo \u00e8 stata annullata. Il modulo ricomincia."
+      }
+    },
+    {
+      "id": "DemonstrationRestartAfterSubmitText",
+      "texts": {
+        "de": "Das Formular wurde abgesendet und startet neu.",
+        "en": "The form has been submitted and now starts over.",
+        "fr": "Le formulaire a \u00e9t\u00e9 envoy\u00e9 et red\u00e9marre.",
+        "es": "El formulario se envi\u00f3 y se reinicia.",
+        "it": "Il modulo \u00e8 stato inviato e ricomincia."
+      }
+    },
+    {
+      "id": "ErrorCatalogLoadFailed",
+      "texts": {
+        "de": "Der Anwendungskatalog konnte nicht geladen werden.",
+        "en": "The application catalog could not be loaded.",
+        "fr": "Le catalogue d'applications n'a pas pu \u00eatre charg\u00e9.",
+        "es": "El cat\u00e1logo de aplicaciones no se pudo cargar.",
+        "it": "Il catalogo delle applicazioni non ha potuto essere caricato."
+      }
+    },
+    {
+      "id": "ErrorFormLoadFailed",
+      "texts": {
+        "de": "Das Formular konnte nicht geladen werden.",
+        "en": "The form could not be loaded.",
+        "fr": "Le formulaire n'a pas pu \u00eatre charg\u00e9.",
+        "es": "El formulario no se pudo cargar.",
+        "it": "Il modulo non ha potuto essere caricato."
+      }
+    },
+    {
+      "id": "ErrorFormLocalizationStrictMissing",
+      "texts": {
+        "de": "Das Formular enth\u00e4lt unvollst\u00e4ndige Lokalisierungen f\u00fcr eine oder mehrere Sprachen.",
+        "en": "The form contains incomplete localizations for one or more languages.",
+        "fr": "Le formulaire contient des localisations incompl\u00e8tes pour une ou plusieurs langues.",
+        "es": "El formulario contiene localizaciones incompletas para uno o m\u00e1s idiomas.",
+        "it": "Il modulo contiene localizzazioni incomplete per una o pi\u00f9 lingue."
+      }
+    },
+    {
+      "id": "ErrorFormPreflightFailed",
+      "texts": {
+        "de": "Das Formular ist ung\u00fcltig und konnte nicht geladen werden.",
+        "en": "The form is invalid and could not be loaded.",
+        "fr": "Le formulaire est invalide et n'a pas pu \u00eatre charg\u00e9.",
+        "es": "El formulario no es v\u00e1lido y no se pudo cargar.",
+        "it": "Il modulo non \u00e8 valido e non ha potuto essere caricato."
+      }
+    },
+    {
+      "id": "ErrorFormProjectionProfileUnsupported",
+      "texts": {
+        "de": "Das Formular nutzt ein nicht unterst\u00fctztes HTML-Projektion-Profil.",
+        "en": "The form uses an unsupported HTML projection profile.",
+        "fr": "Le formulaire utilise un profil de projection HTML non pris en charge.",
+        "es": "El formulario utiliza un perfil de proyecci\u00f3n HTML no compatible.",
+        "it": "Il modulo utilizza un profilo di proiezione HTML non supportato."
+      }
+    },
+    {
+      "id": "ErrorLabel",
+      "texts": {
+        "de": "Fehler",
+        "en": "Error",
+        "fr": "Erreur",
+        "es": "Error",
+        "it": "Errore"
+      }
+    },
+    {
+      "id": "ExamplesLabel",
+      "texts": {
+        "de": "Beispiele",
+        "en": "Examples",
+        "fr": "Exemples",
+        "es": "Ejemplos",
+        "it": "Esempi"
+      }
+    },
+    {
+      "id": "LabelApplication",
+      "texts": {
+        "de": "Anwendung",
+        "en": "Application",
+        "fr": "Application",
+        "es": "Aplicacion",
+        "it": "Applicazione"
+      }
+    },
+    {
+      "id": "LabelForm",
+      "texts": {
+        "de": "Formular",
+        "en": "Form",
+        "fr": "Formulaire",
+        "es": "Formulario",
+        "it": "Modulo"
+      }
+    },
+    {
+      "id": "LabelLanguage",
+      "texts": {
+        "de": "Sprache",
+        "en": "Language",
+        "fr": "Langue",
+        "es": "Idioma",
+        "it": "Lingua"
+      }
+    },
+    {
+      "id": "LanguageLabel",
+      "texts": {
+        "de": "Anzeigesprache",
+        "en": "Display language",
+        "fr": "Langue d'affichage",
+        "es": "Idioma de visualizaci\u00f3n",
+        "it": "Lingua di visualizzazione"
+      }
+    },
+    {
+      "id": "NavBack",
+      "texts": {
+        "de": "Zurueck",
+        "en": "Back",
+        "fr": "Retour",
+        "es": "Atras",
+        "it": "Indietro"
+      }
+    },
+    {
+      "id": "NavCancel",
+      "texts": {
+        "de": "Abbrechen",
+        "en": "Cancel",
+        "fr": "Annuler",
+        "es": "Cancelar",
+        "it": "Annulla"
+      }
+    },
+    {
+      "id": "NavLabel",
+      "texts": {
+        "de": "Formularnavigation",
+        "en": "Form navigation",
+        "fr": "Navigation du formulaire",
+        "es": "Navegacion del formulario",
+        "it": "Navigazione del modulo"
+      }
+    },
+    {
+      "id": "NavNext",
+      "texts": {
+        "de": "Weiter",
+        "en": "Next",
+        "fr": "Suivant",
+        "es": "Siguiente",
+        "it": "Avanti"
+      }
+    },
+    {
+      "id": "NavSubmit",
+      "texts": {
+        "de": "Absenden",
+        "en": "Submit",
+        "fr": "Envoyer",
+        "es": "Enviar",
+        "it": "Invia"
+      }
+    },
+    {
+      "id": "NavStepTemplate",
+      "texts": {
+        "de": "Navigationsebene Formular: Formular {0} von {1}",
+        "en": "Navigation level form: form {0} of {1}",
+        "fr": "Niveau de navigation formulaire : formulaire {0} sur {1}",
+        "es": "Nivel de navegacion formulario: formulario {0} de {1}",
+        "it": "Livello di navigazione modulo: modulo {0} di {1}"
+      }
+    },
+    {
+      "id": "PagerNavLabel",
+      "texts": {
+        "de": "Gruppennavigation",
+        "en": "Group navigation",
+        "fr": "Navigation de groupe",
+        "es": "Navegacion de grupos",
+        "it": "Navigazione di gruppo"
+      }
+    },
+    {
+      "id": "PagerNext",
+      "texts": {
+        "de": "Weiter",
+        "en": "Next",
+        "fr": "Suivant",
+        "es": "Siguiente",
+        "it": "Avanti"
+      }
+    },
+    {
+      "id": "PagerNextGroupTemplate",
+      "texts": {
+        "de": "Zur naechsten Gruppe, Schritt {0} von {1}",
+        "en": "Go to next group, step {0} of {1}",
+        "fr": "Aller au groupe suivant, etape {0} sur {1}",
+        "es": "Ir al grupo siguiente, paso {0} de {1}",
+        "it": "Vai al gruppo successivo, passo {0} di {1}"
+      }
+    },
+    {
+      "id": "PagerPrevious",
+      "texts": {
+        "de": "Zurueck",
+        "en": "Back",
+        "fr": "Retour",
+        "es": "Atras",
+        "it": "Indietro"
+      }
+    },
+    {
+      "id": "PagerPreviousGroupTemplate",
+      "texts": {
+        "de": "Zur vorherigen Gruppe, Schritt {0} von {1}",
+        "en": "Go to previous group, step {0} of {1}",
+        "fr": "Aller au groupe precedent, etape {0} sur {1}",
+        "es": "Ir al grupo anterior, paso {0} de {1}",
+        "it": "Vai al gruppo precedente, passo {0} di {1}"
+      }
+    },
+    {
+      "id": "PagerStepTemplate",
+      "texts": {
+        "de": "Schritt {0} von {1}",
+        "en": "Step {0} of {1}",
+        "fr": "Etape {0} sur {1}",
+        "es": "Paso {0} de {1}",
+        "it": "Passo {0} di {1}"
+      }
+    },
+    {
+      "id": "PlaceholderChoose",
+      "texts": {
+        "de": "-- waehlen --",
+        "en": "-- choose --",
+        "fr": "-- choisir --",
+        "es": "-- elegir --",
+        "it": "-- scegliere --"
+      }
+    },
+    {
+      "id": "PlaceholderSelect",
+      "texts": {
+        "de": "-- auswaehlen --",
+        "en": "-- select --",
+        "fr": "-- selectionner --",
+        "es": "-- seleccionar --",
+        "it": "-- seleziona --"
+      }
+    },
+    {
+      "id": "PrerequisitesTitle",
+      "texts": {
+        "de": "Dieses Formular setzt voraus, dass folgende Formulare zuerst abgeschlossen werden:",
+        "en": "This form requires the following forms to be completed first:",
+        "fr": "Ce formulaire exige que les formulaires suivants soient d'abord termines :",
+        "es": "Este formulario requiere que primero se completen los siguientes formularios:",
+        "it": "Questo modulo richiede che i seguenti moduli siano completati prima:"
+      }
+    },
+    {
+      "id": "ProgressLabel",
+      "texts": {
+        "de": "Fortschritt:",
+        "en": "Progress:",
+        "fr": "Progression:",
+        "es": "Progreso:",
+        "it": "Avanzamento:"
+      }
+    },
+    {
+      "id": "ReadOnlyEmptyValue",
+      "texts": {
+        "de": "Kein Inhalt",
+        "en": "No content",
+        "fr": "Aucun contenu",
+        "es": "Sin contenido",
+        "it": "Nessun contenuto"
+      }
+    },
+    {
+      "id": "ReferenceHelp",
+      "texts": {
+        "de": "F\u00fcllen Sie die Felder aus. Pflichtfelder sind entsprechend gekennzeichnet.",
+        "en": "Fill in the fields. Required fields are marked accordingly.",
+        "fr": "Remplissez les champs. Les champs obligatoires sont marques en consequence.",
+        "es": "Complete los campos. Los campos obligatorios estan marcados.",
+        "it": "Compili i campi. I campi obbligatori sono contrassegnati."
+      }
+    },
+    {
+      "id": "ReferenceTitle",
+      "texts": {
+        "de": "Referenzformular",
+        "en": "Reference Form",
+        "fr": "Formulaire de reference",
+        "es": "Formulario de referencia",
+        "it": "Modulo di riferimento"
+      }
+    },
+    {
+      "id": "SaveLabel",
+      "texts": {
+        "de": "Speichern",
+        "en": "Save",
+        "fr": "Enregistrer",
+        "es": "Guardar",
+        "it": "Salva"
+      }
+    },
+    {
+      "id": "SelectionHelp",
+      "texts": {
+        "de": "W\u00e4hlen Sie Sprache und Anwendung aus. Falls mehrere Formulare vorhanden sind, w\u00e4hlen Sie anschlie\u00dfend das Formular.",
+        "en": "Select language and application. If multiple forms are available, select the form as well.",
+        "fr": "Selectionnez la langue et l'application. S'il y a plusieurs formulaires disponibles, selectionnez egalement le formulaire.",
+        "es": "Seleccione idioma y aplicacion. Si hay varios formularios disponibles, seleccione tambien el formulario.",
+        "it": "Selezioni lingua e applicazione. Se sono disponibili piu moduli, selezioni anche il modulo."
+      }
+    },
+    {
+      "id": "RestartLabel",
+      "texts": {
+        "de": "Erneut beginnen",
+        "en": "Start again",
+        "fr": "Recommencer",
+        "es": "Empezar de nuevo",
+        "it": "Ricomincia"
+      }
+    },
+    {
+      "id": "SelectionLink",
+      "texts": {
+        "de": "Zur\u00fcck zur Auswahl",
+        "en": "Back to selection",
+        "fr": "Retour \u00e0 la s\u00e9lection",
+        "es": "Volver a la selecci\u00f3n",
+        "it": "Torna alla selezione"
+      }
+    },
+    {
+      "id": "SelectionTitle",
+      "texts": {
+        "de": "Auswahl",
+        "en": "Selection",
+        "fr": "Selection",
+        "es": "Seleccion",
+        "it": "Selezione"
+      }
+    },
+    {
+      "id": "Settings",
+      "texts": {
+        "de": "Einstellungen",
+        "en": "Settings",
+        "fr": "Param\u00e8tres",
+        "es": "Ajustes",
+        "it": "Impostazioni"
+      }
+    },
+    {
+      "id": "SharedImportPrefix",
+      "texts": {
+        "de": "Uebernommene Werte:",
+        "en": "Imported values:",
+        "fr": "Valeurs importees :",
+        "es": "Valores importados:",
+        "it": "Valori importati:"
+      }
+    },
+    {
+      "id": "SkipToContent",
+      "texts": {
+        "de": "Zum Inhalt springen",
+        "en": "Skip to content",
+        "fr": "Passer au contenu",
+        "es": "Ir al contenido",
+        "it": "Vai al contenuto"
+      }
+    },
+    {
+      "id": "StudyConditionLabel",
+      "texts": {
+        "de": "Bedingung",
+        "en": "Condition",
+        "fr": "Condition",
+        "es": "Condicion",
+        "it": "Condizione"
+      }
+    },
+    {
+      "id": "StudyContextLabel",
+      "texts": {
+        "de": "Studienkontext",
+        "en": "Study context",
+        "fr": "Contexte d'etude",
+        "es": "Contexto del estudio",
+        "it": "Contesto di studio"
+      }
+    },
+    {
+      "id": "StudyParticipantLabel",
+      "texts": {
+        "de": "Teilnehmer",
+        "en": "Participant",
+        "fr": "Participant",
+        "es": "Participante",
+        "it": "Partecipante"
+      }
+    },
+    {
+      "id": "StudyTaskLabel",
+      "texts": {
+        "de": "Aufgabe",
+        "en": "Task",
+        "fr": "Tache",
+        "es": "Tarea",
+        "it": "Compito"
+      }
+    },
+    {
+      "id": "StudyVariantLabel",
+      "texts": {
+        "de": "Variante",
+        "en": "Variant",
+        "fr": "Variante",
+        "es": "Variante",
+        "it": "Variante"
+      }
+    },
+    {
+      "id": "SuccessNextSteps",
+      "texts": {
+        "de": "Sie k\u00f6nnen dieses Fenster nun schlie\u00dfen oder zur Auswahl zur\u00fcckkehren.",
+        "en": "You can now close this window or return to the selection.",
+        "fr": "Vous pouvez maintenant fermer cette fen\u00eatre ou revenir \u00e0 la s\u00e9lection.",
+        "es": "Ahora puede cerrar esta ventana o volver a la selecci\u00f3n.",
+        "it": "Ora pu\u00f2 chiudere questa finestra o tornare alla selezione."
+      }
+    },
+    {
+      "id": "SuccessSubmittedText",
+      "texts": {
+        "de": "Das Formular wurde erfolgreich abgesendet.",
+        "en": "The form has been submitted successfully.",
+        "fr": "Le formulaire a \u00e9t\u00e9 envoy\u00e9 avec succ\u00e8s.",
+        "es": "El formulario se envi\u00f3 correctamente.",
+        "it": "Il modulo \u00e8 stato inviato con successo."
+      }
+    },
+    {
+      "id": "SuccessTitle",
+      "texts": {
+        "de": "Vielen Dank!",
+        "en": "Thank you!",
+        "fr": "Merci !",
+        "es": "Gracias!",
+        "it": "Grazie!"
+      }
+    },
+    {
+      "id": "TelemetryConcurrentWriterErrorText",
+      "texts": {
+        "de": "Diese Studienaufgabe ist bereits in einem anderen Browser-Tab ge\u00f6ffnet. Schlie\u00dfen Sie den anderen Tab und laden Sie diese Seite anschlie\u00dfend neu.",
+        "en": "This study task is already open in another browser tab. Close the other tab, then reload this page.",
+        "fr": "Cette t\u00e2che d'\u00e9tude est d\u00e9j\u00e0 ouverte dans un autre onglet du navigateur. Fermez l'autre onglet, puis rechargez cette page.",
+        "es": "Esta tarea del estudio ya est\u00e1 abierta en otra pesta\u00f1a del navegador. Cierre la otra pesta\u00f1a y vuelva a cargar esta p\u00e1gina.",
+        "it": "Questa attivit\u00e0 dello studio \u00e8 gi\u00e0 aperta in un'altra scheda del browser. Chiuda l'altra scheda e ricarichi questa pagina."
+      }
+    },
+    {
+      "id": "TelemetryErrorTitle",
+      "texts": {
+        "de": "Technisches Problem.",
+        "en": "Technical problem.",
+        "fr": "Probl\u00e8me technique.",
+        "es": "Problema t\u00e9cnico.",
+        "it": "Problema tecnico."
+      }
+    },
+    {
+      "id": "StudyRestartedText",
+      "texts": {
+        "de": "Die Studienaufgabe wurde neu gestartet. Ihre bisherigen Eingaben wurden verworfen.",
+        "en": "The study task has restarted. Your previous entries were discarded.",
+        "fr": "La t\u00e2che d\u2019\u00e9tude a red\u00e9marr\u00e9. Vos saisies pr\u00e9c\u00e9dentes ont \u00e9t\u00e9 supprim\u00e9es.",
+        "es": "La tarea del estudio se ha reiniciado. Se han descartado los datos anteriores.",
+        "it": "L\u2019attivit\u00e0 dello studio \u00e8 ricominciata. I dati inseriti in precedenza sono stati eliminati."
+      }
+    },
+    {
+      "id": "TelemetryInitializationErrorText",
+      "texts": {
+        "de": "Die Studienaufgabe kann gerade nicht sicher gestartet werden. Die Felder sind jetzt schreibgesch\u00fctzt. Laden Sie diese Seite neu, um von vorne zu beginnen. Ihre bisherigen Eingaben auf dieser Seite werden dabei verworfen. Falls das nicht hilft, bitten Sie Ihre Begleitperson um Hilfe.",
+        "en": "The study task cannot be started safely right now. The fields are now read-only. Reload this page to start again. Reloading discards your previous entries on this page. If this does not help, ask the person assisting you for help.",
+        "fr": "La t\u00e2che d'\u00e9tude ne peut pas \u00eatre d\u00e9marr\u00e9e de mani\u00e8re s\u00fbre pour le moment. Les champs sont maintenant en lecture seule. Rechargez cette page pour recommencer. Vos saisies pr\u00e9c\u00e9dentes sur cette page seront supprim\u00e9es. Si cela ne r\u00e9sout pas le probl\u00e8me, demandez de l\u2019aide \u00e0 la personne qui vous accompagne.",
+        "es": "La tarea del estudio no puede iniciarse de forma segura en este momento. Los campos son ahora de solo lectura. Vuelva a cargar esta p\u00e1gina para empezar de nuevo. Se descartar\u00e1n los datos introducidos anteriormente en esta p\u00e1gina. Si esto no ayuda, pida ayuda a la persona que le acompa\u00f1a.",
+        "it": "Al momento non \u00e8 possibile avviare in modo sicuro l'attivit\u00e0 dello studio. I campi sono ora di sola lettura. Ricarichi questa pagina per ricominciare. I dati inseriti in precedenza in questa pagina verranno eliminati. Se il problema persiste, chieda aiuto alla persona che la accompagna."
+      }
+    },
+    {
+      "id": "TelemetryTerminalErrorText",
+      "texts": {
+        "de": "Die Studienaufgabe kann nicht mehr sicher aufgezeichnet werden. Die Felder sind jetzt schreibgesch\u00fctzt. Laden Sie diese Seite neu, um von vorne zu beginnen. Ihre bisherigen Eingaben auf dieser Seite werden dabei verworfen. Falls das nicht hilft, bitten Sie Ihre Begleitperson um Hilfe.",
+        "en": "The study task can no longer be recorded safely. The fields are now read-only. Reload this page to start again. Reloading discards your previous entries on this page. If this does not help, ask the person assisting you for help.",
+        "fr": "La t\u00e2che d'\u00e9tude ne peut plus \u00eatre enregistr\u00e9e de mani\u00e8re s\u00fbre. Les champs sont maintenant en lecture seule. Rechargez cette page pour recommencer. Vos saisies pr\u00e9c\u00e9dentes sur cette page seront supprim\u00e9es. Si cela ne r\u00e9sout pas le probl\u00e8me, demandez de l\u2019aide \u00e0 la personne qui vous accompagne.",
+        "es": "La tarea del estudio ya no puede registrarse de forma segura. Los campos son ahora de solo lectura. Vuelva a cargar esta p\u00e1gina para empezar de nuevo. Se descartar\u00e1n los datos introducidos anteriormente en esta p\u00e1gina. Si esto no ayuda, pida ayuda a la persona que le acompa\u00f1a.",
+        "it": "L'attivit\u00e0 dello studio non pu\u00f2 pi\u00f9 essere registrata in modo sicuro. I campi sono ora di sola lettura. Ricarichi questa pagina per ricominciare. I dati inseriti in precedenza in questa pagina verranno eliminati. Se il problema persiste, chieda aiuto alla persona che la accompagna."
+      }
+    },
+    {
+      "id": "TelemetryTerminalVolatileErrorText",
+      "texts": {
+        "de": "Die Studienaufgabe kann nicht mehr sicher aufgezeichnet werden. Der angezeigte Eingabestand ist auf dieser Seite schreibgesch\u00fctzt, konnte aber nicht dauerhaft gespeichert werden. Laden Sie diese Seite neu, um von vorne zu beginnen. Ihre bisherigen Eingaben auf dieser Seite werden dabei verworfen. Falls das nicht hilft, bitten Sie Ihre Begleitperson um Hilfe.",
+        "en": "The study task can no longer be recorded safely. The displayed entries are read-only on this page, but could not be stored permanently. Reload this page to start again. Reloading discards your previous entries on this page. If this does not help, ask the person assisting you for help.",
+        "fr": "La t\u00e2che d'\u00e9tude ne peut plus \u00eatre enregistr\u00e9e de mani\u00e8re s\u00fbre. Les saisies affich\u00e9es sont en lecture seule sur cette page, mais n'ont pas pu \u00eatre enregistr\u00e9es durablement. Rechargez cette page pour recommencer. Vos saisies pr\u00e9c\u00e9dentes sur cette page seront supprim\u00e9es. Si cela ne r\u00e9sout pas le probl\u00e8me, demandez de l\u2019aide \u00e0 la personne qui vous accompagne.",
+        "es": "La tarea del estudio ya no puede registrarse de forma segura. Los datos mostrados son de solo lectura en esta p\u00e1gina, pero no pudieron guardarse de forma permanente. Vuelva a cargar esta p\u00e1gina para empezar de nuevo. Se descartar\u00e1n los datos introducidos anteriormente en esta p\u00e1gina. Si esto no ayuda, pida ayuda a la persona que le acompa\u00f1a.",
+        "it": "L'attivit\u00e0 dello studio non pu\u00f2 pi\u00f9 essere registrata in modo sicuro. I dati visualizzati sono in sola lettura su questa pagina, ma non \u00e8 stato possibile salvarli in modo permanente. Ricarichi questa pagina per ricominciare. I dati inseriti in precedenza in questa pagina verranno eliminati. Se il problema persiste, chieda aiuto alla persona che la accompagna."
+      }
+    },
+    {
+      "id": "TelemetryTerminalPendingText",
+      "texts": {
+        "de": "Der Abschluss wird sicher gespeichert. Bitte lassen Sie diese Seite ge\u00f6ffnet.",
+        "en": "Completion is being saved safely. Please keep this page open.",
+        "fr": "La fin de la t\u00e2che est en cours d'enregistrement s\u00e9curis\u00e9. Veuillez garder cette page ouverte.",
+        "es": "La finalizaci\u00f3n se est\u00e1 guardando de forma segura. Mantenga esta p\u00e1gina abierta.",
+        "it": "Il completamento viene salvato in modo sicuro. Mantenga aperta questa pagina."
+      }
+    },
+    {
+      "id": "ThemeDark",
+      "texts": {
+        "de": "Dunkel",
+        "en": "Dark",
+        "fr": "Sombre",
+        "es": "Oscuro",
+        "it": "Scuro"
+      }
+    },
+    {
+      "id": "ThemeLabel",
+      "texts": {
+        "de": "Darstellung",
+        "en": "Appearance",
+        "fr": "Apparence",
+        "es": "Apariencia",
+        "it": "Aspetto"
+      }
+    },
+    {
+      "id": "ThemeLight",
+      "texts": {
+        "de": "Hell",
+        "en": "Light",
+        "fr": "Clair",
+        "es": "Claro",
+        "it": "Chiaro"
+      }
+    },
+    {
+      "id": "ThemeSystem",
+      "texts": {
+        "de": "System",
+        "en": "System",
+        "fr": "Syst\u00e8me",
+        "es": "Sistema",
+        "it": "Sistema"
+      }
+    },
+    {
+      "id": "ValidationInvalidFormatFallback",
+      "texts": {
+        "de": "Ungueltiges Format.",
+        "en": "Invalid format.",
+        "fr": "Format invalide.",
+        "es": "Formato no valido.",
+        "it": "Formato non valido."
+      }
+    },
+    {
+      "id": "ValidationInvalidValueFallback",
+      "texts": {
+        "de": "Ungueltiger Wert.",
+        "en": "Invalid value.",
+        "fr": "Valeur invalide.",
+        "es": "Valor no valido.",
+        "it": "Valore non valido."
+      }
+    },
+    {
+      "id": "ValidationRequiredFallback",
+      "texts": {
+        "de": "Dieses Feld ist erforderlich.",
+        "en": "This field is required.",
+        "fr": "Ce champ est obligatoire.",
+        "es": "Este campo es obligatorio.",
+        "it": "Questo campo e obbligatorio."
+      }
+    },
+    {
+      "id": "ValidationSummaryTitle",
+      "texts": {
+        "de": "Bitte korrigieren Sie folgende Fehler:",
+        "en": "Please fix the following errors:",
+        "fr": "Veuillez corriger les erreurs suivantes :",
+        "es": "Corrija los siguientes errores:",
+        "it": "Corregga i seguenti errori:"
+      }
+    }
+  ]
+}

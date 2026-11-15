@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "lexiconModelId": "default.voiceLexicon",
+  "yesNoProfiles": [
+    {
+      "languageCode": "de",
+      "yesWord": "ja",
+      "noWord": "nein",
+      "yesTokens": [
+        "ja",
+        "jawohl",
+        "genau",
+        "richtig",
+        "korrekt",
+        "stimmt",
+        "ok",
+        "okay"
+      ],
+      "noTokens": [
+        "nein",
+        "falsch",
+        "nicht richtig",
+        "stimmt nicht",
+        "nee",
+        "n\u00f6"
+      ],
+      "negationCues": [
+        "nicht",
+        "kein",
+        "keine",
+        "keinen",
+        "keinem",
+        "keiner",
+        "nie",
+        "niemals"
+      ],
+      "notUnderstoodPhrases": [
+        "ich verstehe nicht",
+        "ich verstehe sie nicht",
+        "ich verstehe dich nicht",
+        "verstehe nicht",
+        "wie bitte",
+        "keine ahnung"
+      ]
+    },
+    {
+      "languageCode": "en",
+      "yesWord": "yes",
+      "noWord": "no",
+      "yesTokens": [
+        "yes",
+        "yeah",
+        "yep",
+        "correct",
+        "right",
+        "ok",
+        "okay",
+        "sure"
+      ],
+      "noTokens": [
+        "no",
+        "nope",
+        "wrong",
+        "incorrect"
+      ],
+      "negationCues": [
+        "not",
+        "dont",
+        "do not",
+        "don't",
+        "never",
+        "rather not"
+      ],
+      "notUnderstoodPhrases": [
+        "i don't understand",
+        "i do not understand",
+        "i dont understand",
+        "pardon",
+        "come again",
+        "i don't know"
+      ]
+    },
+    {
+      "languageCode": "fr",
+      "yesWord": "oui",
+      "noWord": "non",
+      "yesTokens": [
+        "oui",
+        "exact",
+        "correct",
+        "daccord"
+      ],
+      "noTokens": [
+        "non",
+        "faux",
+        "pas correct"
+      ],
+      "negationCues": [
+        "pas",
+        "ne",
+        "jamais",
+        "aucun",
+        "aucune"
+      ],
+      "notUnderstoodPhrases": [
+        "je ne comprends pas",
+        "je comprends pas",
+        "pardon",
+        "comment",
+        "je ne sais pas"
+      ]
+    },
+    {
+      "languageCode": "es",
+      "yesWord": "s\u00ed",
+      "noWord": "no",
+      "yesTokens": [
+        "s\u00ed",
+        "claro",
+        "correcto",
+        "vale"
+      ],
+      "noTokens": [
+        "no",
+        "incorrecto",
+        "no es correcto"
+      ],
+      "negationCues": [
+        "nunca",
+        "tampoco",
+        "ningun",
+        "ninguna",
+        "ning\u00fan"
+      ],
+      "notUnderstoodPhrases": [
+        "no entiendo",
+        "no comprendo",
+        "no le entiendo",
+        "perdon",
+        "como dice",
+        "no se"
+      ]
+    },
+    {
+      "languageCode": "it",
+      "yesWord": "s\u00ec",
+      "noWord": "no",
+      "yesTokens": [
+        "s\u00ec",
+        "certo",
+        "corretto",
+        "okay"
+      ],
+      "noTokens": [
+        "no",
+        "sbagliato",
+        "non corretto"
+      ],
+      "negationCues": [
+        "non",
+        "mai",
+        "nessun",
+        "nessuna"
+      ],
+      "notUnderstoodPhrases": [
+        "no capisco",
+        "non capisco",
+        "non ho capito",
+        "non ha capito",
+        "scusi",
+        "come dice",
+        "non lo so"
+      ]
+    }
+  ],
+  "politenessProfiles": [
+    {
+      "languageCode": "en",
+      "formalWord": "formal",
+      "informalWord": "informal",
+      "formalTokens": [
+        "formal",
+        "polite"
+      ],
+      "informalTokens": [
+        "informal",
+        "casual"
+      ]
+    },
+    {
+      "languageCode": "de",
+      "formalWord": "sie",
+      "informalWord": "du",
+      "formalTokens": [
+        "sie",
+        "formell",
+        "formal"
+      ],
+      "informalTokens": [
+        "du",
+        "informell",
+        "informal"
+      ]
+    },
+    {
+      "languageCode": "fr",
+      "formalWord": "vous",
+      "informalWord": "tu",
+      "formalTokens": [
+        "vous",
+        "formel",
+        "formelle",
+        "formal"
+      ],
+      "informalTokens": [
+        "tu",
+        "informel",
+        "informelle",
+        "informal"
+      ]
+    },
+    {
+      "languageCode": "es",
+      "formalWord": "usted",
+      "informalWord": "t\u00fa",
+      "formalTokens": [
+        "usted",
+        "formal"
+      ],
+      "informalTokens": [
+        "t\u00fa",
+        "informal"
+      ]
+    },
+    {
+      "languageCode": "it",
+      "formalWord": "lei",
+      "informalWord": "tu",
+      "formalTokens": [
+        "lei",
+        "formale",
+        "formal"
+      ],
+      "informalTokens": [
+        "tu",
+        "informale",
+        "informal"
+      ]
+    }
+  ]
+}

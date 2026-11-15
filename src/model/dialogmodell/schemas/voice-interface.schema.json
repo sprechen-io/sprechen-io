@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/voice-interface.schema.json",
+  "title": "VoiceInterfaceDocument",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "voiceInterfaceId",
+    "supportedLanguages",
+    "defaultLanguage",
+    "strictLocalization",
+    "firstPcmEnqueueTimeoutMs",
+    "firstPcmTimeoutEarconId",
+    "resourceCatalog",
+    "promptCatalog",
+    "lexiconCatalog",
+    "wakeWordCatalog",
+    "wakeWordDetectorCatalog"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "voiceInterfaceId": {
+      "$ref": "#/$defs/Id"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "strictLocalization": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), missing localizations in referenced resources, prompt templates, or lexicon profiles are a preflight error. If false, they are warnings with defaultLanguage fallback."
+    },
+    "firstPcmEnqueueTimeoutMs": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 60000,
+      "description": "Required budget from playback-slot acquisition through preparation and all transport attempts until the first successfully enqueued aligned PCM block. Empty chunks and retries do not renew it. Expiry is a technical failure with a local cue, not a user cancellation or automatic dialog restart."
+    },
+    "firstPcmTimeoutEarconId": {
+      "type": "string",
+      "enum": ["ValidationAsrFail"],
+      "description": "Required finite local negative cue requested once per timed-out logical playback. Higher feedback owners may separately announce the failure. Listening, success and looping cues are not valid failure feedback."
+    },
+    "sessionLanguageOfferEnabled": {
+      "type": "boolean",
+      "description": "Whether the session entry puts the guided language decision to the participant. Absent or false means the entry stays silent about language, which is the configuration a study run uses so every participant hears the same announcements."
+    },
+    "resourceCatalog": {
+      "$ref": "#/$defs/VoiceResourceCatalogReference",
+      "description": "Reference to the standalone voice resource catalog for session-setup texts, language names, generic UI speech resources, and modeled listening cues. On wake-only activation the surface enters the application catalog dialog immediately; its spoken announcement acknowledges the activation and precedes the actual selection-capture cue. A cue that means 'speak now' must occur only when that capture window opens."
+    },
+    "promptCatalog": {
+      "$ref": "#/$defs/GenericPromptCatalogReference",
+      "description": "Reference to the standalone generic prompt catalog for form-dialog and privacy fallback templates."
+    },
+    "lexiconCatalog": {
+      "$ref": "#/$defs/VoiceLexiconCatalogReference",
+      "description": "Reference to the standalone voice lexicon catalog for yes/no and politeness semantics."
+    },
+    "wakeWordCatalog": {
+      "$ref": "#/$defs/WakeWordCatalogReference",
+      "description": "Reference to the standalone wake-word catalog for modeled activation forms, recognition-only activation forms, and optional cross-cycle stitching for incomplete multi-word activation forms. On wake-word-gated voice surfaces, this catalog contributes the activation signal that must be evidenced after the modeled armed-listening cue has surfaced and before interruption candidates may become command attempts or command-failure outcomes. A contiguous leading sequence of complete modeled activation forms is one idempotent activation; only the full remainder after that sequence is downstream content. Wake word plus executable content in the same utterance remains valid and may seed the downstream surface-owned dialog directly. Wake-word-only activations make the generic surface enter the surface-owned application catalog dialog without a prefetched transcript, so it announces the available applications before opening its selection listening turn. Genuine silence in that dialog is non-terminal and opens a fresh capture window after audible no-input feedback; cancel and classified system-failure terminals retain their own modeled audible feedback. The wakeUtteranceWindow stitcher applies only to incomplete multi-word activation assembly and never replaces that wake-only entry into the catalog dialog."
+    },
+    "wakeWordDetectorCatalog": {
+      "$ref": "#/$defs/WakeWordDetectorCatalogReference",
+      "description": "Reference to the standalone wake-word detector catalog for modeled acoustic evidence profiles. This catalog never owns lexical activation meaning or same-utterance command semantics; it owns only detector identity, gating thresholds, lookback, warmup, and explicit lexical fallback reasons."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "GenericPromptCatalogReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "promptCatalogModelId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "promptCatalogModelId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "VoiceResourceCatalogReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceModelId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "resourceModelId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "VoiceLexiconCatalogReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lexiconModelId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "lexiconModelId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "WakeWordCatalogReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wakeWordModelId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "wakeWordModelId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "WakeWordDetectorCatalogReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "detectorCatalogModelId",
+        "catalogVersion"
+      ],
+      "properties": {
+        "detectorCatalogModelId": {
+          "$ref": "#/$defs/Id"
+        },
+        "catalogVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    }
+  }
+}

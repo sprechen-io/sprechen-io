@@ -1,0 +1,300 @@
+$font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+$color-text: #000000;
+$color-link: #0078d4;
+$color-primary: #0078d4;
+$color-primary-border: #106ebe;
+$color-on-primary: #ffffff;
+$color-focus-ring: #61a6e8;
+$color-valid: #26b050;
+$color-invalid: #e50000;
+$color-error-bg: #b32121;
+$toast-bg: #fffce5;
+
+$nav-gradient-start: #003a66;
+$nav-gradient-end: #0078d4;
+$nav-link-color: #d7d7d7;
+$nav-link-active-bg: rgba(255, 255, 255, 0.37);
+$nav-link-hover-bg: rgba(255, 255, 255, 0.1);
+$nav-backdrop-bg: rgba(0, 0, 0, 0.45);
+$nav-header-bg: rgba(0, 0, 0, 0.35);
+$nav-header-border: rgba(255, 255, 255, 0.12);
+$nav-close-color: rgba(255, 255, 255, 0.85);
+$nav-close-hover-bg: rgba(255, 255, 255, 0.12);
+
+$nav-open-border: rgba(255, 255, 255, 0.35);
+$nav-open-color: rgba(255, 255, 255, 0.96);
+
+$earcon-flow-bg: #0078d4;
+$earcon-structure-bg: #008272;
+$earcon-validation-success-bg: #107c10;
+$earcon-validation-not-ok-bg: #d13438;
+$earcon-mode-bg: #ffd000;
+$earcon-idle-bg: rgba($earcon-flow-bg, 0.22);
+
+$checkbox-border: #929292;
+
+// Grundfarbe für die farbigen Hintergründe der Sprachbedienung.
+$surface-tint-base: white;
+
+// Grundwerte des dunklen Farbschemas; SCSS berechnet daraus auch Farben mit Transparenz.
+$dark-color-text: #e6e6e6;
+$dark-color-primary: #0078d4;
+$dark-color-invalid: #ff6b6b;
+$dark-earcon-flow-bg: #4ea3f0;
+$dark-home-mic-bg-color: #282e3a;
+
+$shadow-floating: 0 4px 14px rgba(0, 0, 0, 0.2);
+$shadow-toast: 0 2px 16px rgba(0, 0, 0, 0.2);
+
+$motion-fast: 120ms;
+$easing-standard: ease-out;
+
+$content-padding-top: 1.1rem;
+$top-bar-min-height-mobile: 3.75rem;
+$top-bar-min-height-desktop: 4.25rem;
+
+$toast-bottom-offset: 1.75rem;
+$toast-padding: 0.75rem 1.1rem;
+$toast-border-radius: 0.75rem;
+$toast-max-width: 840px;
+$toast-margin-x: 2rem;
+$toast-font-size: 1.05rem;
+$toast-line-height: 1.4;
+$z-toast: 1100;
+
+$home-background-start: rgba(238, 246, 255, 0.64);
+$home-background-end: rgba(220, 236, 255, 0.4);
+$home-background-border: rgba($color-primary, 0.14);
+$home-background-shadow: 0 24px 56px rgba($nav-gradient-start, 0.1);
+
+$home-mic-viewport-margin: 2rem;
+$home-mic-size: max(14rem, min(85vw, calc(85svh - var(--sp-top-bar-min-height) - var(--sp-home-mic-viewport-margin))));
+$home-mic-icon-size: clamp(8rem, 35vmin, 24rem);
+$home-mic-border: 2px solid rgba($color-text, 0.15);
+$home-mic-bg: rgba($color-on-primary, 0.55);
+$home-mic-border-radius: 50%;
+$home-mic-hover-scale: 1.02;
+$home-mic-disabled-opacity: 0.6;
+$home-mic-recording-ring: 0 0 0 0.35rem rgba($color-invalid, 0.15);
+
+:root {
+    // Der Browser passt native Bedienelemente und Bildlaufleisten an das aktive Farbschema an.
+    color-scheme: light dark;
+
+    --sp-font-sans: #{$font-sans};
+
+    --sp-color-text: #{$color-text};
+    --sp-color-link: #{$color-link};
+    --sp-color-primary: #{$color-primary};
+    --sp-color-primary-border: #{$color-primary-border};
+    --sp-color-on-primary: #{$color-on-primary};
+    --sp-color-focus-ring: #{$color-focus-ring};
+    --sp-color-valid: #{$color-valid};
+    --sp-color-invalid: #{$color-invalid};
+    --sp-color-error-bg: #{$color-error-bg};
+    --sp-toast-bg: #{$toast-bg};
+
+    --sp-nav-gradient-start: #{$nav-gradient-start};
+    --sp-nav-gradient-end: #{$nav-gradient-end};
+    --sp-nav-drawer-gradient: linear-gradient(180deg, var(--sp-nav-gradient-start) 0%, var(--sp-nav-gradient-end) 70%);
+
+    --sp-nav-link-color: #{$nav-link-color};
+    --sp-nav-on-color: var(--sp-color-on-primary);
+    --sp-nav-link-active-bg: #{$nav-link-active-bg};
+    --sp-nav-link-hover-bg: #{$nav-link-hover-bg};
+
+    --sp-nav-backdrop-bg: #{$nav-backdrop-bg};
+    --sp-nav-header-bg: #{$nav-header-bg};
+    --sp-nav-header-border: #{$nav-header-border};
+    --sp-nav-close-color: #{$nav-close-color};
+    --sp-nav-close-hover-bg: #{$nav-close-hover-bg};
+
+    --sp-nav-open-border: #{$nav-open-border};
+    --sp-nav-open-color: #{$nav-open-color};
+
+    --sp-earcon-flow-bg: #{$earcon-flow-bg};
+    --sp-earcon-structure-bg: #{$earcon-structure-bg};
+    --sp-earcon-validation-success-bg: #{$earcon-validation-success-bg};
+    --sp-earcon-validation-not-ok-bg: #{$earcon-validation-not-ok-bg};
+    --sp-earcon-mode-bg: #{$earcon-mode-bg};
+    --sp-earcon-idle-bg: #{$earcon-idle-bg};
+
+    --sp-checkbox-border: #{$checkbox-border};
+
+    --sp-shadow-floating: #{$shadow-floating};
+    --sp-shadow-toast: #{$shadow-toast};
+
+    --sp-motion-fast: #{$motion-fast};
+    --sp-easing-standard: #{$easing-standard};
+
+    --sp-content-padding-top: #{$content-padding-top};
+    --sp-top-bar-min-height: #{$top-bar-min-height-mobile};
+
+    --sp-toast-bottom-offset: #{$toast-bottom-offset};
+    --sp-toast-padding: #{$toast-padding};
+    --sp-toast-border-radius: #{$toast-border-radius};
+    --sp-toast-max-width: #{$toast-max-width};
+    --sp-toast-margin-x: #{$toast-margin-x};
+    --sp-toast-font-size: #{$toast-font-size};
+    --sp-toast-line-height: #{$toast-line-height};
+    --sp-z-toast: #{$z-toast};
+
+    --sp-home-background-start: #{$home-background-start};
+    --sp-home-background-end: #{$home-background-end};
+    --sp-home-background-border: #{$home-background-border};
+    --sp-home-background-shadow: #{$home-background-shadow};
+
+    --sp-home-mic-size: #{$home-mic-size};
+    --sp-home-mic-icon-size: #{$home-mic-icon-size};
+    --sp-home-mic-viewport-margin: #{$home-mic-viewport-margin};
+    --sp-home-mic-border: #{$home-mic-border};
+    --sp-home-mic-bg: #{$home-mic-bg};
+    --sp-home-mic-border-radius: #{$home-mic-border-radius};
+    --sp-home-mic-hover-scale: #{$home-mic-hover-scale};
+    --sp-home-mic-disabled-opacity: #{$home-mic-disabled-opacity};
+    --sp-home-mic-recording-ring: #{$home-mic-recording-ring};
+
+    // Die Earcon-Farben werden im hellen Modus mit Weiß und im dunklen Modus mit einer dunklen Grundfarbe gemischt.
+    --sp-surface-tint-base: #{$surface-tint-base};
+
+    // Gemeinsame Farben für SpeechAssistantFormSurface.
+    --sp-form-panel-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(245, 248, 255, 0.9));
+    --sp-form-panel-border: rgba(32, 45, 74, 0.12);
+    --sp-form-panel-shadow: 0 1.25rem 3rem rgba(17, 24, 39, 0.08);
+    --sp-form-accent: #5c6ac4;
+    --sp-form-muted-text: #42506a;
+    --sp-form-subtle-text: #4b5974;
+    --sp-form-value-text: #172033;
+    --sp-form-value-bg: rgba(255, 255, 255, 0.95);
+    --sp-form-value-border: rgba(92, 106, 196, 0.22);
+    --sp-form-field-bg: rgba(248, 250, 252, 0.82);
+    --sp-form-field-border: rgba(125, 141, 170, 0.14);
+    --sp-form-field-focus-border: rgba(92, 106, 196, 0.45);
+    --sp-form-field-focus-shadow: 0 1rem 2rem rgba(92, 106, 196, 0.14);
+    --sp-form-field-focus-bg: linear-gradient(135deg, rgba(240, 244, 255, 0.96), rgba(255, 255, 255, 0.98));
+    --sp-pill-info-bg: #edf3ff;
+    --sp-pill-info-text: #1f4eb7;
+    --sp-pill-success-bg: #e5f8ee;
+    --sp-pill-success-text: #1a7f49;
+    --sp-pill-neutral-bg: #f3f4f6;
+    --sp-pill-neutral-text: #5f6b7f;
+}
+
+@media (min-width: 641px) {
+    :root {
+        --sp-top-bar-min-height: #{$top-bar-min-height-desktop};
+    }
+}
+
+// Das gemeinsame Mixin definiert das dunkle Farbschema für Systemvorgabe und manuelle Auswahl.
+// Eine manuelle Auswahl hat Vorrang. Neben den --sp-Variablen der Anwendung werden
+// die dunklen --bs-Werte von Bootstrap gesetzt; app.css wird nach bootstrap.min.css geladen.
+@mixin sp-dark-theme {
+        color-scheme: dark;
+
+        // Dunkle Bootstrap-5.3.3-Farbwerte; --bs-link-color verwendet die Linkfarbe der Anwendung.
+        --bs-body-color: #dee2e6;
+        --bs-body-color-rgb: 222, 226, 230;
+        --bs-body-bg: #212529;
+        --bs-body-bg-rgb: 33, 37, 41;
+        --bs-emphasis-color: #fff;
+        --bs-secondary-color: rgba(222, 226, 230, 0.75);
+        --bs-secondary-bg: #343a40;
+        --bs-tertiary-color: rgba(222, 226, 230, 0.5);
+        --bs-tertiary-bg: #2b3035;
+        --bs-primary-text-emphasis: #6ea8fe;
+        --bs-success-text-emphasis: #75b798;
+        --bs-info-text-emphasis: #6edff6;
+        --bs-warning-text-emphasis: #ffda6a;
+        --bs-danger-text-emphasis: #ea868f;
+        --bs-primary-bg-subtle: #031633;
+        --bs-success-bg-subtle: #051b11;
+        --bs-info-bg-subtle: #032830;
+        --bs-warning-bg-subtle: #332701;
+        --bs-danger-bg-subtle: #2c0b0e;
+        --bs-primary-border-subtle: #084298;
+        --bs-success-border-subtle: #0f5132;
+        --bs-info-border-subtle: #087990;
+        --bs-warning-border-subtle: #997404;
+        --bs-danger-border-subtle: #842029;
+        --bs-link-color: var(--sp-color-link);
+        --bs-link-hover-color: #8bb9fe;
+        --bs-link-color-rgb: 78, 163, 240;
+        --bs-code-color: #e685b5;
+        --bs-border-color: #495057;
+        --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
+        --bs-form-valid-color: #75b798;
+        --bs-form-valid-border-color: #75b798;
+        --bs-form-invalid-color: #ea868f;
+        --bs-form-invalid-border-color: #ea868f;
+
+        // Farben der Anwendung. Nicht überschriebene Werte bleiben auch im dunklen Modus bestehen,
+        // etwa für Navigation, Fehlermeldungen, Schatten und Kontrollkästchenrahmen.
+        --sp-color-text: #{$dark-color-text};
+        --sp-color-link: #4ea3f0;
+        --sp-color-primary-border: #2b8fde;
+        --sp-color-focus-ring: #8cc4ff;
+        --sp-color-valid: #4cc76a;
+        --sp-color-invalid: #{$dark-color-invalid};
+
+        // Aufgehellte Earcon-Farben für die Hintergründe der Sprachbedienung.
+        --sp-earcon-flow-bg: #{$dark-earcon-flow-bg};
+        --sp-earcon-structure-bg: #2bb3a3;
+        --sp-earcon-validation-success-bg: #4cc76a;
+        --sp-earcon-validation-not-ok-bg: #ff6b6b;
+        --sp-earcon-mode-bg: #ffd84d;
+        --sp-earcon-idle-bg: #{rgba($dark-earcon-flow-bg, 0.22)};
+
+        // Dunkle, bläuliche Hintergründe der Sprachbedienung und ihrer Mikrofonfläche.
+        --sp-home-background-start: rgba(40, 50, 68, 0.6);
+        --sp-home-background-end: rgba(30, 38, 54, 0.5);
+        --sp-home-background-border: rgba(143, 184, 255, 0.22);
+        --sp-home-background-shadow: 0 24px 56px #{rgba(#000000, 0.5)};
+        --sp-home-mic-border: 2px solid #{rgba($dark-color-text, 0.18)};
+        --sp-home-mic-bg: #{rgba($dark-home-mic-bg-color, 0.55)};
+        --sp-home-mic-recording-ring: 0 0 0 0.35rem #{rgba($dark-color-invalid, 0.22)};
+
+        // Dunkle Grundfarbe zum Mischen der Earcon-Hintergründe.
+        --sp-surface-tint-base: #23262b;
+
+        // Formularansicht des Sprachassistenten.
+        --sp-form-panel-bg: linear-gradient(145deg, rgba(38, 42, 49, 0.96), rgba(30, 36, 48, 0.92));
+        --sp-form-panel-border: rgba(255, 255, 255, 0.1);
+        --sp-form-panel-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.45);
+        --sp-form-accent: #a9b4f5;
+        --sp-form-muted-text: #b9c2d4;
+        --sp-form-subtle-text: #aab3c6;
+        --sp-form-value-text: #{$dark-color-text};
+        --sp-form-value-bg: rgba(255, 255, 255, 0.06);
+        --sp-form-value-border: rgba(143, 184, 255, 0.3);
+        --sp-form-field-bg: rgba(255, 255, 255, 0.04);
+        --sp-form-field-border: rgba(255, 255, 255, 0.1);
+        --sp-form-field-focus-border: rgba(143, 184, 255, 0.55);
+        --sp-form-field-focus-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.4);
+        --sp-form-field-focus-bg: linear-gradient(135deg, rgba(60, 70, 110, 0.35), rgba(255, 255, 255, 0.04));
+        --sp-pill-info-bg: #0b2447;
+        --sp-pill-info-text: #8fb8ff;
+        --sp-pill-success-bg: #0e2a1b;
+        --sp-pill-success-text: #7ddfa6;
+        --sp-pill-neutral-bg: #2a2e35;
+        --sp-pill-neutral-text: #b3bccb;
+}
+
+// Systemvorgabe verwenden, sofern nicht ausdrücklich das helle Schema gewählt wurde.
+@media (prefers-color-scheme: dark) {
+    :root:not([data-sp-theme="light"]) {
+        @include sp-dark-theme;
+    }
+}
+
+// Manuelle Auswahl des dunklen Schemas unabhängig von der Systemvorgabe.
+:root[data-sp-theme="dark"] {
+    @include sp-dark-theme;
+}
+
+// Bei manueller Auswahl des hellen Schemas bleiben auch native Bedienelemente hell.
+// Die Farbvariablen stammen dann aus den hellen Standardwerten auf :root.
+:root[data-sp-theme="light"] {
+    color-scheme: light;
+}

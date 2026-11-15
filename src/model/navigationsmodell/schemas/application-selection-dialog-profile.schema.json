@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/application-selection-dialog-profile.schema.json",
+  "title": "ApplicationSelectionDialogProfile",
+  "description": "Reusable selection-dialog settings. noInputTimeoutMs bounds one capture window. genuine silence speaks the short catalog app/form confirmation.repeat prompt, opens a fresh window, and spends no safety budget. confirmationPolicy=never suppresses confirmation only for an unambiguous high-confidence candidate. ambiguity, lower confidence, or missing confidence must still be resolved before launch. Confirmation has initial C1, explicit-authorization C2 for unconflicted confirmYes below sttMinConfidenceToConfirm, and confidence-fault-retry C2 for missing-confidence unconflicted confirmYes. Missing confidence never becomes alternate authority. Once a candidate and SelectionRevision are retained, an unconflicted confirmYes in C1 or either C2 stage authorizes at confidence at or above sttMinConfidenceToConfirm. Parser precedence may choose confirmYes as primary but must preserve competing modeled target, number, or control evidence. a conflicted affirmative never launches any candidate, and only primary confirmYes may carry that marker. In either C2 stage, an exact retained name or stable retained number is an additional authorization path only at or above sttMinConfidenceToConfirm. sttMinConfidenceToAccept remains the gate for an unbound selection. confirmNo and cancel remain immediate and spend no repair budget. contextual help, repeat, and list preserve stage without spending safety budget. Every other recognized non-launch result in either C2 stage is unsuccessful and spends one finite session confirmation-repair unit. at the exact boundary no launch occurs, with system-failure escalation only when the boundary event is a system-owned missing-confidence fault and otherwise neutral repair exhaustion. Each candidate permits at most two recognized confirmation captures. that candidate-local count, the consecutive recoverable capture-failure count (maxRetries), and the session repair budget are distinct. A usable transcript/control resets consecutive capture failures. a new candidate resets candidate-local capture state but preserves session repair consumption. Confidence thresholds are percentages in 0..100 and preflight enforces `sttMinConfidenceToConfirm <= sttMinConfidenceToAccept` after profile resolution. These are runtime semantics. no provider-capability or serialized stage/counter field is introduced.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "profileVersion",
+    "profileId"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "profileId": {
+      "$ref": "#/$defs/Id"
+    },
+    "noInputTimeoutMs": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 60000,
+      "description": "No-input timeout in milliseconds while the selection dialog is listening. The timeout applies only while no dialog-eligible selection/command attempt has been evidenced. raw acoustic onset, playback leakage, or transcripts without the required activation signal MUST NOT end the timeout by themselves."
+    },
+    "maxRetries": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Maximum number of consecutive classified recoverable system capture failures before the selection dialog escalates. Genuine silence/no-input and ordinary non-selection/non-recognition do not consume this budget. silence receives no-input feedback and opens a fresh capture window."
+    },
+    "confirmationPolicy": {
+      "$ref": "#/$defs/ConfirmationPolicy"
+    },
+    "sttMinConfidenceToAccept": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "STT confidence percent at/above which a recognized selection-dialog pick passes the confidence gate without adding a confidence-based confirmation. The configured confirmationPolicy still applies. If omitted across the resolved profile chain, the runtime default is 85."
+    },
+    "sttMinConfidenceToConfirm": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Lower bound of the selection-dialog confidence mid band and the authorization threshold for an unconflicted confirmYes after a candidate is retained: at/above this and below sttMinConfidenceToAccept, a recognized pick is routed to confirmation. lower confidence is hedged unless an exact unambiguous name match floors the result to a clean confirmation. If omitted across the resolved profile chain, the runtime default is 65."
+    },
+    "speechRate": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 2.0
+    },
+    "pauseBetweenItemsMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5000
+    },
+    "cancelRefractoryMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000,
+      "description": "Refractory window in milliseconds after a cancel command request. During this window repeated cancel requests are blocked before asking for another destructive-command confirmation."
+    },
+    "allowBargeIn": {
+      "type": "boolean",
+      "description": "Whether a running selection-dialog prompt may be interrupted mechanically by speech. This does not redefine the dialog's activation rule. runtimes MUST require dialog-eligible selection/command evidence before treating the interruption as a failed command or blocking fallback paths such as repetition or language rotation."
+    },
+    "autoAdvanceAfterCommit": {
+      "type": "boolean",
+      "description": "Whether the dialog advances focus to the next relevant field after a successful field commit. When false the dialog stays on the committed field and waits for an explicit navigation command. If omitted across the resolved profile chain, the runtime default is true."
+    },
+    "politenessLevel": {
+      "$ref": "#/$defs/PolitenessLevel"
+    },
+    "progressCalculationBasis": {
+      "$ref": "#/$defs/ProgressCalculationBasis"
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "ConfirmationPolicy": {
+      "type": "string",
+      "enum": [
+        "always",
+        "ambiguous",
+        "never"
+      ],
+      "description": "Controls confirmation for an unambiguous user selection. 'always' = every selection (evaluation default), 'ambiguous' = only when recognition is uncertain, 'never' = no confirmation for an unambiguous high-confidence candidate. Matcher-classified ambiguity (non-exact, duplicate, or multiple match), reported confidence below the acceptance threshold, or missing confidence must still be resolved before launch."
+    },
+    "PolitenessLevel": {
+      "type": "string",
+      "enum": [
+        "formal",
+        "informal"
+      ],
+      "description": "Controls social addressing mode in spoken prompts and localized-text resolution variants."
+    },
+    "ProgressCalculationBasis": {
+      "type": "string",
+      "enum": [
+        "allFields",
+        "requiredFieldsOnly",
+        "fieldGroupBased"
+      ],
+      "description": "Controls how completion progress is calculated: all fields, required fields only, or field groups."
+    }
+  }
+}

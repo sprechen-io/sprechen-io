@@ -1,0 +1,58 @@
+unitName: ""
+
+namespace: ""
+
+image:
+  repository: ""
+  tag: latest
+  pullPolicy: IfNotPresent
+
+sourceRevision: ""
+
+imagePullSecrets:
+  - name: registry-credentials
+
+service:
+  port: 80
+  targetPort: 8080
+  healthPort: 8081
+
+ingress:
+  enabled: false
+  className: traefik
+  host: ""
+
+issuer:
+  enabled: false
+  email: ""
+  name: letsencrypt-prod
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  readinessPath: /healthz/ready
+  livenessPath: /healthz/live
+
+recognizedAudioCapture:
+  enabled: false
+  directory: /diagnostics/recognized-audio
+  sizeLimit: 256Mi
+  accessImage: busybox:1.36
+
+replicaCount: 1
+
+terminationGracePeriodSeconds: 30
+
+networkPolicy:
+  enabled: true
+  webNamespace: ""
+  webPodSelector:
+    app: ""
+  additionalIngressNamespaces:
+    - kube-system

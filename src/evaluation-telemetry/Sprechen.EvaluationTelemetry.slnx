@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="Sprechen.EvaluationTelemetry.Api/Sprechen.EvaluationTelemetry.Api.csproj" />
+  <Project Path="Sprechen.EvaluationTelemetry.Ingestion/Sprechen.EvaluationTelemetry.Ingestion.csproj" />
+  <Project Path="Sprechen.EvaluationTelemetry.JsonlStore/Sprechen.EvaluationTelemetry.JsonlStore.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="Sprechen.EvaluationTelemetry.JsonlStore.Tests/Sprechen.EvaluationTelemetry.JsonlStore.Tests.csproj" />
+  </Folder>
+  <Project Path="../mda/Sprechen.Mda.Contracts/Sprechen.Mda.Contracts.csproj" />
+  <Project Path="../mda/Sprechen.Mda.Contracts.Generator/Sprechen.Mda.Contracts.Generator.csproj" />
+  <Project Path="../mda/Sprechen.Mda.Preflight/Sprechen.Mda.Preflight.csproj" />
+  <Project Path="../mda/Sprechen.Mda.SchemaBundle/Sprechen.Mda.SchemaBundle.csproj" />
+</Solution>

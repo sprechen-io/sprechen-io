@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.JSInterop" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sprechen.Voice.App.Tests" />
+    <InternalsVisibleTo Include="Sprechen.Voice.App.FileSystem.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\voice-assistant\Sprechen.VoiceAssistant.EvaluationTelemetry\Sprechen.VoiceAssistant.EvaluationTelemetry.csproj" />
+  </ItemGroup>
+</Project>

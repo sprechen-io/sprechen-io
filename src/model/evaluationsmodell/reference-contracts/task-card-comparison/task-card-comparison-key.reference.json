@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schemas/task-card-comparison-key.schema.json",
+  "artifactId": "task-card-comparison-key",
+  "description": "ASCII-only fixture for the free-string comparison key. Both runtimes must produce one key per row.",
+  "rule": "trim, NFC, delete Cc/Cf/Mn, lowercase plus sharp-s to ss, strip edge punctuation, dashes to space, delete whitespace",
+  "rows": [
+    {
+      "id": "sharp-s-lowercase",
+      "input": "Stra\u00dfe",
+      "key": "strasse"
+    },
+    {
+      "id": "capital-sharp-s",
+      "input": "STRA\u1e9eE",
+      "key": "strasse",
+      "note": "Lowercase maps capital sharp s to sharp s; the following substitution maps sharp s to ss."
+    },
+    {
+      "id": "combining-sequence-nfc",
+      "input": "Cafe\u0301",
+      "key": "caf\u00e9"
+    },
+    {
+      "id": "nbsp",
+      "input": "Wander\u00a0Pokal",
+      "key": "wanderpokal"
+    },
+    {
+      "id": "en-dash",
+      "input": "Wander\u2013Pokal",
+      "key": "wanderpokal"
+    },
+    {
+      "id": "em-dash",
+      "input": "Wander\u2014Pokal",
+      "key": "wanderpokal"
+    },
+    {
+      "id": "ascii-hyphen-pair",
+      "left": "Wander Pokal",
+      "right": "Wander-Pokal",
+      "key": "wanderpokal"
+    }
+  ]
+}

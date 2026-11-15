@@ -1,0 +1,51 @@
+@page "/"
+@page "/debug"
+@page "/debug/umfrage/{Token}"
+@page "/debug/umfrage/{Token}/{*Rest}"
+@page "/umfrage/{Token}"
+@page "/umfrage/{Token}/{*Rest}"
+@implements IDisposable
+@inject IUserLanguageState UserLanguageState
+
+<PageTitle>Sprechen</PageTitle>
+
+<div class="home">
+    <VoiceAssistant PageHeading="@Copy.Chrome.GetHomeTitle(UserLanguageState.SelectedIsoCode)"
+                    InvalidStudyLinkHeading="@Copy.Chrome.GetInvalidStudyLinkHeading(UserLanguageState.SelectedIsoCode)"
+                    InvalidStudyLinkMessage="@Copy.Chrome.GetInvalidStudyLinkMessage(UserLanguageState.SelectedIsoCode)"
+                    DiagnosticModeNotice="@Copy.Chrome.GetDiagnosticModeNotice(UserLanguageState.SelectedIsoCode)"
+                    StartControlAccessibleName="@Copy.Chrome.GetStartControlAccessibleName(UserLanguageState.SelectedIsoCode)"
+                    StartControlDescribedById="@StartInstructionElementId"
+                    StartControlInstruction="@Copy.Chrome.GetStartControlInstruction(UserLanguageState.SelectedIsoCode)" />
+</div>
+
+@code {
+    private const string StartInstructionElementId = "sprechen-start-instruction";
+
+    // Routenwerte für den Studienlink `/umfrage/{Token}` und denselben Link
+    // unter `/debug/…` für den Diagnosebetrieb. Der Parameter
+    // `{*Rest}` führt zusätzliche Pfadsegmente zur Ablehnungsseite statt zu NotFound.
+    // Der VoiceAssistant liest Identität und Betriebsmodus aus dem Pfad.
+    [Parameter]
+    public string? Token { get; set; }
+
+    [Parameter]
+    public string? Rest { get; set; }
+
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override void OnInitialized()
+    {
+        UserLanguageState.SelectedLanguageChanged += OnDisplayLanguageChanged;
+    }
+
+    private void OnDisplayLanguageChanged(string isoCode)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        UserLanguageState.SelectedLanguageChanged -= OnDisplayLanguageChanged;
+    }
+}

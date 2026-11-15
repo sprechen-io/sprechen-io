@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Service.Abstractions\Sprechen.Service.Abstractions.csproj" />
+  </ItemGroup>
+
+  <!-- Das gemeinsame Transkriptlexikon des Dialogmodells liefert die Buchstabierbegriffe für die Spracherkennung. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\model\dialogmodell\reference-contracts\voice-interface\form-transcript-lexicon.reference.json">
+      <Link>Resources\form-transcript-lexicon.reference.json</Link>
+      <LogicalName>Sprechen.Service.Deepgram.Resources.form-transcript-lexicon.default.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Der gemeinsame Sprachbefehlskatalog des Navigationsmodells liefert die bevorzugten Befehlsbegriffe für die Spracherkennung. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\model\navigationsmodell\reference-contracts\voice-commands\voice-commands.default.reference.json">
+      <Link>Resources\voice-commands.default.reference.json</Link>
+      <LogicalName>Sprechen.Service.Deepgram.Resources.voice-commands.default.reference.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Der gemeinsame Aktivierungswortkatalog des Dialogmodells liefert die bevorzugten Aktivierungswörter und Einleitungsphrasen für die Spracherkennung. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\model\dialogmodell\reference-contracts\voice-interface\wake-word-catalog.reference.json">
+      <Link>Resources\wake-word-catalog.reference.json</Link>
+      <LogicalName>Sprechen.Service.Deepgram.Resources.wake-word-catalog.reference.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Die Ja-/Nein-Ausdrücke des gemeinsamen Sprachlexikons werden ebenfalls bevorzugt, damit sie gegenüber Befehlen und Aktivierungswörtern berücksichtigt bleiben. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\model\dialogmodell\reference-contracts\voice-interface\voice-lexicon-catalog.reference.json">
+      <Link>Resources\voice-lexicon-catalog.reference.json</Link>
+      <LogicalName>Sprechen.Service.Deepgram.Resources.voice-lexicon-catalog.reference.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Deepgram" Version="6.6.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sprechen.Service.Deepgram.FileSystem.Tests" />
+  </ItemGroup>
+</Project>

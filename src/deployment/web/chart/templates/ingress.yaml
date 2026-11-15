@@ -1,0 +1,31 @@
+{{- $unitName := required "unitName is required" .Values.unitName -}}
+{{- if .Values.ingress.enabled }}
+{{- $ingressHost := required "ingress.host is required" .Values.ingress.host }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $unitName }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+{{- if .Values.issuer.enabled }}
+    cert-manager.io/issuer: {{ required "issuer.name is required" .Values.issuer.name }}
+{{- end }}
+spec:
+  ingressClassName: {{ required "ingress.className is required" .Values.ingress.className }}
+  rules:
+    - host: {{ $ingressHost }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $unitName }}
+                port:
+                  number: {{ .Values.service.port }}
+  tls:
+    - hosts:
+        - {{ $ingressHost }}
+      secretName: {{ $unitName }}-tls
+{{- end }}

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\contracts\Sprechen.Contracts.MdaFormAccess\Sprechen.Contracts.MdaFormAccess.csproj" />
+    <ProjectReference Include="..\..\web\Sprechen.Web.SpeechClient\Sprechen.Web.SpeechClient.csproj" />
+    <ProjectReference Include="..\..\web\Sprechen.Web.SpeechComponents\Sprechen.Web.SpeechComponents.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.ClientInfrastructure\Sprechen.Speech.App.ClientInfrastructure.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.App.Contracts\Sprechen.Speech.App.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.WakeWord.Contracts\Sprechen.Speech.WakeWord.Contracts.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.ModelRuntime\Sprechen.Speech.ModelRuntime.csproj" />
+    <ProjectReference Include="..\..\speech\Sprechen.Speech.State\Sprechen.Speech.State.csproj" />
+    <ProjectReference Include="..\Sprechen.Voice.EvaluationTelemetry.BrowserInfrastructure\Sprechen.Voice.EvaluationTelemetry.BrowserInfrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

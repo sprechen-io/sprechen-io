@@ -1,0 +1,14 @@
+chart/
+**/*.pdb
+**/*.trx
+**/TestResults/**
+**/obj/**
+**/bin/**
+**/.git
+**/.vs
+**/.idea
+**/*.user
+README*
+azure-pipelines*.yml
+.editorconfig
+

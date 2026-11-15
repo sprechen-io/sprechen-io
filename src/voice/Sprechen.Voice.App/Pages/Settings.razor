@@ -1,0 +1,117 @@
+@page "/settings"
+@inherits AccessibleTablistComponentBase
+@implements IDisposable
+@inject IUserLanguageState UserLanguageState
+
+<PageTitle>@Copy.General.GetSettingsTitle(EffectiveDisplayIsoCode)</PageTitle>
+
+<h1 class="h3 mb-4">@Copy.General.GetSettingsTitle(EffectiveDisplayIsoCode)</h1>
+
+<ul class="nav nav-tabs" role="tablist" @onkeydown="OnTablistKeyDownAsync">
+    <li class="nav-item" role="presentation">
+        <button type="button"
+                id="settings-tab-audio"
+                class="nav-link @(IsActive(SettingsTab.Audio) ? "active" : string.Empty)"
+                role="tab"
+                aria-selected="@(IsActive(SettingsTab.Audio) ? "true" : "false")"
+                aria-controls="settings-panel-audio"
+                tabindex="@(IsActive(SettingsTab.Audio) ? "0" : "-1")"
+                @ref="TabReferences[0]"
+                @onclick="() => SetTab(SettingsTab.Audio)">
+            @Copy.Audio.GetTitle(EffectiveDisplayIsoCode)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button type="button"
+                id="settings-tab-voice"
+                class="nav-link @(IsActive(SettingsTab.Voice) ? "active" : string.Empty)"
+                role="tab"
+                aria-selected="@(IsActive(SettingsTab.Voice) ? "true" : "false")"
+                aria-controls="settings-panel-voice"
+                tabindex="@(IsActive(SettingsTab.Voice) ? "0" : "-1")"
+                @ref="TabReferences[1]"
+                @onclick="() => SetTab(SettingsTab.Voice)">
+            @Copy.General.GetVoiceTitle(EffectiveDisplayIsoCode)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content pt-3">
+    <div id="settings-panel-audio"
+         class="tab-pane fade @(IsActive(SettingsTab.Audio) ? "show active" : string.Empty)"
+         role="tabpanel"
+         aria-labelledby="settings-tab-audio">
+        <AudioSettingsTab PreferredIsoCode="@_sessionSetupPreviewIsoCode" />
+    </div>
+    <div id="settings-panel-voice"
+         class="tab-pane fade @(IsActive(SettingsTab.Voice) ? "show active" : string.Empty)"
+         role="tabpanel"
+         aria-labelledby="settings-tab-voice">
+        <SessionSetupSettingsTab SelectedIsoCodeChanged="OnSessionSetupSelectedIsoCodeChanged" />
+        <EarconSettingsTab PreferredIsoCode="@_sessionSetupPreviewIsoCode" />
+        <VoiceDialogSettingsTab PreferredIsoCode="@_sessionSetupPreviewIsoCode" />
+        <VoiceActivationSettingsTab PreferredIsoCode="@_sessionSetupPreviewIsoCode" />
+        <SpeechCaptureSettingsTab PreferredIsoCode="@_sessionSetupPreviewIsoCode" />
+    </div>
+</div>
+
+@code {
+    private SettingsTab _activeTab = SettingsTab.Audio;
+    private string? _sessionSetupPreviewIsoCode;
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    private string EffectiveDisplayIsoCode => NormalizeSelectedIsoCode(_sessionSetupPreviewIsoCode)
+        ?? NormalizeSelectedIsoCode(UserLanguageState.SelectedIsoCode)
+        ?? VoiceInterfaceModelCatalog.DefaultLanguage;
+
+    protected override void OnInitialized()
+    {
+        _sessionSetupPreviewIsoCode = NormalizeSelectedIsoCode(UserLanguageState.SelectedIsoCode);
+        UserLanguageState.SelectedLanguageChanged += OnSelectedLanguageChanged;
+    }
+
+    protected override int TabCount => 2;
+
+    protected override int ActiveTabIndex => (int)_activeTab;
+
+    protected override void ActivateTab(int index) => _activeTab = (SettingsTab)index;
+
+    private void SetTab(SettingsTab tab) => _activeTab = tab;
+
+    private bool IsActive(SettingsTab tab) => _activeTab == tab;
+
+    private Task OnSessionSetupSelectedIsoCodeChanged(string isoCode)
+    {
+        _sessionSetupPreviewIsoCode = NormalizeSelectedIsoCode(isoCode);
+        return Task.CompletedTask;
+    }
+
+    private void OnSelectedLanguageChanged(string ignoredIsoCode)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private static string? NormalizeSelectedIsoCode(string? value)
+    {
+        var normalizedIsoCode = IsoCode.TryNormalizeIso6391(value);
+        if (normalizedIsoCode is null)
+        {
+            return null;
+        }
+
+        return VoiceInterfaceModelCatalog.SupportedLanguages.Contains(normalizedIsoCode, StringComparer.Ordinal)
+            ? normalizedIsoCode
+            : null;
+    }
+
+    public void Dispose()
+    {
+        UserLanguageState.SelectedLanguageChanged -= OnSelectedLanguageChanged;
+    }
+
+    private enum SettingsTab
+    {
+        Audio,
+        Voice
+    }
+}

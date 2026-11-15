@@ -1,0 +1,166 @@
+@inject ExampleAuthoringSession Session
+@inject ComposerJsInterop JsInterop
+@implements IDisposable
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            JSON Vorschau
+            @if (Session.ExportState == ExampleSessionExportState.BlockedByCanonicalValidation)
+            {
+                <span class="badge bg-danger ms-1">Export blockiert</span>
+            }
+            else if (Session.ExportState == ExampleSessionExportState.Exportable && Session.Document is not null)
+            {
+                <span class="badge bg-success ms-1">Export OK</span>
+            }
+            @if (_editorErrorCount > 0)
+            {
+                <span class="badge bg-warning text-dark ms-1">@_editorErrorCount Editor-Fehler</span>
+            }
+            @if (_editorWarningCount > 0)
+            {
+                <span class="badge bg-secondary ms-1">@_editorWarningCount Hinweise</span>
+            }
+        </span>
+        <div>
+            <button class="btn btn-sm btn-outline-primary me-1" @onclick="CopyToClipboard">
+                @(_copied ? "✓ Kopiert" : "Kopieren")
+            </button>
+            <button class="btn btn-sm btn-outline-success"
+                    disabled="@(!Session.CanExport)"
+                    @onclick="DownloadJson">
+                ⬇ Download
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <pre class="m-0 p-2" style="max-height: 50vh; overflow-y: auto; font-size: 0.8rem; background: #f8f9fa;">@_json</pre>
+    </div>
+    <div class="card-footer small">
+        @Session.StatusMessage
+    </div>
+    @if ((Session.CanonicalValidation?.Issues.Count ?? 0) > 0 || _editorValidationErrors.Count > 0)
+    {
+        <div class="card-footer p-0" style="max-height: 20vh; overflow-y: auto;">
+            <ul class="list-group list-group-flush small">
+                @if (Session.CanonicalValidation is { IsValid: false } canonicalValidation)
+                {
+                    @foreach (var issue in canonicalValidation.Issues)
+                    {
+                        <li class="list-group-item py-1 list-group-item-danger">
+                            <code class="me-1">@issue.InstanceLocation</code>
+                            @issue.Message
+                        </li>
+                    }
+                }
+                @foreach (var error in _editorValidationErrors)
+                {
+                    <li class="list-group-item py-1 @GetErrorCss(error)">
+                        <code class="me-1">@error.Path</code>
+                        @error.Message
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@code {
+    // Hält Vorschau und Validierungsanzeige aktuell. Der Download bleibt bei gesperrtem Export deaktiviert.
+    private string _json = "{}";
+    private List<ValidationError> _editorValidationErrors = [];
+    private int _editorErrorCount;
+    private int _editorWarningCount;
+    private bool _copied;
+
+    protected override void OnInitialized()
+    {
+        Session.StateChanged += Refresh;
+        Refresh();
+    }
+
+    private void Refresh()
+    {
+        try
+        {
+            _json = Session.GetJson();
+
+            if (Session.Document is not null && Session.CurrentRootSchema is not null)
+            {
+                JsonDocument.Parse(_json).Dispose();
+
+                var validator = new SchemaValidator();
+                _editorValidationErrors = validator.Validate(Session.CurrentRootSchema, Session.Document).ToList();
+                _editorErrorCount = _editorValidationErrors.Count(e => e.Severity == ValidationSeverity.Error);
+                _editorWarningCount = _editorValidationErrors.Count(e => e.Severity == ValidationSeverity.Warning);
+            }
+            else
+            {
+                _editorValidationErrors = [];
+                _editorErrorCount = 0;
+                _editorWarningCount = 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            _editorValidationErrors = [new ValidationError("$", $"JSON-Fehler: {ex.Message}")];
+            _editorErrorCount = 1;
+            _editorWarningCount = 0;
+        }
+
+        _copied = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CopyToClipboard()
+    {
+        try
+        {
+            await JsInterop.CopyToClipboardAsync(_json);
+            _copied = true;
+            StateHasChanged();
+
+            await Task.Delay(2000);
+            _copied = false;
+            StateHasChanged();
+        }
+        catch
+        {
+            // Ein fehlgeschlagener Zugriff auf die Zwischenablage beendet die Vorschau nicht.
+        }
+    }
+
+    private async Task DownloadJson()
+    {
+        if (!Session.CanExport)
+        {
+            return;
+        }
+
+        var filename = Session.CurrentRootSchemaInfo is not null
+            ? Session.CurrentRootSchemaInfo.FileName.Replace(".schema.json", ".example.json")
+            : "document.json";
+
+        try
+        {
+            await JsInterop.DownloadJsonAsync(filename, _json);
+        }
+        catch
+        {
+            // Ein fehlgeschlagener Download beendet die Vorschau nicht.
+        }
+    }
+
+    private static string GetErrorCss(ValidationError error) => error.Severity switch
+    {
+        ValidationSeverity.Error => "list-group-item-warning",
+        ValidationSeverity.Warning => "list-group-item-secondary",
+        _ => "list-group-item-info",
+    };
+
+    public void Dispose()
+    {
+        Session.StateChanged -= Refresh;
+    }
+}

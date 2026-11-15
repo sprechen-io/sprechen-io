@@ -1,0 +1,582 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/constraint-language.schema.json",
+  "title": "ConstraintLanguage",
+  "description": "Shared schema module for reusable constraint-language primitives referenced by form, field, and variable models.",
+  "$defs": {
+    "Identifier": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/Identifier"
+    },
+    "AnyNonNull": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/AnyNonNull"
+    },
+    "NumericLiteral": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/NumericLiteral"
+    },
+    "CompareOperator": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/CompareOperator"
+    },
+    "ExpressionUnion": {
+      "$ref": "https://Sprechen/schemas/expression-language.schema.json#/$defs/ExpressionUnion"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ErrorCode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$",
+      "description": "Stable, application-level error code (see model.md section 13)."
+    },
+    "ConstraintScope": {
+      "description": "Validation scope: field (single), fieldGroup (group-local), crossGroup (multiple groups without implying a blanket local field-group blocker), or form (entire form).",
+      "type": "string",
+      "enum": [
+        "field",
+        "fieldGroup",
+        "crossGroup",
+        "form"
+      ]
+    },
+    "ConstraintTargetRef": {
+      "description": "Target for constraints: field, variable, or form.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fieldId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "field"
+            },
+            "fieldId": {
+              "$ref": "#/$defs/Identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "variableId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "variable"
+            },
+            "variableId": {
+              "$ref": "#/$defs/Identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "form"
+            }
+          }
+        }
+      ]
+    },
+    "ConstraintBase": {
+      "description": "Base constraint properties: constraintId, target, severity, code, message, remediation.",
+      "type": "object",
+      "required": [
+        "constraintId",
+        "target",
+        "severity",
+        "code",
+        "message",
+        "kind"
+      ],
+      "properties": {
+        "constraintId": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "target": {
+          "$ref": "#/$defs/ConstraintTargetRef"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "remediation": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/ConstraintScope",
+          "default": "field"
+        },
+        "when": {
+          "$ref": "#/$defs/ExpressionUnion"
+        }
+      }
+    },
+    "ConstraintDefinition": {
+      "description": "Constraint type union: required, pattern, minLength, maxLength, min, max, range, dateMin, dateMax, dateRange, equals, notEquals, oneOf, allOrNone, compare, compareVariables, customConstraint.",
+      "oneOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "required"
+                }
+              }
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "pattern"
+                },
+                "pattern": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "pattern",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "minLength"
+                },
+                "minLength": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "minLength",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "maxLength"
+                },
+                "maxLength": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "maxLength",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Numeric lower bound for integer-backed values.",
+              "properties": {
+                "kind": {
+                  "const": "min"
+                },
+                "min": {
+                  "$ref": "#/$defs/NumericLiteral"
+                }
+              },
+              "required": [
+                "min",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Numeric upper bound for integer-backed values.",
+              "properties": {
+                "kind": {
+                  "const": "max"
+                },
+                "max": {
+                  "$ref": "#/$defs/NumericLiteral"
+                }
+              },
+              "required": [
+                "max",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Inclusive numeric range for integer-backed values.",
+              "properties": {
+                "kind": {
+                  "const": "range"
+                },
+                "min": {
+                  "$ref": "#/$defs/NumericLiteral"
+                },
+                "max": {
+                  "$ref": "#/$defs/NumericLiteral"
+                }
+              },
+              "required": [
+                "min",
+                "max",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Inclusive lower bound for ISO 8601 date values.",
+              "properties": {
+                "kind": {
+                  "const": "dateMin"
+                },
+                "minDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "ISO 8601 date lower bound (YYYY-MM-DD)."
+                }
+              },
+              "required": [
+                "minDate",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Inclusive upper bound for ISO 8601 date values.",
+              "properties": {
+                "kind": {
+                  "const": "dateMax"
+                },
+                "maxDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "ISO 8601 date upper bound (YYYY-MM-DD)."
+                }
+              },
+              "required": [
+                "maxDate",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Inclusive ISO 8601 date range.",
+              "properties": {
+                "kind": {
+                  "const": "dateRange"
+                },
+                "minDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "ISO 8601 date lower bound (YYYY-MM-DD)."
+                },
+                "maxDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "ISO 8601 date upper bound (YYYY-MM-DD)."
+                }
+              },
+              "required": [
+                "minDate",
+                "maxDate",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Equality comparison against a single constant value.",
+              "properties": {
+                "kind": {
+                  "const": "equals"
+                },
+                "value": {
+                  "$ref": "#/$defs/AnyNonNull"
+                }
+              },
+              "required": [
+                "value",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Inequality comparison against a single constant value.",
+              "properties": {
+                "kind": {
+                  "const": "notEquals"
+                },
+                "value": {
+                  "$ref": "#/$defs/AnyNonNull"
+                }
+              },
+              "required": [
+                "value",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Whole-set-per-entry membership: the field value must equal exactly one entry of values[] - for set values order-insensitive set equality (a scalar entry acts as a singleton); malformed entries never match; an unset value is handled by required, not by oneOf.",
+              "properties": {
+                "kind": {
+                  "const": "oneOf"
+                },
+                "values": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/AnyNonNull"
+                  }
+                }
+              },
+              "required": [
+                "values",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Cross-variable presence rule: either every referenced variable is set or none are set.",
+              "properties": {
+                "kind": {
+                  "const": "allOrNone"
+                },
+                "variableIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/Identifier"
+                  }
+                }
+              },
+              "required": [
+                "variableIds",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Numeric comparison against a single constant value using the shared compare operators.",
+              "properties": {
+                "kind": {
+                  "const": "compare"
+                },
+                "operator": {
+                  "$ref": "#/$defs/CompareOperator"
+                },
+                "value": {
+                  "$ref": "#/$defs/AnyNonNull"
+                }
+              },
+              "required": [
+                "operator",
+                "value",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Numeric comparison between two referenced variables using the shared compare operators.",
+              "properties": {
+                "kind": {
+                  "const": "compareVariables"
+                },
+                "leftVariableId": {
+                  "$ref": "#/$defs/Identifier",
+                  "description": "ID of the first variable to compare"
+                },
+                "rightVariableId": {
+                  "$ref": "#/$defs/Identifier",
+                  "description": "ID of the second variable to compare"
+                },
+                "operator": {
+                  "$ref": "#/$defs/CompareOperator"
+                }
+              },
+              "required": [
+                "leftVariableId",
+                "rightVariableId",
+                "operator",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ConstraintBase"
+            },
+            {
+              "type": "object",
+              "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+              "properties": {
+                "kind": {
+                  "const": "customConstraint"
+                },
+                "customConstraintName": {
+                  "type": "string"
+                },
+                "payload": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "customConstraintName",
+                "kind"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      ]
+    }
+  }
+}

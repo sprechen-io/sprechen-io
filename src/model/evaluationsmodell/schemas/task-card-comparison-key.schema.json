@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/task-card-comparison-key.schema.json",
+  "title": "Task-card comparison key truth table",
+  "description": "The authored truth table both channels are pinned to when they reduce a free-string value to the key that compares an entered value with the task card. It exists because the rule has two implementations. Each row states an input, or a left/right pair that must reduce to the same key, and the expected key.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifactId",
+    "rule",
+    "rows"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../../schemas/task-card-comparison-key.schema.json"
+    },
+    "artifactId": {
+      "type": "string",
+      "const": "task-card-comparison-key"
+    },
+    "description": {
+      "type": "string"
+    },
+    "rule": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The reduction rule in words, so a failing row can be read against it."
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "input": {
+            "type": "string",
+            "description": "One value that must reduce to key."
+          },
+          "left": {
+            "type": "string",
+            "description": "First value of a pair that must reduce to the same key."
+          },
+          "right": {
+            "type": "string",
+            "description": "Second value of a pair that must reduce to the same key."
+          },
+          "key": {
+            "type": "string",
+            "description": "The expected comparison key."
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "input"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "left"
+                  ]
+                },
+                {
+                  "required": [
+                    "right"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "required": [
+              "left",
+              "right"
+            ],
+            "not": {
+              "required": [
+                "input"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

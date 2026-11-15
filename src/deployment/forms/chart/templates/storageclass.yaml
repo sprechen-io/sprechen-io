@@ -1,0 +1,13 @@
+{{- $unitName := required "unitName is required" .Values.unitName -}}
+{{- $metadataDomain := required "metadataDomain is required" .Values.metadataDomain -}}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ $unitName }}-evaluation-telemetry-retain
+  labels:
+    {{ $metadataDomain }}/telemetry-storage-owner: {{ $unitName }}
+  annotations:
+    defaultVolumeType: local
+reclaimPolicy: Retain
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer

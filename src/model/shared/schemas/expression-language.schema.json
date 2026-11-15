@@ -1,0 +1,418 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/expression-language.schema.json",
+  "title": "ExpressionLanguage",
+  "description": "Shared schema module for reusable expression-language primitives referenced by form, field, and variable models.",
+  "$defs": {
+    "Identifier": {
+      "description": "Identifier used inside the shared expression language: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "AnyNonNull": {
+      "description": "Matches any non-null value.",
+      "not": {
+        "type": "null"
+      }
+    },
+    "DecimalString": {
+      "description": "String representation of a decimal number (signed, with optional fractional part).",
+      "type": "string",
+      "pattern": "^-?(0|[1-9]\\d*)(\\.\\d+)?$"
+    },
+    "NumericLiteral": {
+      "description": "Numeric value as either JSON number or decimal string representation.",
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "#/$defs/DecimalString"
+        }
+      ]
+    },
+    "CompareOperator": {
+      "type": "string",
+      "enum": [
+        "eq",
+        "neq",
+        "gt",
+        "gte",
+        "lt",
+        "lte"
+      ],
+      "description": "Comparison operator for compare-style expressions and constraints."
+    },
+    "ValueExpression": {
+      "description": "Expression yielding a value for use in rule conditions or actions.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "variableId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "var"
+            },
+            "variableId": {
+              "$ref": "#/$defs/Identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "const"
+            },
+            "value": {
+              "$ref": "#/$defs/AnyNonNull"
+            }
+          }
+        }
+      ]
+    },
+    "ExpressionUnion": {
+      "description": "Union of all supported expression types for rules and constraints.",
+      "$ref": "#/$defs/Expression"
+    },
+    "Expression": {
+      "description": "Concrete expression node for condition evaluation.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/AndExpression"
+        },
+        {
+          "$ref": "#/$defs/OrExpression"
+        },
+        {
+          "$ref": "#/$defs/NotExpression"
+        },
+        {
+          "$ref": "#/$defs/EqualsExpression"
+        },
+        {
+          "$ref": "#/$defs/NotEqualsExpression"
+        },
+        {
+          "$ref": "#/$defs/CompareExpression"
+        },
+        {
+          "$ref": "#/$defs/InExpression"
+        },
+        {
+          "$ref": "#/$defs/ContainsExpression"
+        },
+        {
+          "$ref": "#/$defs/StartsWithExpression"
+        },
+        {
+          "$ref": "#/$defs/IsSetExpression"
+        },
+        {
+          "$ref": "#/$defs/IsNotSetExpression"
+        },
+        {
+          "$ref": "#/$defs/IsEmptyExpression"
+        },
+        {
+          "$ref": "#/$defs/IsNotEmptyExpression"
+        },
+        {
+          "$ref": "#/$defs/CustomExpression"
+        }
+      ]
+    },
+    "AndExpression": {
+      "description": "Logical AND: all operands must evaluate true.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expressions"
+      ],
+      "properties": {
+        "kind": {
+          "const": "and"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Expression"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "OrExpression": {
+      "description": "Logical OR: at least one operand must evaluate true.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expressions"
+      ],
+      "properties": {
+        "kind": {
+          "const": "or"
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Expression"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "NotExpression": {
+      "description": "Logical NOT: inverts boolean result of operand.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expression"
+      ],
+      "properties": {
+        "kind": {
+          "const": "not"
+        },
+        "expression": {
+          "$ref": "#/$defs/Expression"
+        }
+      }
+    },
+    "EqualsExpression": {
+      "description": "Equality test: true if left and right operands are equal.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "left",
+        "right"
+      ],
+      "properties": {
+        "kind": {
+          "const": "equals"
+        },
+        "left": {
+          "$ref": "#/$defs/ValueExpression"
+        },
+        "right": {
+          "$ref": "#/$defs/ValueExpression"
+        }
+      }
+    },
+    "NotEqualsExpression": {
+      "description": "Inequality test: true if left and right operands are not equal.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "left",
+        "right"
+      ],
+      "properties": {
+        "kind": {
+          "const": "notEquals"
+        },
+        "left": {
+          "$ref": "#/$defs/ValueExpression"
+        },
+        "right": {
+          "$ref": "#/$defs/ValueExpression"
+        }
+      }
+    },
+    "CompareExpression": {
+      "description": "Numeric comparison: operator (eq, neq, gt, gte, lt, lte) applied to two operands.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "operator",
+        "left",
+        "right"
+      ],
+      "properties": {
+        "kind": {
+          "const": "compare"
+        },
+        "operator": {
+          "$ref": "#/$defs/CompareOperator"
+        },
+        "left": {
+          "$ref": "#/$defs/ValueExpression"
+        },
+        "right": {
+          "$ref": "#/$defs/ValueExpression"
+        }
+      }
+    },
+    "InExpression": {
+      "description": "Membership test: true if operand is contained in list.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "set"
+      ],
+      "properties": {
+        "kind": {
+          "const": "in"
+        },
+        "value": {
+          "$ref": "#/$defs/ValueExpression"
+        },
+        "set": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ValueExpression"
+          }
+        }
+      }
+    },
+    "ContainsExpression": {
+      "description": "String contains: true if haystack contains needle substring.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "substring"
+      ],
+      "properties": {
+        "kind": {
+          "const": "contains"
+        },
+        "text": {
+          "$ref": "#/$defs/ValueExpression"
+        },
+        "substring": {
+          "$ref": "#/$defs/ValueExpression"
+        }
+      }
+    },
+    "StartsWithExpression": {
+      "description": "String prefix test: true if operand starts with given prefix.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "prefix"
+      ],
+      "properties": {
+        "kind": {
+          "const": "startsWith"
+        },
+        "text": {
+          "$ref": "#/$defs/ValueExpression"
+        },
+        "prefix": {
+          "$ref": "#/$defs/ValueExpression"
+        }
+      }
+    },
+    "IsSetExpression": {
+      "description": "Null check: true if operand is set (not null/undefined).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "variableId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "isSet"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Identifier"
+        }
+      }
+    },
+    "IsNotSetExpression": {
+      "description": "Null check: true if operand is unset (null/undefined).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "variableId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "isNotSet"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Identifier"
+        }
+      }
+    },
+    "IsEmptyExpression": {
+      "description": "Empty check: true if operand (string/collection) is empty.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "variableId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "isEmpty"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Identifier"
+        }
+      }
+    },
+    "IsNotEmptyExpression": {
+      "description": "Empty check: true if operand (string/collection) is not empty.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "variableId"
+      ],
+      "properties": {
+        "kind": {
+          "const": "isNotEmpty"
+        },
+        "variableId": {
+          "$ref": "#/$defs/Identifier"
+        }
+      }
+    },
+    "CustomExpression": {
+      "type": "object",
+      "description": "Extension point. NOT supported by reference implementation (PF-09 / E_FEATURE_NOT_SUPPORTED).",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "customName",
+        "payload"
+      ],
+      "properties": {
+        "kind": {
+          "const": "custom"
+        },
+        "customName": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

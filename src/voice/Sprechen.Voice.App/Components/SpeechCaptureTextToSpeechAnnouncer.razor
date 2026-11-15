@@ -1,0 +1,92 @@
+@implements IDisposable
+@using Sprechen.Voice.App.Services
+@inject ISpeechCaptureFeedback SpeechCaptureFeedback
+@inject ISpeechCaptureStoppedSignals SpeechCaptureStoppedSignals
+@inject ITextToSpeechPlayer TextToSpeechPlayer
+@inject IUserLanguageState UserLanguageState
+@inject ILogger<SpeechCaptureTextToSpeechAnnouncer> Logger
+
+@code {
+    private readonly SpeechCaptureFeedbackResourceResolver _feedbackResources = new();
+    private IDisposable? _stoppedSubscription;
+    private IDisposable? _failureSubscription;
+
+    protected override void OnInitialized()
+    {
+        _stoppedSubscription = SpeechCaptureStoppedSignals.SubscribeToStopped(OnStoppedAsync);
+        _failureSubscription = SpeechCaptureFeedback.SubscribeToFailures(OnFailedAsync);
+    }
+
+    private ValueTask OnStoppedAsync(SpeechCaptureStopped message)
+    {
+        if (string.IsNullOrWhiteSpace(message.FinalTranscript))
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        _ = SpeakTranscriptSafeAsync(message.LanguageCode, message.FinalTranscript);
+        return ValueTask.CompletedTask;
+    }
+
+    private ValueTask OnFailedAsync(SpeechCaptureFailed message)
+    {
+        _ = SpeakFailureAnnouncementSafeAsync(message.ErrorCode);
+        return ValueTask.CompletedTask;
+    }
+
+    private async Task SpeakTranscriptSafeAsync(string languageCode, string transcript)
+    {
+        try
+        {
+            await InvokeAsync(() => TextToSpeechPlayer.SpeakAsync(transcript, languageCode, CancellationToken.None));
+        }
+        catch (OperationCanceledException)
+        {
+            // Das Unterbrechen der Sprachausgabe ist ein erwartbarer Abbruch.
+        }
+        catch (SpeechErrorException ex)
+        {
+            Logger.LogWarning(ex, "Failed to speak captured transcript.");
+            await SpeechCaptureFeedback.ReportFailureAsync(
+                ex.ErrorCode,
+                _feedbackResources.ResolveTranscriptSpeakingFailureMessage(ex.ErrorCode, languageCode));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to speak captured transcript.");
+            await SpeechCaptureFeedback.ReportFailureAsync(
+                SpeechErrorCode.Unspecified,
+                _feedbackResources.ResolveTranscriptSpeakingFailureMessage(SpeechErrorCode.Unspecified, languageCode));
+        }
+    }
+
+    private async Task SpeakFailureAnnouncementSafeAsync(SpeechErrorCode errorCode)
+    {
+        var languageCode = _feedbackResources.ResolveDisplayLanguage(UserLanguageState.SelectedIsoCode);
+        var message = _feedbackResources.ResolveFailureAnnouncementMessage(errorCode, languageCode);
+
+        try
+        {
+            await InvokeAsync(() => TextToSpeechPlayer.SpeakAsync(
+                message,
+                languageCode,
+                speechRate: 1.0d,
+                SpokenAnnouncementKind.RecoverableFailure,
+                CancellationToken.None));
+        }
+        catch (OperationCanceledException)
+        {
+            // Das Unterbrechen der Sprachausgabe ist ein erwartbarer Abbruch.
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to speak speech capture failure announcement.");
+        }
+    }
+
+    public void Dispose()
+    {
+        _stoppedSubscription?.Dispose();
+        _failureSubscription?.Dispose();
+    }
+}

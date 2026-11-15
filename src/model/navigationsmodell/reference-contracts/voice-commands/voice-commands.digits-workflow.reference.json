@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1.0.0",
+  "commandModelId": "voice.digits.workflow.v1",
+  "supportedLanguages": ["de", "en", "fr", "es", "it"],
+  "defaultLanguage": "de",
+  "strictLocalization": false,
+  "commands": [
+    {
+      "commandId": "digitsDeleteLastDigit",
+      "utterances": [
+        { "de": "letzte ziffer l\u00f6schen", "en": "delete last digit", "fr": "supprimer dernier chiffre", "es": "borrar ultimo digito", "it": "elimina ultima cifra" },
+        { "de": "ziffer zur\u00fcck", "en": "remove last digit", "fr": "retirer dernier chiffre", "es": "quitar ultimo digito", "it": "togli ultima cifra" }
+      ]
+    },
+    {
+      "commandId": "digitsDeleteLastBlock",
+      "utterances": [
+        { "de": "letzten block l\u00f6schen", "en": "delete last block", "fr": "supprimer dernier bloc", "es": "borrar ultimo bloque", "it": "elimina ultimo blocco" },
+        { "de": "letzter block l\u00f6schen", "en": "remove last block", "fr": "retirer dernier bloc", "es": "quitar ultimo bloque", "it": "togli ultimo blocco" }
+      ]
+    },
+    {
+      "commandId": "digitsRepeatLastBlock",
+      "utterances": [
+        { "de": "block wiederholen", "en": "repeat block", "fr": "repeter bloc", "es": "repetir bloque", "it": "ripeti blocco" }
+      ]
+    },
+    {
+      "commandId": "digitsRedictateLastBlock",
+      "utterances": [
+        { "de": "block neu diktieren", "en": "redictate block", "fr": "redicter le bloc", "es": "dictar de nuevo el bloque", "it": "detta di nuovo il blocco" }
+      ]
+    }
+  ],
+  "prefixes": [
+    {
+      "kind": "command",
+      "utterances": [
+        { "de": "befehl", "en": "command", "fr": "commande", "es": "comando", "it": "comando" }
+      ]
+    }
+  ]
+}

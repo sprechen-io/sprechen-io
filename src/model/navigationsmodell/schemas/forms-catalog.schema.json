@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/forms-catalog.schema.json",
+  "title": "FormsCatalogDocument",
+  "description": "Discovery document resolved atomically with the referenced application-selection dialog and profile. confirmationPolicy=never suppresses confirmation only for an unambiguous high-confidence candidate. ambiguity, lower confidence, or missing confidence must still be resolved before launch. Selection confirmation has initial C1 plus bounded C2 explicit-authorization and confidence-fault-retry stages. Once a candidate and SelectionRevision are retained, an unconflicted confirmYes in C1 or either C2 stage authorizes at confidence at or above sttMinConfidenceToConfirm. present confidence below that threshold enters explicit retained-candidate authorization from C1, while missing confidence spends the finite session repair budget and enters confidence-fault retry. Parser precedence may choose confirmYes as primary but must preserve competing modeled target, number, or control evidence. a conflicted affirmative never launches any candidate, and only primary confirmYes may carry that marker. In either C2 stage, openCandidate plus an exact retained display name or a stable retained number is an additional authorization path only at or above sttMinConfidenceToConfirm, with unique resolution and immediate candidate/revision revalidation. sttMinConfidenceToAccept remains the gate for an unbound selection. confirmNo and cancel remain immediate and spend no repair budget. contextual help, repeat, and list preserve stage without spending safety budget. Every other recognized non-launch result in either C2 stage is unsuccessful and spends the same session repair budget. at the exact boundary no launch occurs. Genuine silence speaks the short catalog app/form confirmation.repeat prompt and opens a fresh capture window without budget consumption. No provider-capability or serialized runtime-state field is introduced.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "selectionDialog",
+    "applications"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Version of the catalog format (breaking changes). Recommended major-only: \"1\", \"2\", ...",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "description": "Content version (opaque identifier). Clients MUST NOT infer ordering.",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional ISO/RFC3339 timestamp (metadata only)."
+    },
+    "selectionDialog": {
+      "$ref": "#/$defs/ApplicationSelectionDialogReference"
+    },
+    "selectionDialogProfile": {
+      "$ref": "#/$defs/ApplicationSelectionDialogProfileReference"
+    },
+    "applications": {
+      "type": "array",
+      "description": "NOTE: ID-uniqueness and semantic invariants are enforced by runtime preflight (semantic checks beyond JSON Schema).",
+      "items": {
+        "$ref": "#/$defs/ApplicationDescriptorDocument"
+      }
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "ContractVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+      "description": "Contract version identifier. Must match the pattern used by FormContract.contractVersion."
+    },
+    "FormDescriptor": {
+      "description": "Form metadata: identity, display info, contract versions, tags, and prerequisites.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formId",
+        "displayName",
+        "description",
+        "latestContractVersion",
+        "availableContractVersions"
+      ],
+      "properties": {
+        "formId": {
+          "$ref": "#/$defs/Id"
+        },
+        "displayName": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Resolved form display names must be non-empty after compact normalization, unique within their application and language/register scope, and must not collide with higher-precedence selection-intent or composed canonical/recognition-only wake vocabulary."
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "latestContractVersion": {
+          "$ref": "#/$defs/ContractVersion"
+        },
+        "availableContractVersions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContractVersion"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Recommended order within the application. Forms with sequence are sorted ascending; forms without sequence appear after those with sequence."
+        },
+        "prerequisiteForms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          },
+          "uniqueItems": true,
+          "description": "List of formIds that must be completed before this form. Empty or absent = no prerequisites. Referenced formIds MUST exist in the same ApplicationDescriptor.forms[]."
+        },
+        "sharedVariables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          },
+          "uniqueItems": true,
+          "description": "List of variableIds that can be shared from other forms (cross-form data flow). Referenced variables should exist in the FormContracts of prerequisiteForms."
+        }
+      }
+    },
+    "ApplicationSelectionDialogReference": {
+      "description": "Reference to a standalone catalog selection-dialog model.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selectionDialogId",
+        "modelVersion"
+      ],
+      "properties": {
+        "selectionDialogId": {
+          "$ref": "#/$defs/Id"
+        },
+        "modelVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "ApplicationSelectionDialogProfileReference": {
+      "description": "Reference to a standalone selection-dialog profile.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileId",
+        "profileVersion"
+      ],
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/Id"
+        },
+        "profileVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    },
+    "ApplicationDescriptorDocument": {
+      "description": "Application metadata: identity, display info, language support, forms, and optional selection-dialog profile reference.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "applicationId",
+        "displayName",
+        "description",
+        "supportedLanguages",
+        "defaultLanguage",
+        "forms"
+      ],
+      "properties": {
+        "applicationId": {
+          "$ref": "#/$defs/Id"
+        },
+        "displayName": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Resolved application display names must be non-empty after compact normalization, unique within the catalog language/register scope, and must not collide with higher-precedence selection-intent or composed canonical/recognition-only wake vocabulary."
+        },
+        "description": {
+          "$ref": "#/$defs/LocalizedText"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "supportedLanguages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LanguageCode"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "defaultLanguage": {
+          "$ref": "#/$defs/LanguageCode"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "isStudyApplication": {
+          "type": "boolean",
+          "default": false,
+          "description": "True when this application is the study application that a study link must open. Exactly one application in the composed catalog may be true."
+        },
+        "selectionDialogProfile": {
+          "$ref": "#/$defs/ApplicationSelectionDialogProfileReference"
+        },
+        "forms": {
+          "type": "array",
+          "description": "NOTE: formId uniqueness per application and latest in available are enforced by runtime preflight (semantic checks beyond JSON Schema).",
+          "items": {
+            "$ref": "#/$defs/FormDescriptor"
+          }
+        }
+      }
+    }
+  }
+}

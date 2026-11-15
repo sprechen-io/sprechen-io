@@ -1,0 +1,177 @@
+﻿@inherits LayoutComponentBase
+
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject IBootStatusBrowserBridge BootStatus
+@inject IUserLanguageState UserLanguageState
+
+@code {
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    private bool _navOpen;
+    private bool _pendingFocusClose;
+    private bool _pendingFocusOpen;
+    private ElementReference _openButton;
+    private ElementReference _closeButton;
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        UserLanguageState.SelectedLanguageChanged += OnSelectedLanguageChanged;
+    }
+
+    private void OnSelectedLanguageChanged(string ignoredIsoCode)
+    {
+        try
+        {
+            _ = InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await BootStatus.MarkApplicationReadyAsync();
+            }
+            catch (Exception ex) when (ex is JSException or JSDisconnectedException)
+            {
+            }
+        }
+
+        if (_pendingFocusClose)
+        {
+            _pendingFocusClose = false;
+            await FocusSafelyAsync(_closeButton);
+        }
+
+        if (_pendingFocusOpen)
+        {
+            _pendingFocusOpen = false;
+            await FocusSafelyAsync(_openButton);
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        if (!_navOpen)
+        {
+            return;
+        }
+
+        _navOpen = false;
+        try
+        {
+            _ = InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Die Komponente ist schon freigegeben.
+        }
+        catch (InvalidOperationException)
+        {
+            // Die Anzeige kann in diesem Zustand nicht mehr aktualisiert werden.
+        }
+    }
+
+    private void CloseNav() => _navOpen = false;
+
+    private void OpenNav()
+    {
+        _navOpen = true;
+        _pendingFocusClose = true;
+    }
+
+    private void OnDrawerKeyDown(KeyboardEventArgs args)
+    {
+        if (!_navOpen || args.Key != "Escape")
+        {
+            return;
+        }
+
+        _navOpen = false;
+        _pendingFocusOpen = true;
+    }
+
+    private static async Task FocusSafelyAsync(ElementReference element)
+    {
+        try
+        {
+            await element.FocusAsync();
+        }
+        catch (JSException)
+        {
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        UserLanguageState.SelectedLanguageChanged -= OnSelectedLanguageChanged;
+    }
+}
+
+<div class="page">
+    <div class="nav-backdrop @(_navOpen ? "show" : string.Empty)" @onclick="CloseNav" aria-hidden="true"></div>
+
+    <aside id="nav-drawer"
+           class="nav-drawer @(_navOpen ? "show" : string.Empty)"
+           aria-label="@Copy.Chrome.GetNavigationLabel(UserLanguageState.SelectedIsoCode)"
+           @onkeydown="OnDrawerKeyDown">
+        <div class="nav-drawer-header">
+            <span class="nav-drawer-title">Sprechen</span>
+            <button type="button" class="nav-close-button" @ref="_closeButton" @onclick="CloseNav" aria-label="@Copy.Chrome.GetCloseNavigation(UserLanguageState.SelectedIsoCode)">&times;</button>
+        </div>
+
+        <NavMenu />
+
+        <div class="nav-drawer-footer">
+            <ThemeSwitch PreferredIsoCode="@UserLanguageState.SelectedIsoCode" />
+        </div>
+    </aside>
+
+    <header class="top-bar">
+        <button type="button"
+                class="nav-open-button @(_navOpen ? "is-hidden" : string.Empty)"
+                @ref="_openButton"
+                @onclick="OpenNav"
+                aria-label="@Copy.Chrome.GetOpenNavigation(UserLanguageState.SelectedIsoCode)"
+                aria-controls="nav-drawer"
+                aria-expanded="@(_navOpen ? "true" : "false")">
+            <span class="visually-hidden">@Copy.Chrome.GetOpenNavigation(UserLanguageState.SelectedIsoCode)</span>
+            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+                <path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+            </svg>
+        </button>
+    </header>
+
+    <main>
+        <article class="content px-4">
+            <ErrorBoundary>
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <div class="layout-error" role="alert">
+                        @Copy.Chrome.GetUnexpectedError(UserLanguageState.SelectedIsoCode)
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
+        </article>
+    </main>
+</div>
+
+<SpeechCaptureTextToSpeechAnnouncer />
+<SpeechCaptureErrorEarconSubscriber />
+<SpeechCaptureFailureAnnouncer />

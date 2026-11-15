@@ -1,0 +1,565 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "4",
+  "fieldDefinitionsId": "sample.complex.fields.multilingual",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": true,
+  "definitions": [
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.fullNameField",
+      "label": {
+        "de": "Name",
+        "en": "Name",
+        "fr": "Nom",
+        "es": "Nombre",
+        "it": "Nome"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie Ihren vollst\u00e4ndigen Namen.",
+        "de@informal": "Sag deinen vollst\u00e4ndigen Namen.",
+        "en": "Say your full name.",
+        "fr": "Dites votre nom complet.",
+        "fr@informal": "Dis ton nom complet.",
+        "es": "Diga su nombre completo.",
+        "es@informal": "Di tu nombre completo.",
+        "it": "Dica il suo nome completo.",
+        "it@informal": "Di' il tuo nome completo."
+      },
+      "examples": [
+        {
+          "de": "Maria Weber",
+          "en": "Maria Weber",
+          "fr": "Maria Weber",
+          "es": "Maria Weber",
+          "it": "Maria Weber"
+        }
+      ],
+      "placeholder": {
+        "de": "Maria Weber",
+        "en": "Maria Weber",
+        "fr": "Maria Weber",
+        "es": "Maria Weber",
+        "it": "Maria Weber"
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard",
+        "spelling"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.emailField",
+      "label": {
+        "de": "E-Mail",
+        "en": "Email",
+        "fr": "E-mail",
+        "es": "Correo electr\u00f3nico",
+        "it": "E-mail"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen oder buchstabieren Sie Ihre E-Mail-Adresse.",
+        "de@informal": "Sag oder buchstabiere deine E-Mail-Adresse.",
+        "en": "Say or spell your email address.",
+        "fr": "Dites ou \u00e9pelez votre adresse e-mail.",
+        "fr@informal": "Dis ou \u00e9pelle ton adresse e-mail.",
+        "es": "Diga o deletree su correo electr\u00f3nico.",
+        "es@informal": "Di o deletrea tu correo electr\u00f3nico.",
+        "it": "Dica o sillabi il suo indirizzo e-mail.",
+        "it@informal": "Di' o sillaba il tuo indirizzo e-mail."
+      },
+      "examples": [
+        {
+          "de": "maria.weber@example.org",
+          "en": "maria.weber@example.org",
+          "fr": "maria.weber@example.org",
+          "es": "maria.weber@example.org",
+          "it": "maria.weber@example.org"
+        }
+      ],
+      "placeholder": {
+        "de": "maria.weber@example.org",
+        "en": "maria.weber@example.org",
+        "fr": "maria.weber@example.org",
+        "es": "maria.weber@example.org",
+        "it": "maria.weber@example.org"
+      },
+      "preferredInputModes": [
+        "voice",
+        "spelling",
+        "keyboard"
+      ],
+      "projections": {
+        "html": {
+          "inputMode": "email"
+        },
+        "voice": {
+          "confirmationStyle": "repeatBack"
+        }
+      }
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.phoneField",
+      "label": {
+        "de": "Telefon",
+        "en": "Phone",
+        "fr": "T\u00e9l\u00e9phone",
+        "es": "Tel\u00e9fono",
+        "it": "Telefono"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie Ihre Telefonnummer Ziffer f\u00fcr Ziffer.",
+        "de@informal": "Sag deine Telefonnummer Ziffer f\u00fcr Ziffer.",
+        "en": "Say your phone number digit by digit.",
+        "fr": "Dites votre num\u00e9ro de t\u00e9l\u00e9phone chiffre par chiffre.",
+        "fr@informal": "Dis ton num\u00e9ro de t\u00e9l\u00e9phone chiffre par chiffre.",
+        "es": "Diga su n\u00famero de tel\u00e9fono d\u00edgito a d\u00edgito.",
+        "es@informal": "Di tu n\u00famero de tel\u00e9fono d\u00edgito a d\u00edgito.",
+        "it": "Dica il suo numero di telefono cifra per cifra.",
+        "it@informal": "Di' il tuo numero di telefono cifra per cifra."
+      },
+      "examples": [
+        {
+          "de": "030 123456",
+          "en": "030 123456",
+          "fr": "030 123456",
+          "es": "030 123456",
+          "it": "030 123456"
+        }
+      ],
+      "placeholder": {
+        "de": "030 123456",
+        "en": "030 123456",
+        "fr": "030 123456",
+        "es": "030 123456",
+        "it": "030 123456"
+      },
+      "preferredInputModes": [
+        "voice",
+        "digits",
+        "keyboard"
+      ],
+      "projections": {
+        "html": {
+          "inputMode": "tel"
+        },
+        "voice": {
+          "confirmationStyle": "repeatBack"
+        }
+      }
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.postalCodeField",
+      "label": {
+        "de": "Postleitzahl",
+        "en": "Postal code",
+        "fr": "Code postal",
+        "es": "C\u00f3digo postal",
+        "it": "Codice postale"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie die Postleitzahl Ziffer f\u00fcr Ziffer.",
+        "de@informal": "Sag die Postleitzahl Ziffer f\u00fcr Ziffer.",
+        "en": "Say the postal code digit by digit.",
+        "fr": "Dites le code postal chiffre par chiffre.",
+        "fr@informal": "Dis le code postal chiffre par chiffre.",
+        "es": "Diga el c\u00f3digo postal d\u00edgito a d\u00edgito.",
+        "es@informal": "Di el c\u00f3digo postal d\u00edgito a d\u00edgito.",
+        "it": "Dica il codice postale cifra per cifra.",
+        "it@informal": "Di' il codice postale cifra per cifra."
+      },
+      "examples": [
+        {
+          "de": "10115",
+          "en": "10115",
+          "fr": "10115",
+          "es": "10115",
+          "it": "10115"
+        }
+      ],
+      "placeholder": {
+        "de": "10115",
+        "en": "10115",
+        "fr": "10115",
+        "es": "10115",
+        "it": "10115"
+      },
+      "preferredInputModes": [
+        "voice",
+        "digits",
+        "keyboard"
+      ],
+      "projections": {
+        "html": {
+          "inputMode": "numeric"
+        }
+      }
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.productCategoryField",
+      "label": {
+        "de": "Produktkategorie",
+        "en": "Product category",
+        "fr": "Cat\u00e9gorie de produit",
+        "es": "Categor\u00eda de producto",
+        "it": "Categoria di prodotto"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "W\u00e4hlen Sie eine Kategorie: B\u00fccher, Elektronik oder Kleidung.",
+        "de@informal": "W\u00e4hle eine Kategorie: B\u00fccher, Elektronik oder Kleidung.",
+        "en": "Choose a category: books, electronics, or clothing.",
+        "fr": "Choisissez une cat\u00e9gorie : livres, \u00e9lectronique ou v\u00eatements.",
+        "fr@informal": "Choisis une cat\u00e9gorie : livres, \u00e9lectronique ou v\u00eatements.",
+        "es": "Elija una categor\u00eda: libros, electr\u00f3nica o ropa.",
+        "es@informal": "Elige una categor\u00eda: libros, electr\u00f3nica o ropa.",
+        "it": "Scelga una categoria: libri, elettronica o abbigliamento.",
+        "it@informal": "Scegli una categoria: libri, elettronica o abbigliamento."
+      },
+      "examples": [
+        {
+          "de": "Elektronik",
+          "en": "Electronics",
+          "fr": "\u00c9lectronique",
+          "es": "Electr\u00f3nica",
+          "it": "Elettronica"
+        }
+      ],
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.quantityField",
+      "label": {
+        "de": "Menge",
+        "en": "Quantity",
+        "fr": "Quantit\u00e9",
+        "es": "Cantidad",
+        "it": "Quantit\u00e0"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie, wie viele St\u00fcck Sie bestellen m\u00f6chten.",
+        "de@informal": "Sag, wie viele St\u00fcck du bestellen m\u00f6chtest.",
+        "en": "Say how many items you would like to order.",
+        "fr": "Dites combien d'articles vous souhaitez commander.",
+        "fr@informal": "Dis combien d'articles tu souhaites commander.",
+        "es": "Diga cu\u00e1ntas unidades desea pedir.",
+        "es@informal": "Di cu\u00e1ntas unidades quieres pedir.",
+        "it": "Dica quante unit\u00e0 desidera ordinare.",
+        "it@informal": "Di' quante unit\u00e0 vuoi ordinare."
+      },
+      "examples": [
+        {
+          "de": "3",
+          "en": "3",
+          "fr": "3",
+          "es": "3",
+          "it": "3"
+        }
+      ],
+      "placeholder": {
+        "de": "3",
+        "en": "3",
+        "fr": "3",
+        "es": "3",
+        "it": "3"
+      },
+      "preferredInputModes": [
+        "voice",
+        "digits",
+        "keyboard"
+      ],
+      "projections": {
+        "html": {
+          "inputMode": "numeric"
+        },
+        "voice": {
+          "names": {
+            "de": "Anzahl",
+            "en": "quantity",
+            "fr": "quantit\u00e9",
+            "es": "cantidad",
+            "it": "quantit\u00e0"
+          }
+        }
+      }
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.expressDeliveryField",
+      "label": {
+        "de": "Expresslieferung",
+        "en": "Express delivery",
+        "fr": "Livraison express",
+        "es": "Entrega expr\u00e9s",
+        "it": "Consegna espressa"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Soll Ihre Bestellung per Express geliefert werden? Sagen Sie ja oder nein.",
+        "de@informal": "Soll deine Bestellung per Express geliefert werden? Sag ja oder nein.",
+        "en": "Should your order be delivered by express? Say yes or no.",
+        "fr": "Votre commande doit-elle \u00eatre livr\u00e9e en express ? Dites oui ou non.",
+        "fr@informal": "Ta commande doit-elle \u00eatre livr\u00e9e en express ? Dis oui ou non.",
+        "es": "\u00bfDesea la entrega expr\u00e9s para su pedido? Diga s\u00ed o no.",
+        "es@informal": "\u00bfQuieres la entrega expr\u00e9s para tu pedido? Di s\u00ed o no.",
+        "it": "Vuole la consegna espressa per il suo ordine? Dica s\u00ec o no.",
+        "it@informal": "Vuoi la consegna espressa per il tuo ordine? Di' s\u00ec o no."
+      },
+      "examples": [
+        {
+          "de": "ja",
+          "en": "yes",
+          "fr": "oui",
+          "es": "s\u00ed",
+          "it": "s\u00ec"
+        }
+      ],
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.deliveryDateField",
+      "label": {
+        "de": "Lieferdatum",
+        "en": "Delivery date",
+        "fr": "Date de livraison",
+        "es": "Fecha de entrega",
+        "it": "Data di consegna"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie das gew\u00fcnschte Lieferdatum.",
+        "de@informal": "Sag das gew\u00fcnschte Lieferdatum.",
+        "en": "Say the desired delivery date.",
+        "fr": "Dites la date de livraison souhait\u00e9e.",
+        "fr@informal": "Dis la date de livraison souhait\u00e9e.",
+        "es": "Diga la fecha de entrega deseada.",
+        "es@informal": "Di la fecha de entrega deseada.",
+        "it": "Dica la data di consegna desiderata.",
+        "it@informal": "Di' la data di consegna desiderata."
+      },
+      "examples": [
+        {
+          "de": "achter Januar",
+          "en": "January eighth",
+          "fr": "le 8 janvier",
+          "es": "el 8 de enero",
+          "it": "l'8 gennaio"
+        }
+      ],
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ],
+      "projections": {
+        "voice": {
+          "names": {
+            "de": "Datum",
+            "en": "date",
+            "fr": "date",
+            "es": "fecha",
+            "it": "data"
+          }
+        }
+      }
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.deliveryTimeField",
+      "label": {
+        "de": "Lieferzeit",
+        "en": "Delivery time",
+        "fr": "Heure de livraison",
+        "es": "Hora de entrega",
+        "it": "Orario di consegna"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie eine Uhrzeit, zum Beispiel 14:30.",
+        "de@informal": "Sag eine Uhrzeit, zum Beispiel 14:30.",
+        "en": "Say a time, for example 2:30 PM.",
+        "fr": "Dites une heure, par exemple 14:30.",
+        "fr@informal": "Dis une heure, par exemple 14:30.",
+        "es": "Diga una hora, por ejemplo 14:30.",
+        "es@informal": "Di una hora, por ejemplo 14:30.",
+        "it": "Dica un orario, per esempio 14:30.",
+        "it@informal": "Di' un orario, per esempio 14:30."
+      },
+      "examples": [
+        {
+          "de": "09:15",
+          "en": "9:15 AM",
+          "fr": "09:15",
+          "es": "09:15",
+          "it": "09:15"
+        }
+      ],
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.contactChannelsField",
+      "label": {
+        "de": "Kontaktkan\u00e4le",
+        "en": "Contact channels",
+        "fr": "Canaux de contact",
+        "es": "Canales de contacto",
+        "it": "Canali di contatto"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "W\u00e4hlen Sie einen oder mehrere Kan\u00e4le: E-Mail, Telefon, SMS. Sagen Sie fertig, wenn Sie keine weiteren Kan\u00e4le ausw\u00e4hlen m\u00f6chten.",
+        "de@informal": "W\u00e4hle einen oder mehrere Kan\u00e4le: E-Mail, Telefon, SMS. Sag fertig, wenn du keine weiteren Kan\u00e4le ausw\u00e4hlen m\u00f6chtest.",
+        "en": "Choose one or more channels: email, phone, SMS. Say done when you do not want to choose any more channels.",
+        "fr": "Choisissez un ou plusieurs canaux : e-mail, t\u00e9l\u00e9phone, SMS. Dites terminer si vous ne souhaitez pas choisir d'autres canaux.",
+        "fr@informal": "Choisis un ou plusieurs canaux : e-mail, t\u00e9l\u00e9phone, SMS. Dis terminer si tu ne souhaites pas choisir d'autres canaux.",
+        "es": "Elija uno o varios canales: correo electr\u00f3nico, tel\u00e9fono, SMS. Diga terminar si no desea elegir m\u00e1s canales.",
+        "es@informal": "Elige uno o varios canales: correo electr\u00f3nico, tel\u00e9fono, SMS. Di terminar si no quieres elegir m\u00e1s canales.",
+        "it": "Scelga uno o pi\u00f9 canali: e-mail, telefono, SMS. Dica fine se non desidera scegliere altri canali.",
+        "it@informal": "Scegli uno o pi\u00f9 canali: e-mail, telefono, SMS. Di' fine se non vuoi scegliere altri canali."
+      },
+      "examples": [
+        {
+          "de": "E-Mail und SMS",
+          "en": "email and SMS",
+          "fr": "e-mail et SMS",
+          "es": "correo electr\u00f3nico y SMS",
+          "it": "e-mail e SMS"
+        }
+      ],
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ],
+      "projections": {
+        "voice": {
+          "names": {
+            "de": "Kontakt",
+            "en": "contact",
+            "fr": "contact",
+            "es": "contacto",
+            "it": "contatto"
+          }
+        }
+      }
+    },
+    {
+      "fieldDefinitionId": "sample.complex.full-coverage.ibanField",
+      "label": {
+        "de": "IBAN",
+        "en": "IBAN",
+        "fr": "IBAN",
+        "es": "IBAN",
+        "it": "IBAN"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Buchstabieren Sie Ihre IBAN. Auf Wunsch k\u00f6nnen Sie die Tastatur nutzen.",
+        "de@informal": "Buchstabiere deine IBAN. Auf Wunsch kannst du die Tastatur nutzen.",
+        "en": "Spell your IBAN. You may use the keyboard if you prefer.",
+        "fr": "\u00c9pelez votre IBAN. Vous pouvez utiliser le clavier si vous pr\u00e9f\u00e9rez.",
+        "fr@informal": "\u00c9pelle ton IBAN. Tu peux utiliser le clavier si tu pr\u00e9f\u00e8res.",
+        "es": "Deletree su IBAN. Si lo prefiere, puede usar el teclado.",
+        "es@informal": "Deletrea tu IBAN. Si lo prefieres, puedes usar el teclado.",
+        "it": "Sillabi il suo IBAN. Se preferisce, pu\u00f2 usare la tastiera.",
+        "it@informal": "Sillaba il tuo IBAN. Se preferisci, puoi usare la tastiera."
+      },
+      "examples": [
+        {
+          "de": "DE89 3704 0044 0532 0130 00",
+          "en": "DE89 3704 0044 0532 0130 00",
+          "fr": "DE89 3704 0044 0532 0130 00",
+          "es": "DE89 3704 0044 0532 0130 00",
+          "it": "DE89 3704 0044 0532 0130 00"
+        }
+      ],
+      "placeholder": {
+        "de": "DE89 3704 0044 0532 0130 00",
+        "en": "DE89 3704 0044 0532 0130 00",
+        "fr": "DE89 3704 0044 0532 0130 00",
+        "es": "DE89 3704 0044 0532 0130 00",
+        "it": "DE89 3704 0044 0532 0130 00"
+      },
+      "preferredInputModes": [
+        "spelling",
+        "keyboard",
+        "voice"
+      ],
+      "fieldConstraints": [
+        {
+          "constraintId": "iban.minLength",
+          "target": {
+            "kind": "field",
+            "fieldId": "sample.complex.full-coverage.ibanField"
+          },
+          "severity": "error",
+          "code": "form.iban.invalid",
+          "message": {
+            "de": "Die IBAN ist zu kurz.",
+            "en": "The IBAN is too short.",
+            "fr": "L'IBAN est trop court.",
+            "es": "El IBAN es demasiado corto.",
+            "it": "L'IBAN \u00e8 troppo corto."
+          },
+          "remediation": {
+            "de": "Buchstabieren Sie die IBAN vollst\u00e4ndig; sie hat je nach Land 15 bis 34 Stellen.",
+            "de@informal": "Buchstabiere die IBAN vollst\u00e4ndig; sie hat je nach Land 15 bis 34 Stellen.",
+            "en": "Spell the IBAN in full; it has 15 to 34 characters depending on the country.",
+            "fr": "\u00c9pelez l'IBAN en entier ; il compte de 15 \u00e0 34 caract\u00e8res selon le pays.",
+            "fr@informal": "\u00c9pelle l'IBAN en entier ; il compte de 15 \u00e0 34 caract\u00e8res selon le pays.",
+            "es": "Deletree el IBAN completo; tiene entre 15 y 34 caracteres seg\u00fan el pa\u00eds.",
+            "es@informal": "Deletrea el IBAN completo; tiene entre 15 y 34 caracteres seg\u00fan el pa\u00eds.",
+            "it": "Sillabi l'IBAN per intero; ha da 15 a 34 caratteri a seconda del paese.",
+            "it@informal": "Sillaba l'IBAN per intero; ha da 15 a 34 caratteri a seconda del paese."
+          },
+          "kind": "minLength",
+          "minLength": 15
+        },
+        {
+          "constraintId": "iban.maxLength",
+          "target": {
+            "kind": "field",
+            "fieldId": "sample.complex.full-coverage.ibanField"
+          },
+          "severity": "error",
+          "code": "form.iban.invalid",
+          "message": {
+            "de": "Die IBAN ist zu lang.",
+            "en": "The IBAN is too long.",
+            "fr": "L'IBAN est trop long.",
+            "es": "El IBAN es demasiado largo.",
+            "it": "L'IBAN \u00e8 troppo lungo."
+          },
+          "remediation": {
+            "de": "Buchstabieren Sie die IBAN noch einmal; sie hat je nach Land h\u00f6chstens 34 Stellen. Auf Wunsch k\u00f6nnen Sie die Tastatur nutzen.",
+            "de@informal": "Buchstabiere die IBAN noch einmal; sie hat je nach Land h\u00f6chstens 34 Stellen. Auf Wunsch kannst du die Tastatur nutzen.",
+            "en": "Spell the IBAN again; it has at most 34 characters depending on the country. You may use the keyboard if you prefer.",
+            "fr": "\u00c9pelez l'IBAN encore une fois ; il compte au plus 34 caract\u00e8res selon le pays. Vous pouvez utiliser le clavier si vous pr\u00e9f\u00e9rez.",
+            "fr@informal": "\u00c9pelle l'IBAN encore une fois ; il compte au plus 34 caract\u00e8res selon le pays. Tu peux utiliser le clavier si tu pr\u00e9f\u00e8res.",
+            "es": "Deletree el IBAN otra vez; tiene como m\u00e1ximo 34 caracteres seg\u00fan el pa\u00eds. Si lo prefiere, puede usar el teclado.",
+            "es@informal": "Deletrea el IBAN otra vez; tiene como m\u00e1ximo 34 caracteres seg\u00fan el pa\u00eds. Si lo prefieres, puedes usar el teclado.",
+            "it": "Sillabi di nuovo l'IBAN; ha al massimo 34 caratteri a seconda del paese. Se preferisce, pu\u00f2 usare la tastiera.",
+            "it@informal": "Sillaba di nuovo l'IBAN; ha al massimo 34 caratteri a seconda del paese. Se preferisci, puoi usare la tastiera."
+          },
+          "kind": "maxLength",
+          "maxLength": 34
+        }
+      ]
+    }
+  ]
+}

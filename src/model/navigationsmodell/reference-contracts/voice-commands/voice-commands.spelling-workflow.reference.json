@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1.1.0",
+  "commandModelId": "voice.spelling.workflow.v1",
+  "supportedLanguages": ["de", "en", "fr", "es", "it"],
+  "defaultLanguage": "de",
+  "strictLocalization": false,
+  "commands": [
+    {
+      "commandId": "spellingRemoveLastCharacter",
+      "utterances": [
+        { "de": "buchstabe zur\u00fcck", "en": "remove last letter", "fr": "retirer derniere lettre", "es": "quitar ultima letra", "it": "togli ultima lettera" },
+        { "de": "zur\u00fcck", "en": "back", "fr": "retour", "es": "atras", "it": "indietro" },
+        { "de": "letzten buchstaben l\u00f6schen", "en": "delete last letter", "fr": "supprimer derniere lettre", "es": "borrar ultima letra", "it": "elimina ultima lettera" }
+      ]
+    },
+    {
+      "commandId": "spellingRemoveLastBlock",
+      "utterances": [
+        { "de": "letzten block l\u00f6schen", "en": "delete last block", "fr": "supprimer dernier bloc", "es": "borrar ultimo bloque", "it": "elimina ultimo blocco" }
+      ]
+    },
+    {
+      "commandId": "spellingClearBuffer",
+      "utterances": [
+        { "de": "alles l\u00f6schen", "en": "clear all", "fr": "tout effacer", "es": "borrar todo", "it": "cancella tutto" }
+      ]
+    },
+    {
+      "commandId": "spellingReadback",
+      "utterances": [
+        { "de": "wiederholen", "en": "repeat", "fr": "repeter", "es": "repetir", "it": "ripeti" },
+        { "de": "buchstaben wiederholen", "en": "repeat letters", "fr": "repeter lettres", "es": "repetir letras", "it": "ripeti lettere" }
+      ]
+    }
+  ],
+  "prefixes": [
+    {
+      "kind": "command",
+      "utterances": [
+        { "de": "befehl", "en": "command", "fr": "commande", "es": "comando", "it": "comando" }
+      ]
+    }
+  ]
+}

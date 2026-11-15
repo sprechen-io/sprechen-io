@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1",
+  "profileVersion": "1",
+  "formVoiceProfileId": "sample.form-voice.voice-complex",
+  "allowBargeIn": false,
+  "noInputTimeoutMs": 8000,
+  "noInputMaxRetries": 1,
+  "sttMinConfidenceToAccept": 85,
+  "sttMinConfidenceToConfirm": 65,
+  "speechRate": 1.0,
+  "diacriticsStrategy": "preserve",
+  "pauseAfterPromptMs": 250
+}

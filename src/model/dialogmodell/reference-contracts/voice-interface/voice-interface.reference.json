@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "voiceInterfaceId": "default.voiceInteractionSurface",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "defaultLanguage": "en",
+  "strictLocalization": true,
+  "firstPcmEnqueueTimeoutMs": 15000,
+  "firstPcmTimeoutEarconId": "ValidationAsrFail",
+  "sessionLanguageOfferEnabled": true,
+  "resourceCatalog": {
+    "resourceModelId": "default.voiceResources",
+    "catalogVersion": "1"
+  },
+  "promptCatalog": {
+    "promptCatalogModelId": "default.voicePrompts",
+    "catalogVersion": "1"
+  },
+  "lexiconCatalog": {
+    "lexiconModelId": "default.voiceLexicon",
+    "catalogVersion": "1"
+  },
+  "wakeWordCatalog": {
+    "wakeWordModelId": "default.voiceWakeWords",
+    "catalogVersion": "1"
+  },
+  "wakeWordDetectorCatalog": {
+    "detectorCatalogModelId": "default.voiceWakeWordDetectors",
+    "catalogVersion": "1"
+  }
+}

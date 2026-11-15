@@ -1,0 +1,67 @@
+.theme-switch {
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+.theme-switch-legend {
+    float: none;
+    width: auto;
+    color: var(--sp-nav-link-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+    padding: 0;
+}
+
+.theme-switch-options {
+    display: flex;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--sp-nav-open-border);
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Das native Optionsfeld bleibt per Tastatur bedienbar; sichtbar ist sein Label. */
+.theme-switch-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.theme-switch-label {
+    flex: 1 1 0;
+    text-align: center;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    padding: 0.35rem 0.25rem;
+    border-radius: 4px;
+    color: var(--sp-nav-link-color);
+    cursor: pointer;
+    user-select: none;
+}
+
+    .theme-switch-label:hover {
+        background-color: var(--sp-nav-link-hover-bg);
+        color: var(--sp-nav-on-color);
+    }
+
+.theme-switch-input:checked + .theme-switch-label {
+    background-color: var(--sp-nav-link-active-bg);
+    color: var(--sp-nav-on-color);
+    font-weight: 600;
+}
+
+.theme-switch-input:focus-visible + .theme-switch-label {
+    outline: 2px solid var(--sp-color-focus-ring);
+    outline-offset: 1px;
+}

@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/speech-capture-profile.schema.json",
+  "title": "SpeechCaptureProfileCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "captureProfilesByMode",
+    "sessionEntry"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "captureProfilesByMode": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CaptureProfile"
+      },
+      "minItems": 1,
+      "description": "Per-mode capture-timing entries. The mode key is validated against the canonical SpeechCaptureMode vocabulary by a consumer-side drift guard; the runtime fails fast on unknown identifiers. Preflight enforces uniqueness of mode keys."
+    },
+    "micGate": {
+      "$ref": "#/$defs/MicGate",
+      "description": "Modeled mic-vs-TTS policy. Owned by MicGatePolicyResolver and the MicGateLifecycleObserver / IMicGateState pair in Sprechen.Speech.App.ClientInfrastructure. Replaces the previous amplitude-only self-hearing heuristics."
+    },
+    "segmenter": {
+      "$ref": "#/$defs/Segmenter",
+      "description": "Voice-activity-detection tuning for the PCM capture segmenter. Owned by PcmSpeechCaptureSegmenterOptions in Sprechen.Speech.App.CaptureRuntime; the inline runtime defaults remain authoritative and are parity-pinned to these modeled values."
+    },
+    "sessionEntry": {
+      "$ref": "#/$defs/SessionEntry",
+      "description": "Answer-window sizing for the session-entry language negotiation. Owned by SessionEntryAnswerWindows in Sprechen.VoiceAssistant.Orchestration; a build without this block falls back to the shortest of the four windows so that an unmodeled catalog is stricter, not accidentally correct."
+    }
+  },
+  "$defs": {
+    "MicGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy"
+      ],
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": [
+            "heuristic",
+            "hardOff"
+          ],
+          "description": "Mic-vs-TTS gating policy. 'heuristic' keeps the historical amplitude/AEC/cooldown heuristics. 'hardOff' physically silences the active MediaStreamTrack (track.enabled = false in microphoneRecorder.ts). Capture waits until the gate opens again; it does not fail-fast the turn."
+        }
+      }
+    },
+    "Segmenter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speechAmplitudeThreshold",
+        "speechStartAdaptiveMargin",
+        "activePlaybackSpeechStartAdaptiveMargin",
+        "idleAdaptiveFloorMaxMargin",
+        "playbackLeakageBypassAmplitudeThreshold",
+        "activePlaybackCalibrationChunkCount",
+        "recentPlaybackCalibrationChunkCount",
+        "maxPreRollChunks",
+        "tailSilenceMs",
+        "optionListingInitialSilenceTimeoutMs"
+      ],
+      "properties": {
+        "speechAmplitudeThreshold": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32767,
+          "description": "Absolute PCM16 amplitude a chunk must reach to count as speech energy for onset detection."
+        },
+        "speechStartAdaptiveMargin": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32767,
+          "description": "Amplitude margin added above the measured ambient floor when no playback is active before onset is confirmed."
+        },
+        "activePlaybackSpeechStartAdaptiveMargin": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32767,
+          "description": "Amplitude margin added above the measured ambient floor while playback is active before onset is confirmed."
+        },
+        "idleAdaptiveFloorMaxMargin": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32767,
+          "description": "Ceiling for the adaptive onset threshold in the idle post-playback context, expressed as a margin above speechAmplitudeThreshold. Bounds how far replayed post-TTS speaker bleed can inflate the measured floor so a quiet, far-field short first answer still crosses onset instead of being swallowed into a no-input re-prompt. Only ever lowers an over-inflated idle floor and never below speechAmplitudeThreshold; inert for active-playback barge-in and clean listening."
+        },
+        "playbackLeakageBypassAmplitudeThreshold": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32767,
+          "description": "Absolute amplitude above which a chunk is treated as genuine speech even while playback is active, bypassing the leakage guard."
+        },
+        "activePlaybackCalibrationChunkCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Number of leading capture chunks used to calibrate the ambient floor while playback is active."
+        },
+        "recentPlaybackCalibrationChunkCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Number of leading capture chunks used to calibrate the ambient floor shortly after playback ends."
+        },
+        "maxPreRollChunks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Audio buffered ahead of the confirmed speech onset, in 20ms capture chunks, retained so the soft leading sound of the first word is not clipped."
+        },
+        "tailSilenceMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Trailing silence in milliseconds appended after the confirmed end of an utterance before the segment is emitted."
+        },
+        "optionListingInitialSilenceTimeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 60000,
+          "description": "Initial-silence no-input window, in milliseconds, for the first capture of option-listing form fields such as single-select and multi-select. The form runtime clamps the modeled value to this range before carrying it on FormVoiceCommandCaptureSettings; simple fields keep the base voice-dialog no-input timeout."
+        }
+      }
+    },
+    "CaptureProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "silenceDebounceMs"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the SpeechCaptureMode this profile applies to. Must equal a value of the canonical SpeechCaptureMode vocabulary; consumer-side drift guards enforce alignment."
+        },
+        "silenceDebounceMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Default end-of-utterance silence debounce window for this capture mode, in milliseconds. The runtime user override is layered on top of this modeled default."
+        },
+        "maxUtteranceDurationMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 60000,
+          "description": "Cap on the cumulative speech (above-threshold) duration of a single utterance for this capture mode, in milliseconds. Silence inside the utterance does not count, so natural pauses do not truncate the command. The runtime computes a TimeSpan from this value. When omitted, the segmenter fallback applies."
+        },
+        "maxTotalSegmentDurationMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 60000,
+          "description": "Wall-clock cap on the whole segment (speech plus silence) for this capture mode, in milliseconds. Bounds amplitude-alternating input that the speech-only maxUtteranceDurationMs budget alone cannot. Must be at least maxUtteranceDurationMs. When omitted, the segmenter fallback applies."
+        },
+        "speechStartConfirmationMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000,
+          "description": "Duration in milliseconds the segmenter must observe sustained speech amplitude before confirming speech onset for this capture mode. When omitted, the segmenter fallback applies."
+        }
+      }
+    },
+    "SessionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "firstContactInitialSilenceTimeoutMs",
+        "repeatInitialSilenceTimeoutMs",
+        "languageQuestionInitialSilenceTimeoutMs",
+        "playbackSettleAllowanceMs"
+      ],
+      "properties": {
+        "firstContactInitialSilenceTimeoutMs": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 20000,
+          "description": "Initial-silence window for the first question of the entry ladder when the participant has not met it in this language before, in milliseconds. Paid once per participant per language, and the most generous of the windows because the situation is new."
+        },
+        "repeatInitialSilenceTimeoutMs": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 20000,
+          "description": "Initial-silence window for the first question of the entry ladder for a returning participant, in milliseconds. Paid in every session from then on, so it must stay shorter than firstContactInitialSilenceTimeoutMs; consumer-side preflight rejects a catalog where it is not."
+        },
+        "languageQuestionInitialSilenceTimeoutMs": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 20000,
+          "description": "Initial-silence window for every language question after the first, in milliseconds. Each of these questions is one sentence in one language answered with one word, so it is the shortest window the entry opens."
+        },
+        "playbackSettleAllowanceMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2000,
+          "description": "Milliseconds added to every session-entry answer window to compensate the post-playback settle wait, which the capture pipeline charges to the same budget. Measured at 610-620 ms across twenty runs of the deployed build on 2026-08-07; without the allowance the participant received 5.4 s of a 6.0 s window and 2.4 s of a 3.0 s one."
+        }
+      }
+    }
+  }
+}

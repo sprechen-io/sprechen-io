@@ -1,0 +1,141 @@
+@inject ExampleAuthoringSession Session
+@inject AuthoringValuePresetCatalog PresetCatalog
+
+@{
+    var document = Session.Queries.GetNode(Path);
+    var presetValues = GetPresetValues();
+    var datalistId = $"preset-{Path.Replace('/', '-').Replace('~', '-')}-{Session.CurrentRootSchemaInfo?.FileName?.Replace('.', '-')}";
+}
+
+@if (Schema.Type == SchemaNodeType.String && Schema.EnumValues is { Count: > 0 })
+{
+    <select class="form-select form-select-sm"
+            value="@GetStringValue(document)"
+            @onchange="OnEnumChanged">
+        <option value="">— auswählen —</option>
+        @foreach (var val in Schema.EnumValues)
+        {
+            <option value="@val">@val</option>
+        }
+    </select>
+}
+else if (Schema.Type == SchemaNodeType.String && Schema.ConstValue is not null)
+{
+    <input type="text" class="form-control form-control-sm"
+           value="@Schema.ConstValue" readonly />
+}
+else if (Schema.Type == SchemaNodeType.String)
+{
+    <input type="text" class="form-control form-control-sm"
+           value="@GetStringValue(document)"
+           placeholder="@GetPlaceholder()"
+           list="@(presetValues.Count > 0 ? datalistId : null)"
+           @oninput="OnStringInput" />
+    @if (presetValues.Count > 0)
+    {
+        <datalist id="@datalistId">
+            @foreach (var presetValue in presetValues)
+            {
+                <option value="@presetValue"></option>
+            }
+        </datalist>
+    }
+}
+else if (Schema.Type == SchemaNodeType.Integer)
+{
+    <input type="number" class="form-control form-control-sm"
+           value="@GetIntValue(document)"
+           min="@Schema.Minimum" max="@Schema.Maximum" step="1"
+           @oninput="OnIntInput" />
+}
+else if (Schema.Type == SchemaNodeType.Number)
+{
+    <input type="number" class="form-control form-control-sm"
+           value="@GetDoubleValue(document)"
+           min="@Schema.Minimum" max="@Schema.Maximum" step="0.1"
+           @oninput="OnDoubleInput" />
+}
+else if (Schema.Type == SchemaNodeType.Boolean)
+{
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input"
+               checked="@GetBoolValue(document)"
+               @onchange="OnBoolChanged" />
+    </div>
+}
+else
+{
+    <input type="text" class="form-control form-control-sm"
+           value="@(document?.ToString())"
+           @oninput="OnStringInput"
+           placeholder="(unbekannter Typ)" />
+}
+
+@code {
+    [Parameter] public SchemaNode Schema { get; set; } = default!;
+    [Parameter] public string Path { get; set; } = JsonPointer.Root;
+
+    private static string GetStringValue(JsonNode? document)
+        => document is JsonValue value ? value.ToString() : string.Empty;
+
+    private string GetPlaceholder()
+        => Schema.Pattern ?? Schema.Format ?? string.Empty;
+
+    private static int GetIntValue(JsonNode? document)
+        => document is JsonValue value && value.TryGetValue(out int integerValue) ? integerValue : 0;
+
+    private static double GetDoubleValue(JsonNode? document)
+        => document is JsonValue value && value.TryGetValue(out double numberValue) ? numberValue : 0.0;
+
+    private static bool GetBoolValue(JsonNode? document)
+        => document is JsonValue value && value.TryGetValue(out bool boolValue) && boolValue;
+
+    private IReadOnlyList<string> GetPresetValues()
+    {
+        if (Session.CurrentRootSchemaInfo is null || Schema.EnumValues is not null)
+        {
+            return [];
+        }
+
+        return PresetCatalog.GetPresets(Session.CurrentRootSchemaInfo.FileName, Path)
+            .SelectMany(static preset => preset.Values)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(static value => value, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private void OnStringInput(ChangeEventArgs e)
+    {
+        Session.Scalars.SetString(Path, e.Value?.ToString() ?? string.Empty);
+    }
+
+    private void OnEnumChanged(ChangeEventArgs e)
+    {
+        Session.Scalars.SetString(Path, e.Value?.ToString() ?? string.Empty);
+    }
+
+    private void OnIntInput(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var value))
+        {
+            Session.Scalars.SetInteger(Path, value);
+        }
+    }
+
+    private void OnDoubleInput(ChangeEventArgs e)
+    {
+        if (double.TryParse(
+            e.Value?.ToString(),
+            System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value))
+        {
+            Session.Scalars.SetNumber(Path, value);
+        }
+    }
+
+    private void OnBoolChanged(ChangeEventArgs e)
+    {
+        Session.Scalars.SetBoolean(Path, e.Value is true or "true" or "True");
+    }
+}

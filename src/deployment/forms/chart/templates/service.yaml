@@ -1,0 +1,15 @@
+{{- $unitName := required "unitName is required" .Values.unitName -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $unitName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ $unitName }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+  type: ClusterIP

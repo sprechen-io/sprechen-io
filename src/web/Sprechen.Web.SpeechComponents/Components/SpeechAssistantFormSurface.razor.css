@@ -1,0 +1,159 @@
+.speech-form-surface {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.speech-form-surface-empty,
+.speech-form-group {
+    background: var(--sp-form-panel-bg);
+    border: 1px solid var(--sp-form-panel-border);
+    border-radius: 1.5rem;
+    box-shadow: var(--sp-form-panel-shadow);
+}
+
+.speech-form-surface-empty {
+    padding: 2rem;
+}
+
+.surface-kicker {
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--sp-form-accent);
+}
+
+.speech-form-surface-empty h2,
+.speech-form-surface-header h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem);
+}
+
+.speech-form-surface-empty p:last-child {
+    margin-bottom: 0;
+    max-width: 38rem;
+    color: var(--sp-form-muted-text);
+}
+
+.speech-form-surface-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.surface-meta {
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    color: var(--sp-form-subtle-text);
+}
+
+.surface-stage,
+.speech-form-group-status,
+.speech-form-field-status {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.surface-stage.is-active,
+.speech-form-group.is-pending .speech-form-group-status,
+.speech-form-field.is-pending .speech-form-field-status {
+    background: var(--sp-pill-info-bg);
+    color: var(--sp-pill-info-text);
+}
+
+.surface-stage.is-submitted,
+.speech-form-group.is-complete .speech-form-group-status,
+.speech-form-field.is-complete .speech-form-field-status {
+    background: var(--sp-pill-success-bg);
+    color: var(--sp-pill-success-text);
+}
+
+.surface-stage.is-cancelled,
+.surface-stage.is-abandoned,
+.speech-form-group.is-muted .speech-form-group-status,
+.speech-form-field.is-muted .speech-form-field-status {
+    background: var(--sp-pill-neutral-bg);
+    color: var(--sp-pill-neutral-text);
+}
+
+.speech-form-group {
+    padding: 1.5rem;
+}
+
+.speech-form-group-header,
+.speech-form-field-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.speech-form-group-header h3,
+.speech-form-field-header h4 {
+    margin: 0;
+}
+
+.speech-form-group-header p,
+.speech-form-field-header p {
+    margin: 0.35rem 0 0;
+    color: var(--sp-form-subtle-text);
+}
+
+.speech-form-fields {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+}
+
+.speech-form-field {
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: var(--sp-form-field-bg);
+    border: 1px solid var(--sp-form-field-border);
+    transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.speech-form-field.is-focused {
+    transform: translateY(-1px);
+    border-color: var(--sp-form-field-focus-border);
+    box-shadow: var(--sp-form-field-focus-shadow);
+    background: var(--sp-form-field-focus-bg);
+}
+
+.speech-form-field-value {
+    margin-top: 0.85rem;
+    min-height: 2.6rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    background: var(--sp-form-value-bg);
+    font-size: 1.02rem;
+    color: var(--sp-form-value-text);
+    border: 1px dashed var(--sp-form-value-border);
+    white-space: pre-wrap;
+}
+
+@media (max-width: 720px) {
+    .speech-form-surface-header,
+    .speech-form-group-header,
+    .speech-form-field-header {
+        flex-direction: column;
+    }
+
+    .surface-stage,
+    .speech-form-group-status,
+    .speech-form-field-status {
+        align-self: flex-start;
+    }
+}

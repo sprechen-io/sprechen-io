@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/voice-commands.schema.json",
+  "title": "VoiceCommandCatalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogVersion",
+    "commandModelId",
+    "supportedLanguages",
+    "strictLocalization",
+    "commands",
+    "prefixes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9]\\d*$"
+    },
+    "catalogVersion": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "commandModelId": {
+      "$ref": "#/$defs/Id"
+    },
+    "supportedLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LanguageCode"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "defaultLanguage": {
+      "$ref": "#/$defs/LanguageCode"
+    },
+    "strictLocalization": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true (default), missing localizations for supportedLanguages are a preflight error. If false, they are warnings with defaultLanguage fallback."
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VoiceCommandDefinition"
+      },
+      "minItems": 1,
+      "description": "Command definitions. commandId values SHOULD be unique across the array; duplicates are silently overwritten at runtime (last wins). This catalog only defines vocabulary after the owning voice surface has classified speech as a command attempt; it does not define wake-word or other activation rules."
+    },
+    "prefixes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VoiceCommandPrefixDefinition"
+      },
+      "minItems": 1,
+      "description": "Prefix definitions. SHOULD contain exactly one prefix of kind 'command'. The former 'input' kind is reserved and must not be reintroduced as a live prefix."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "LanguageCode": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LanguageCode"
+    },
+    "LocalizedTextKey": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedTextKey"
+    },
+    "LocalizedText": {
+      "$ref": "https://Sprechen/schemas/localization-primitives.schema.json#/$defs/LocalizedText"
+    },
+    "VoiceCommandId":{
+      "description": "Predefined command identifier: navigation, discovery, form/app control, input mode switching, and correction operations.",
+      "type": "string",
+      "enum": [
+        "next",
+        "back",
+        "repeat",
+        "help",
+        "status",
+        "summary",
+        "jumpTo",
+        "cancel",
+        "submit",
+        "nextError",
+        "nextOpenRequiredField",
+        "formList",
+        "formStatus",
+        "fieldGroupList",
+        "fieldList",
+        "commandList",
+        "switchForm",
+        "backToFormSelection",
+        "backToAppSelection",
+        "changeLanguage",
+        "changePoliteness",
+        "openApplications",
+        "inputModeSpelling",
+        "inputModeVoice",
+        "inputModeDigits",
+        "inputModeKeyboard",
+        "inputModeLiteral",
+        "inputModeLiteralOff",
+        "allowBargeInOn",
+        "allowBargeInOff",
+        "editValue",
+        "acceptValue",
+        "digitsDeleteLastDigit",
+        "digitsDeleteLastBlock",
+        "digitsRepeatLastBlock",
+        "digitsRedictateLastBlock",
+        "spellingRemoveLastCharacter",
+        "spellingRemoveLastBlock",
+        "spellingClearBuffer",
+        "spellingReadback"
+      ]
+    },
+    "VoiceCommandDefinition": {
+      "description": "Voice command definition: command ID, enabled flag, and localized utterances.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commandId",
+        "utterances"
+      ],
+      "properties": {
+        "commandId": {
+          "$ref": "#/$defs/VoiceCommandId"
+        },
+        "utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1
+        },
+        "spokenForm": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "Optional read-aloud form of this command: the locale's own spelling with sentence-appropriate capitalization. Consumed only by the spoken command-list read-back and the input-vs-command ambiguity prompt; never matched against a transcript and never sent to the recognizer. When omitted or missing for the requested language, the runtime yields no spoken label. There is no array-index fallback onto utterances."
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "VoiceCommandPrefixKind": {
+      "description": "Prefix interpretation kind. Live catalogs use 'command' (system command prefix). The former 'input' kind is a reserved wire value and must not be reintroduced as a live prefix.",
+      "type": "string",
+      "enum": [
+        "command",
+        "input"
+      ]
+    },
+    "VoiceCommandPrefixDefinition": {
+      "description": "Voice prefix definition: kind and localized utterances for the command prefix after activation. Prefixes do not by themselves decide whether an acoustic event is already eligible for command matching on the current voice surface.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "utterances"
+      ],
+      "properties": {
+        "kind": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/VoiceCommandPrefixKind"
+            },
+            {
+              "const": "command"
+            }
+          ],
+          "description": "Live catalogs accept only kind 'command'. The former 'input' token remains in VoiceCommandPrefixKind as a reserved wire value and must not appear here."
+        },
+        "utterances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "minItems": 1
+        }
+      }
+    }
+  }
+}

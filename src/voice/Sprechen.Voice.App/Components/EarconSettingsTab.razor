@@ -1,0 +1,124 @@
+@implements IDisposable
+@inject IEarconGuideWorkflow EarconGuideWorkflow
+@inject IUserLanguageState UserLanguageState
+
+<section class="card card-body mt-3">
+    <h2 class="h5">@Copy.EarconGuide.GetTitle(_state.SelectedIsoCode)</h2>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert alert-warning mt-3 mb-0" role="alert">@_error</div>
+    }
+
+    <p class="text-body-secondary mb-0">@_state.IntroText</p>
+
+    <div class="small text-body-secondary mt-2">
+        @Copy.General.GetSessionLanguageSummary(_state.SelectedIsoCode, _state.SelectedIsoCode)
+    </div>
+
+    <div class="mt-3 d-grid gap-3">
+        @foreach (var item in _state.Items)
+        {
+            <div class="border rounded p-3">
+                <div class="small">@item.Description</div>
+                <div class="mt-2">
+                    <button id="@GetPreviewButtonId(item.EarconId)"
+                            type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            @onclick="() => PreviewAsync(item.EarconId)">
+                        @Copy.EarconGuide.GetPlayCue(_state.SelectedIsoCode)
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mt-3">
+        <button id="earcon-stop-all" type="button" class="btn btn-outline-danger btn-sm" @onclick="StopAllAsync">@Copy.EarconGuide.GetStopAll(_state.SelectedIsoCode)</button>
+    </div>
+</section>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public string? PreferredIsoCode { get; set; }
+
+    private EarconGuideState _state = new(VoiceInterfaceModelCatalog.DefaultLanguage, string.Empty, []);
+    private string? _error;
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override void OnInitialized()
+    {
+        UserLanguageState.SelectedLanguageChanged += OnSelectedLanguageChanged;
+    }
+
+    protected override void OnParametersSet()
+    {
+        ApplyState();
+    }
+
+    private void OnSelectedLanguageChanged(string ignoredIsoCode)
+    {
+        _ = InvokeAsync(() =>
+        {
+            ApplyState();
+            StateHasChanged();
+            return Task.CompletedTask;
+        });
+    }
+
+    private async Task PreviewAsync(EarconId earcon)
+    {
+        _error = null;
+
+        try
+        {
+            await EarconGuideWorkflow.PreviewEarconAsync(earcon, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task StopAllAsync()
+    {
+        _error = null;
+
+        try
+        {
+            await EarconGuideWorkflow.StopEarconPreviewsAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private void ApplyState()
+    {
+        _state = EarconGuideWorkflow.GetEarconGuideState(PreferredIsoCode);
+    }
+
+    private static string GetPreviewButtonId(EarconId earconId)
+    {
+        return earconId switch
+        {
+            EarconId.FlowListening => "earcon-preview-flow-listening",
+            EarconId.FlowProcessing => "earcon-preview-flow-processing",
+            EarconId.ValidationSuccess => "earcon-preview-validation-success",
+            EarconId.ValidationAsrFail => "earcon-preview-validation-asr-fail",
+            EarconId.StructureStepTransition => "earcon-preview-structure-step-transition",
+            EarconId.StructureBoundary => "earcon-preview-structure-boundary",
+            EarconId.ModePrivacyChange => "earcon-preview-mode-privacy-change",
+            EarconId.ModeConfirmationRequired => "earcon-preview-mode-confirmation-required",
+            EarconId.VoiceInputMicOff => "earcon-preview-voice-input-mic-off",
+            EarconId.VoiceInputMicOn => "earcon-preview-voice-input-mic-on",
+            _ => throw new ArgumentOutOfRangeException(nameof(earconId), earconId, "Unsupported earcon guide preview id.")
+        };
+    }
+
+    public void Dispose()
+    {
+        UserLanguageState.SelectedLanguageChanged -= OnSelectedLanguageChanged;
+    }
+}

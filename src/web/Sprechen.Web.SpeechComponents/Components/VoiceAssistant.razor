@@ -1,0 +1,254 @@
+@implements IAsyncDisposable
+@inject ISpeechAssistantSessionController SpeechAssistantSessionController
+@inject ILogger<VoiceAssistant> Logger
+@inject NavigationManager Navigation
+@inject IStudyTelemetryContext StudyTelemetryContext
+@inject IOperationalProbeSession OperationalProbeSession
+@inject IOperationalProbeBootstrapClient OperationalProbeBootstrapClient
+@inject IDiagnosticOperatingMode DiagnosticOperatingMode
+
+@if (_entryPending)
+{
+    <div aria-busy="true"></div>
+}
+else if (_claimedStudyLinkWithoutIdentity)
+{
+    <h1>@InvalidStudyLinkHeading</h1>
+    <p role="alert" aria-live="assertive" aria-atomic="true">@InvalidStudyLinkMessage</p>
+}
+else
+{
+    @if (!string.IsNullOrWhiteSpace(PageHeading))
+    {
+        <h1 class="visually-hidden">@PageHeading</h1>
+    }
+    @if (DiagnosticOperatingMode.IsDiagnostic && !string.IsNullOrWhiteSpace(DiagnosticModeNotice))
+    {
+        <p role="status" aria-live="polite" aria-atomic="true">@DiagnosticModeNotice</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(StartControlInstruction) && !string.IsNullOrWhiteSpace(StartControlDescribedById))
+    {
+        <p id="@StartControlDescribedById" class="visually-hidden" aria-live="polite">
+            @StartControlInstruction
+        </p>
+    }
+    <SpeechCapture StartControlAccessibleName="@StartControlAccessibleName"
+                   StartControlDescribedById="@StartControlDescribedById" />
+}
+
+@code {
+    // Lokalisierter zugänglicher Name der Startschaltfläche, von der Hostseite geliefert.
+    [Parameter]
+    public string? StartControlAccessibleName { get; set; }
+
+    // ID des Elements mit der Startanleitung für aria-describedby.
+    // damit ein Screenreader die Instruktion liest, wenn das Control den Fokus hat.
+    [Parameter]
+    public string? StartControlDescribedById { get; set; }
+
+    // Überschrift einer gültigen Sitzung. Bei ungültigen Studienlinks erhält stattdessen
+    // die Fehlerüberschrift den Fokus durch FocusOnNavigate.
+    [Parameter]
+    public string? PageHeading { get; set; }
+
+    // Die Startanleitung erscheint nur zusammen mit der Startschaltfläche.
+    // Ungültige Studienlinks sollen nicht zum Start einer Sitzung auffordern.
+    [Parameter]
+    public string? StartControlInstruction { get; set; }
+
+    // Englische Ersatztexte für ungültige Studienlinks, falls der Host keine lokalisierten Texte liefert.
+    // Die Meldung beschreibt den Link, keinen Erfassungsfehler.
+    [Parameter]
+    public string InvalidStudyLinkHeading { get; set; } = "Invalid study link";
+
+    [Parameter]
+    public string InvalidStudyLinkMessage { get; set; } = "This study link is invalid. Please check the link or contact the study coordinator.";
+
+    [Parameter]
+    public string DiagnosticModeNotice { get; set; } = "Diagnostic mode. This session is being recorded.";
+
+    private bool _claimedStudyLinkWithoutIdentity;
+    private bool _entryPending;
+
+    private CancellationTokenSource? _bootstrapCancellation;
+    private bool _disposed;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        ApplyDiagnosticOperatingModeFromUrl();
+        await ApplyEntryAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        Navigation.LocationChanged -= OnLocationChanged;
+        CancelBootstrap();
+        OperationalProbeSession.Reset();
+        await StopAssistantAsync();
+    }
+
+    private async Task StopAssistantAsync()
+    {
+        try
+        {
+            await SpeechAssistantSessionController.StopAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug(ex, "Stopping the speech assistant failed.");
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
+    {
+        if (!OperationalProbeSession.IsRequested && !_entryPending
+            && new Uri(eventArgs.Location, UriKind.Absolute).AbsolutePath != "/umfrage/probe")
+        {
+            ApplyDiagnosticOperatingModeFromUrl();
+            _ = InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        CancelBootstrap();
+        OperationalProbeSession.Reset();
+        StudyTelemetryContext.SetStudyContext(null);
+        _entryPending = true;
+        _ = InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            await StopAssistantAsync();
+            if (_disposed || Navigation.Uri != eventArgs.Location)
+            {
+                return;
+            }
+
+            ApplyDiagnosticOperatingModeFromUrl();
+            await ApplyEntryAsync();
+            StateHasChanged();
+        });
+    }
+
+    private void CancelBootstrap()
+    {
+        _bootstrapCancellation?.Cancel();
+        _bootstrapCancellation?.Dispose();
+        _bootstrapCancellation = null;
+    }
+
+    private async Task ApplyEntryAsync()
+    {
+        _entryPending = false;
+        OperationalProbeSession.Reset();
+        ApplyStudyTelemetryContextFromUrl();
+        if (new Uri(Navigation.Uri, UriKind.Absolute).AbsolutePath != "/umfrage/probe")
+        {
+            return;
+        }
+
+        StudyTelemetryContext.SetStudyContext(null);
+        _claimedStudyLinkWithoutIdentity = true;
+        _entryPending = true;
+        OperationalProbeSession.Request();
+        var cancellation = new CancellationTokenSource();
+        _bootstrapCancellation = cancellation;
+        try
+        {
+            var context = await OperationalProbeBootstrapClient.BootstrapAsync(cancellation.Token);
+            if (_disposed || !ReferenceEquals(_bootstrapCancellation, cancellation)
+                || new Uri(Navigation.Uri, UriKind.Absolute).AbsolutePath != "/umfrage/probe")
+            {
+                return;
+            }
+
+            OperationalProbeSession.AcceptContext(context);
+            _claimedStudyLinkWithoutIdentity = false;
+        }
+        catch (Exception exception) when (exception is HttpRequestException or OperationCanceledException
+            or System.Text.Json.JsonException or InvalidDataException or ArgumentException)
+        {
+            Logger.LogDebug(exception, "The operational entry context could not be initialized.");
+        }
+        finally
+        {
+            if (ReferenceEquals(_bootstrapCancellation, cancellation))
+            {
+                _entryPending = false;
+            }
+        }
+    }
+
+    private void ApplyDiagnosticOperatingModeFromUrl()
+    {
+        if (string.IsNullOrWhiteSpace(Navigation.Uri))
+        {
+            DiagnosticOperatingMode.Activate(false);
+            return;
+        }
+
+        var absolutePath = new Uri(Navigation.Uri, UriKind.Absolute).AbsolutePath;
+        DiagnosticOperatingMode.Activate(DiagnosticPath.IsMatch(absolutePath));
+    }
+
+    // Die Studienidentität kommt über `/umfrage/{token}` oder `/debug/umfrage/{token}`.
+    // `debug` aktiviert den Diagnosebetrieb. Zusätzliche Pfadsegmente
+    // liefern keine Identität und zeigen die Ablehnungsseite.
+    private void ApplyStudyTelemetryContextFromUrl()
+    {
+        if (string.IsNullOrWhiteSpace(Navigation.Uri))
+        {
+            StudyTelemetryContext.SetStudyContext(null);
+            return;
+        }
+
+        var absolutePath = new Uri(Navigation.Uri, UriKind.Absolute).AbsolutePath;
+        var participantId = ParseUmfragePath(absolutePath);
+        StudyTelemetryContext.SetStudyContext(participantId);
+        _claimedStudyLinkWithoutIdentity = ClaimsUmfragePath(absolutePath)
+            && participantId is null;
+    }
+
+    // `/` und `/debug` benötigen keine Teilnehmerkennung. Als ungültiger Studienlink
+    // gilt nur ein mit `umfrage` beginnender Studienpfad ohne gültige Kennung.
+    private static bool ClaimsUmfragePath(string absolutePath)
+    {
+        var segments = StudyPathSegments(absolutePath);
+        return segments.Length >= 1
+            && string.Equals(segments[0], "umfrage", StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Akzeptiert `/umfrage/{token}` und `/debug/umfrage/{token}`. Zusätzliche Pfadsegmente
+    // oder ein ungültiges Token liefern keine Teilnehmerkennung.
+    private static string? ParseUmfragePath(string absolutePath)
+    {
+        var segments = StudyPathSegments(absolutePath);
+
+        if (segments.Length != 2
+            || !string.Equals(segments[0], "umfrage", StringComparison.OrdinalIgnoreCase)
+            || !IsValidToken(segments[1]))
+        {
+            return null;
+        }
+
+        return segments[1];
+    }
+
+    // Entfernt das optionale Diagnosepräfix vor der Prüfung des Studienpfads.
+    private static string[] StudyPathSegments(string absolutePath)
+    {
+        var segments = absolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length >= 1
+            && string.Equals(segments[0], DiagnosticPath.Segment, StringComparison.OrdinalIgnoreCase))
+        {
+            return segments[1..];
+        }
+
+        return segments;
+    }
+
+    // Teilnehmer-Token: 6-16 Kleinbuchstaben/Ziffern.
+    private static bool IsValidToken(string value)
+        => value.Length is >= 6 and <= 16
+            && value.All(static character => character is (>= 'a' and <= 'z') or (>= '0' and <= '9'));
+}

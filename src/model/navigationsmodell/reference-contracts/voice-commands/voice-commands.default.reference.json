@@ -1,0 +1,283 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1.2.0",
+  "commandModelId": "voice.global.default.v1",
+  "supportedLanguages": ["de", "en", "fr", "es", "it"],
+  "defaultLanguage": "de",
+  "strictLocalization": false,
+  "commands": [
+    {
+      "commandId": "next",
+      "utterances": [
+        { "de": "weiter", "en": "next", "fr": "suivant", "es": "siguiente", "it": "avanti" },
+        { "de": "n\u00e4chstes feld", "en": "next field", "fr": "champ suivant", "es": "campo siguiente", "it": "campo successivo" },
+        { "de": "continue", "en": "continue", "fr": "continuer", "es": "continuar", "it": "continua" }
+      ],
+      "spokenForm": { "de": "Weiter" }
+    },
+    {
+      "commandId": "back",
+      "utterances": [
+        { "de": "zur\u00fcck", "en": "back", "fr": "retour", "es": "atras", "it": "indietro" },
+        { "de": "vorheriges feld", "en": "previous field", "fr": "champ precedent", "es": "campo anterior", "it": "campo precedente" }
+      ],
+      "spokenForm": { "de": "Zur\u00fcck" }
+    },
+    {
+      "commandId": "repeat",
+      "utterances": [
+        { "de": "wiederholen", "en": "repeat", "fr": "repeter", "es": "repetir", "it": "ripeti" },
+        { "de": "nochmal", "en": "again", "fr": "encore", "es": "otra vez", "it": "ancora" },
+        { "de": "was", "en": "what", "fr": "quoi", "es": "qu\u00e9", "it": "cosa" },
+        { "de": "wie bitte", "en": "pardon", "fr": "comment", "es": "c\u00f3mo", "it": "come" },
+        { "de": "h\u00e4h", "en": "come again", "fr": "pardon", "es": "perd\u00f3n", "it": "scusa" },
+        { "de": "h\u00e4", "en": "say again", "fr": "r\u00e9p\u00e9tez", "es": "repita", "it": "prego" }
+      ],
+      "spokenForm": { "de": "Wiederholen" }
+    },
+    {
+      "commandId": "help",
+      "utterances": [
+        { "de": "hilfe", "en": "help", "fr": "aide", "es": "ayuda", "it": "aiuto" },
+        { "de": "was soll ich eingeben", "en": "what should i enter", "fr": "que dois je saisir", "es": "que debo introducir", "it": "cosa devo inserire" }
+      ],
+      "spokenForm": { "de": "Hilfe" }
+    },
+    {
+      "commandId": "status",
+      "utterances": [
+        { "de": "status", "en": "status", "fr": "statut", "es": "estado", "it": "stato" },
+        { "de": "wo bin ich", "en": "where am i", "fr": "ou suis je", "es": "donde estoy", "it": "dove sono" }
+      ],
+      "spokenForm": { "de": "Status" }
+    },
+    {
+      "commandId": "summary",
+      "utterances": [
+        { "de": "zusammenfassung", "en": "summary", "fr": "resume", "es": "resumen", "it": "riepilogo" },
+        { "de": "was habe ich eingegeben", "en": "what did i enter", "fr": "ce que jai saisi", "es": "que he introducido", "it": "cosa ho inserito" }
+      ],
+      "spokenForm": { "de": "Zusammenfassung" }
+    },
+    {
+      "commandId": "jumpTo",
+      "utterances": [
+        { "de": "gehe zu", "en": "go to", "fr": "aller a", "es": "ir a", "it": "vai a" },
+        { "de": "gehe zur", "en": "go to", "fr": "aller a", "es": "ir a", "it": "vai a" },
+        { "de": "gehe zum", "en": "go to", "fr": "aller a", "es": "ir a", "it": "vai a" },
+        { "de": "springe zu", "en": "jump to", "fr": "sauter a", "es": "saltar a", "it": "salta a" }
+      ],
+      "spokenForm": { "de": "Gehe zu" }
+    },
+    {
+      "commandId": "cancel",
+      "utterances": [
+        { "de": "abbrechen", "en": "cancel", "fr": "annuler", "es": "cancelar", "it": "annulla" },
+        { "de": "beenden", "en": "quit", "fr": "arreter", "es": "salir", "it": "esci" }
+      ],
+      "spokenForm": { "de": "Abbrechen" }
+    },
+    {
+      "commandId": "submit",
+      "utterances": [
+        { "de": "absenden", "en": "submit", "fr": "envoyer", "es": "enviar", "it": "invia" },
+        { "de": "fertig", "en": "done", "fr": "terminer", "es": "terminar", "it": "fine" }
+      ],
+      "spokenForm": { "de": "Absenden" }
+    },
+    {
+      "commandId": "nextError",
+      "utterances": [
+        { "de": "n\u00e4chster fehler", "en": "next error", "fr": "erreur suivante", "es": "siguiente error", "it": "errore successivo" },
+        { "de": "zum n\u00e4chsten fehler", "en": "go to next error", "fr": "aller a erreur suivante", "es": "ir al siguiente error", "it": "vai al prossimo errore" }
+      ],
+      "spokenForm": { "de": "N\u00e4chster Fehler" }
+    },
+    {
+      "commandId": "nextOpenRequiredField",
+      "utterances": [
+        { "de": "n\u00e4chstes offenes pflichtfeld", "en": "next open required field", "fr": "prochain champ obligatoire", "es": "siguiente campo obligatorio", "it": "prossimo campo obbligatorio" },
+        { "de": "zum n\u00e4chsten auszuf\u00fcllenden feld", "en": "next field to fill", "fr": "champ a remplir suivant", "es": "siguiente campo por rellenar", "it": "prossimo campo da compilare" }
+      ],
+      "spokenForm": { "de": "N\u00e4chstes offenes Pflichtfeld" }
+    },
+    {
+      "commandId": "formList",
+      "utterances": [
+        { "de": "welche formulare", "en": "form list", "fr": "liste des formulaires", "es": "lista de formularios", "it": "elenco moduli" },
+        { "de": "\u00fcbersicht formulare", "en": "forms overview", "fr": "apercu formulaires", "es": "resumen de formularios", "it": "panoramica moduli" }
+      ],
+      "spokenForm": { "de": "Welche Formulare" }
+    },
+    {
+      "commandId": "formStatus",
+      "utterances": [
+        { "de": "aktuelles formular", "en": "current form", "fr": "formulaire actuel", "es": "formulario actual", "it": "modulo corrente" },
+        { "de": "in welchem formular", "en": "which form", "fr": "dans quel formulaire", "es": "en que formulario", "it": "in quale modulo" }
+      ],
+      "spokenForm": { "de": "Aktuelles Formular" }
+    },
+    {
+      "commandId": "fieldGroupList",
+      "utterances": [
+        { "de": "welche feldgruppen", "en": "which field groups", "fr": "quels groupes de champs", "es": "que grupos de campos", "it": "quali gruppi di campi" },
+        { "de": "liste feldgruppen", "en": "list field groups", "fr": "liste des groupes de champs", "es": "lista de grupos de campos", "it": "elenco gruppi di campi" }
+      ],
+      "spokenForm": { "de": "Welche Feldgruppen" }
+    },
+    {
+      "commandId": "fieldList",
+      "utterances": [
+        { "de": "welche felder", "en": "which fields", "fr": "quels champs", "es": "que campos", "it": "quali campi" },
+        { "de": "liste felder", "en": "list fields", "fr": "liste des champs", "es": "lista de campos", "it": "elenco campi" },
+        { "de": "was gibt es noch", "en": "what else is there", "fr": "autre chose", "es": "que mas hay", "it": "che altro" },
+        { "de": "was kommt noch", "en": "what is next", "fr": "quoi ensuite", "es": "que sigue", "it": "cosa viene dopo" }
+      ],
+      "spokenForm": { "de": "Welche Felder" }
+    },
+    {
+      "commandId": "commandList",
+      "utterances": [
+        { "de": "welche befehle", "en": "which commands", "fr": "quelles commandes", "es": "que comandos", "it": "quali comandi" },
+        { "de": "was kann ich sagen", "en": "what can i say", "fr": "que puis je dire", "es": "que puedo decir", "it": "cosa posso dire" },
+        { "de": "was kann ich noch sagen", "en": "what else can i say", "fr": "que puis je dire encore", "es": "que mas puedo decir", "it": "cosa posso dire ancora" }
+      ],
+      "spokenForm": { "de": "Welche Befehle" }
+    },
+    {
+      "commandId": "switchForm",
+      "utterances": [
+        { "de": "wechsle zu", "en": "switch to", "fr": "changer vers", "es": "cambiar a", "it": "passa a" },
+        { "de": "gehe zu formular", "en": "go to form", "fr": "aller au formulaire", "es": "ir al formulario", "it": "vai al modulo" }
+      ],
+      "spokenForm": { "de": "Wechsle zu" }
+    },
+    {
+      "commandId": "backToFormSelection",
+      "utterances": [
+        { "de": "zur\u00fcck zur formularauswahl", "en": "back to form selection", "fr": "retour a la selection de formulaire", "es": "volver a la seleccion de formulario", "it": "torna alla selezione modulo" }
+      ],
+      "spokenForm": { "de": "Zur\u00fcck zur Formularauswahl" }
+    },
+    {
+      "commandId": "backToAppSelection",
+      "utterances": [
+        { "de": "andere anwendung", "en": "back to app selection", "fr": "retour a la selection dapplication", "es": "volver a la seleccion de aplicacion", "it": "torna alla selezione applicazione" },
+        { "de": "zur\u00fcck zum start", "en": "back to start", "fr": "retour au debut", "es": "volver al inicio", "it": "torna allinizio" }
+      ],
+      "spokenForm": { "de": "Andere Anwendung" }
+    },
+    {
+      "commandId": "changeLanguage",
+      "utterances": [
+        { "de": "sprache wechseln", "en": "change language", "fr": "changer de langue", "es": "cambiar idioma", "it": "cambia lingua" },
+        { "de": "sprache \u00e4ndern", "en": "switch language", "fr": "changer la langue", "es": "cambiar lengua", "it": "cambiare lingua" }
+      ],
+      "spokenForm": { "de": "Sprache wechseln" }
+    },
+    {
+      "commandId": "changePoliteness",
+      "utterances": [
+        { "de": "anrede wechseln", "en": "change politeness", "fr": "changer de politesse", "es": "cambiar tratamiento", "it": "cambia cortesia" },
+        { "de": "ansprache wechseln", "en": "change addressing", "fr": "changer de formule", "es": "cambiar cortesia", "it": "cambia forma di cortesia" }
+      ],
+      "spokenForm": { "de": "Anrede wechseln" }
+    },
+    {
+      "commandId": "openApplications",
+      "utterances": [
+        { "de": "anwendungskatalog \u00f6ffnen", "en": "open application catalog", "fr": "ouvrir le catalogue dapplications", "es": "abrir catalogo de aplicaciones", "it": "apri catalogo applicazioni" },
+        { "de": "anwendungen \u00f6ffnen", "en": "open applications", "fr": "ouvrir applications", "es": "abrir aplicaciones", "it": "apri applicazioni" }
+      ],
+      "spokenForm": { "de": "Anwendungskatalog \u00f6ffnen" }
+    },
+    {
+      "commandId": "inputModeSpelling",
+      "utterances": [
+        { "de": "buchstabieren", "en": "spelling mode", "fr": "mode epeler", "es": "modo deletreo", "it": "modalita spelling" },
+        { "de": "buchstabieren an", "en": "spelling mode on", "fr": "activer mode epeler", "es": "deletreo activado", "it": "spelling attivo" }
+      ],
+      "spokenForm": { "de": "Buchstabieren" }
+    },
+    {
+      "commandId": "inputModeVoice",
+      "utterances": [
+        { "de": "spracheingabe", "en": "voice mode", "fr": "mode vocal", "es": "modo voz", "it": "modalita voce" }
+      ],
+      "spokenForm": { "de": "Spracheingabe" }
+    },
+    {
+      "commandId": "inputModeDigits",
+      "utterances": [
+        { "de": "ziffernmodus", "en": "digits mode", "fr": "mode chiffres", "es": "modo digitos", "it": "modalita cifre" },
+        { "de": "ziffernaufnahme", "en": "digit capture", "fr": "saisie chiffres", "es": "captura de digitos", "it": "inserimento cifre" }
+      ],
+      "spokenForm": { "de": "Ziffernmodus" }
+    },
+    {
+      "commandId": "inputModeKeyboard",
+      "utterances": [
+        { "de": "tastatureingabe", "en": "keyboard mode", "fr": "mode clavier", "es": "modo teclado", "it": "modalita tastiera" },
+        { "de": "stille eingabe", "en": "silent input", "fr": "saisie silencieuse", "es": "entrada silenciosa", "it": "input silenzioso" }
+      ],
+      "spokenForm": { "de": "Tastatureingabe" }
+    },
+    {
+      "commandId": "inputModeLiteral",
+      "utterances": [
+        { "de": "w\u00f6rtlich", "en": "literal mode", "fr": "mode litteral", "es": "modo literal", "it": "modalita letterale" },
+        { "de": "w\u00f6rtlich an", "en": "literal mode on", "fr": "mode litteral active", "es": "literal activado", "it": "letterale attivo" }
+      ],
+      "spokenForm": { "de": "W\u00f6rtlich" }
+    },
+    {
+      "commandId": "inputModeLiteralOff",
+      "utterances": [
+        { "de": "w\u00f6rtlich aus", "en": "literal mode off", "fr": "mode litteral desactive", "es": "literal desactivado", "it": "letterale disattivato" },
+        { "de": "literal aus", "en": "literal off", "fr": "litteral desactive", "es": "modo literal desactivado", "it": "modalita letterale disattivata" }
+      ],
+      "spokenForm": { "de": "W\u00f6rtlich aus" }
+    },
+    {
+      "commandId": "allowBargeInOn",
+      "utterances": [
+        { "de": "unterbrechung erlauben", "en": "allow interruption", "fr": "autoriser interruption", "es": "permitir interrupcion", "it": "consenti interruzione" },
+        { "de": "unterbrechung einschalten", "en": "enable interruption", "fr": "activer interruption", "es": "activar interrupcion", "it": "attiva interruzione" }
+      ],
+      "spokenForm": { "de": "Unterbrechung erlauben" }
+    },
+    {
+      "commandId": "allowBargeInOff",
+      "utterances": [
+        { "de": "unterbrechung aus", "en": "interruption off", "fr": "interruption desactivee", "es": "interrupcion desactivada", "it": "interruzione disattivata" },
+        { "de": "unterbrechung verbieten", "en": "disable interruption", "fr": "desactiver interruption", "es": "desactivar interrupcion", "it": "disattiva interruzione" }
+      ],
+      "spokenForm": { "de": "Unterbrechung aus" }
+    },
+    {
+      "commandId": "editValue",
+      "utterances": [
+        { "de": "\u00e4ndern", "en": "edit", "fr": "modifier", "es": "editar", "it": "modifica" },
+        { "de": "korrigieren", "en": "correct", "fr": "corriger", "es": "corregir", "it": "correggi" },
+        { "de": "bearbeiten", "en": "change", "fr": "editer", "es": "cambiar", "it": "cambia" }
+      ],
+      "spokenForm": { "de": "\u00c4ndern" }
+    },
+    {
+      "commandId": "acceptValue",
+      "utterances": [
+        { "de": "\u00fcbernehmen", "en": "accept", "fr": "accepter", "es": "aceptar", "it": "accettare" }
+      ],
+      "spokenForm": { "de": "\u00dcbernehmen" }
+    }
+  ],
+  "prefixes": [
+    {
+      "kind": "command",
+      "utterances": [
+        { "de": "befehl", "en": "command", "fr": "commande", "es": "comando", "it": "comando" },
+        { "de": "kommando", "en": "command", "fr": "commande", "es": "comando", "it": "comando" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "detectorCatalogModelId": "default.voiceWakeWordDetectors",
+  "wakeWordModelId": "default.voiceWakeWords",
+  "detectorProfiles": [
+    {
+      "detectorId": "default.okay.detector",
+      "operatingMode": "lexicalFallbackOnly",
+      "confidenceThreshold": 0.85,
+      "refractoryMs": 1500,
+      "warmupMs": 250,
+      "lookbackMs": 1500,
+      "eligibilityPolicy": "defaultInventoryOnly",
+      "fallbackReasonCodes": {
+        "catalogFallbackOnly": "WAKE_DETECTOR_CATALOG_FALLBACK_ONLY",
+        "overrideIneligible": "WAKE_DETECTOR_OVERRIDE_INELIGIBLE",
+        "recognitionOnlyActivation": "WAKE_DETECTOR_RECOGNITION_ONLY_ACTIVATION",
+        "detectorUnavailable": "WAKE_DETECTOR_UNAVAILABLE",
+        "detectorWarmup": "WAKE_DETECTOR_WARMUP",
+        "detectorFailure": "WAKE_DETECTOR_FAILURE"
+      }
+    }
+  ]
+}

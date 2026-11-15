@@ -1,0 +1,328 @@
+{
+  "schemaVersion": "1",
+  "catalogVersion": "1",
+  "fieldDefinitionsId": "study.umfrage.fields.multilingual",
+  "supportedLanguages": [
+    "de",
+    "en",
+    "fr",
+    "es",
+    "it"
+  ],
+  "strictLocalization": true,
+  "definitions": [
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_kategorien_field",
+      "label": {
+        "de": "Alle Werte stehen auf der Aufgabenkarte und sagen nichts \u00fcber die ausf\u00fcllende Person. Als Quizmeisterin oder Quizmeister bereiten Sie einen fiktiven Quizabend vor. Die Karte ist der L\u00f6sungsbogen. Jetzt zum Quizabend: die Kategorien f\u00fcr die Fragerunden. Die Vorgabe f\u00fcr diese Aufgabe",
+        "de@informal": "Alle Werte stehen auf der Aufgabenkarte und sagen nichts \u00fcber die ausf\u00fcllende Person. Als Quizmeisterin oder Quizmeister bereitest du einen fiktiven Quizabend vor. Die Karte ist der L\u00f6sungsbogen. Jetzt zum Quizabend: die Kategorien f\u00fcr die Fragerunden. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "All values are on the task card and say nothing about the person filling it in. As quiz host you prepare a fictional quiz night. The card is the answer sheet. Now to the quiz night: the categories for the rounds. The prescribed value for this task",
+        "fr": "Toutes les valeurs figurent sur la fiche et ne disent rien de la personne qui la remplit. En tant que ma\u00eetre ou ma\u00eetresse de quiz, vous pr\u00e9parez une soir\u00e9e quiz fictive. La fiche est le carton des solutions. Passons \u00e0 la soir\u00e9e quiz : les cat\u00e9gories des manches. La consigne pour cette t\u00e2che",
+        "fr@informal": "Toutes les valeurs figurent sur la fiche et ne disent rien de la personne qui la remplit. En tant que ma\u00eetre ou ma\u00eetresse de quiz, tu pr\u00e9pares une soir\u00e9e quiz fictive. La fiche est le carton des solutions. Passons \u00e0 la soir\u00e9e quiz : les cat\u00e9gories des manches. La consigne pour cette t\u00e2che",
+        "es": "Todos los valores est\u00e1n en la tarjeta de tarea y no dicen nada sobre la persona que la rellena. Prepara una noche de quiz ficticia como presentadora o presentador. La tarjeta es la hoja de soluciones. Ahora la noche de quiz: las categor\u00edas de las rondas. La indicaci\u00f3n para esta tarea",
+        "es@informal": "Todos los valores est\u00e1n en la tarjeta de tarea y no dicen nada sobre la persona que la rellena. Preparas una noche de quiz ficticia como presentadora o presentador. La tarjeta es la hoja de soluciones. Ahora la noche de quiz: las categor\u00edas de las rondas. La indicaci\u00f3n para esta tarea",
+        "it": "Tutti i valori sono sulla scheda e non dicono nulla della persona che la compila. Prepara una serata quiz fittizia come conduttrice o conduttore. La scheda \u00e8 il foglio delle soluzioni. Ora la serata quiz: le categorie dei turni. La consegna per questo compito",
+        "it@informal": "Tutti i valori sono sulla scheda e non dicono nulla della persona che la compila. Prepara una serata quiz fittizia come conduttrice o conduttore. La scheda \u00e8 il foglio delle soluzioni. Ora la serata quiz: le categorie dei turni. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_quizrundenalter_field",
+      "label": {
+        "de": "Als N\u00e4chstes das Alter der Quizrunde - wie lange es sie schon gibt. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Next, the age of the quiz round - how long it has existed. The prescribed value for this task",
+        "fr": "Ensuite, l\u2019\u00e2ge de la manche de quiz - depuis combien de temps elle existe. La consigne pour cette t\u00e2che",
+        "es": "A continuaci\u00f3n, la antig\u00fcedad de la ronda de quiz: cu\u00e1nto tiempo lleva existiendo. La indicaci\u00f3n para esta tarea",
+        "it": "Poi l\u2019et\u00e0 del turno di quiz: da quanto esiste. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_uebungstreffen_field",
+      "label": {
+        "de": "Nun dazu, wie oft das Quizteam gemeinsam \u00fcbt. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Now how often the quiz team practises together. The prescribed value for this task",
+        "fr": "Maintenant, \u00e0 quelle fr\u00e9quence l\u2019\u00e9quipe de quiz s\u2019entra\u00eene ensemble. La consigne pour cette t\u00e2che",
+        "es": "Ahora, con qu\u00e9 frecuencia el equipo de quiz ensaya junto. La indicaci\u00f3n para esta tarea",
+        "it": "Ora, quanto spesso la squadra di quiz si allena insieme. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_zusatzpunkte_field",
+      "label": {
+        "de": "Jetzt dazu, wie oft Zusatzpunkte f\u00fcr schnelle Antworten vergeben werden. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Now how often bonus points are given for fast answers. The prescribed value for this task",
+        "fr": "Maintenant, \u00e0 quelle fr\u00e9quence des points bonus sont attribu\u00e9s pour les r\u00e9ponses rapides. La consigne pour cette t\u00e2che",
+        "es": "Ahora, con qu\u00e9 frecuencia se dan puntos extra por respuestas r\u00e1pidas. La indicaci\u00f3n para esta tarea",
+        "it": "Ora, quanto spesso si assegnano punti extra per le risposte veloci. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_weltraum_field",
+      "label": {
+        "de": "Nun eine Einstufung: die Vertrautheit des Teams mit der Kategorie Weltraum - danach richtet sich, wie schwer diese Fragen ausgesucht werden. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Now a rating: the team\u2019s familiarity with the Space category - that decides how hard those questions are chosen. The prescribed value for this task",
+        "fr": "Maintenant une \u00e9valuation : la familiarit\u00e9 de l\u2019\u00e9quipe avec la cat\u00e9gorie Espace - c\u2019est selon elle que la difficult\u00e9 de ces questions est choisie. La consigne pour cette t\u00e2che",
+        "es": "Ahora una valoraci\u00f3n: la familiaridad del equipo con la categor\u00eda Espacio - de eso depende lo dif\u00edciles que se eligen esas preguntas. La indicaci\u00f3n para esta tarea",
+        "it": "Ora una valutazione: la familiarit\u00e0 della squadra con la categoria Spazio - da essa dipende quanto siano difficili quelle domande. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_bonusfrage_field",
+      "label": {
+        "de": "Nun die offizielle L\u00f6sung der Bonusfrage: das gr\u00f6\u00dfte Tier, das je auf der Erde gelebt hat. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Now the official solution of the bonus question: the largest animal that has ever lived on Earth. The prescribed value for this task",
+        "fr": "Maintenant la solution officielle de la question bonus : le plus grand animal ayant jamais v\u00e9cu sur Terre. La consigne pour cette t\u00e2che",
+        "es": "Ahora la soluci\u00f3n oficial de la pregunta bonus: el animal m\u00e1s grande que ha vivido en la Tierra. La indicaci\u00f3n para esta tarea",
+        "it": "Ora la soluzione ufficiale della domanda bonus: l\u2019animale pi\u00f9 grande che sia mai vissuto sulla Terra. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_siegerehrung_field",
+      "label": {
+        "de": "Fast am Ziel: ob es zum Abschluss eine Siegerehrung gibt. Bei nein entf\u00e4llt die letzte Frage. Die Vorgabe f\u00fcr diese Aufgabe",
+        "de@informal": "Fast am Ziel: ob es zum Abschluss eine Siegerehrung gibt. Bei nein entf\u00e4llt die letzte Frage. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Almost there: whether there is an awards ceremony at the end. If no, the last question is dropped. The prescribed value for this task",
+        "fr": "Presque au but : s\u2019il y a une c\u00e9r\u00e9monie de remise des prix \u00e0 la fin. Si non, la derni\u00e8re question dispara\u00eet. La consigne pour cette t\u00e2che",
+        "fr@informal": "Presque au but : s\u2019il y a une c\u00e9r\u00e9monie de remise des prix \u00e0 la fin. Si non, la derni\u00e8re question dispara\u00eet. La consigne pour cette t\u00e2che",
+        "es": "Casi al final: si hay una ceremonia de premiaci\u00f3n al cierre. Si no, se omite la \u00faltima pregunta. La indicaci\u00f3n para esta tarea",
+        "es@informal": "Casi al final: si hay una ceremonia de premiaci\u00f3n al cierre. Si no, se omite la \u00faltima pregunta. La indicaci\u00f3n para esta tarea",
+        "it": "Quasi alla fine: se c\u2019\u00e8 una premiazione in chiusura. Se no, l\u2019ultima domanda viene meno. La consegna per questo compito",
+        "it@informal": "Quasi alla fine: se c\u2019\u00e8 una premiazione in chiusura. Se no, l\u2019ultima domanda viene meno. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.anleitung_hauptpreis_field",
+      "label": {
+        "de": "Zum Schluss der Hauptpreis des Abends, frei gesprochen. Die Vorgabe f\u00fcr diese Aufgabe",
+        "en": "Finally the main prize of the evening, spoken freely. The prescribed value for this task",
+        "fr": "Enfin le prix principal de la soir\u00e9e, dit librement. La consigne pour cette t\u00e2che",
+        "es": "Por \u00faltimo el premio principal de la noche, dicho libremente. La indicaci\u00f3n para esta tarea",
+        "it": "Infine il premio principale della serata, detto liberamente. La consegna per questo compito"
+      },
+      "editability": "readOnly"
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.quizkategorien_field",
+      "label": {
+        "de": "Quizkategorien",
+        "en": "Quiz categories",
+        "fr": "Cat\u00e9gories de quiz",
+        "es": "Categor\u00edas del quiz",
+        "it": "Categorie del quiz"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Dies ist eine Mehrfachauswahl. M\u00f6gliche Angaben: Musik, Natur, K\u00fcche, Sport, Weltraum, Geschichte.",
+        "de@informal": "Dies ist eine Mehrfachauswahl. M\u00f6gliche Angaben: Musik, Natur, K\u00fcche, Sport, Weltraum, Geschichte.",
+        "en": "This is a multi-select. Possible answers: Music, Nature, Cooking, Sport, Space, History.",
+        "fr": "Ceci est une s\u00e9lection multiple. R\u00e9ponses possibles : Musique, Nature, Cuisine, Sport, Espace, Histoire.",
+        "fr@informal": "Ceci est une s\u00e9lection multiple. R\u00e9ponses possibles : Musique, Nature, Cuisine, Sport, Espace, Histoire.",
+        "es": "Esto es una selecci\u00f3n m\u00faltiple. Respuestas posibles: M\u00fasica, Naturaleza, Cocina, Deporte, Espacio, Historia.",
+        "es@informal": "Esto es una selecci\u00f3n m\u00faltiple. Respuestas posibles: M\u00fasica, Naturaleza, Cocina, Deporte, Espacio, Historia.",
+        "it": "Questa \u00e8 una selezione multipla. Risposte possibili: Musica, Natura, Cucina, Sport, Spazio, Storia.",
+        "it@informal": "Questa \u00e8 una selezione multipla. Risposte possibili: Musica, Natura, Cucina, Sport, Spazio, Storia."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.quizrundenalter_field",
+      "label": {
+        "de": "Alter der Quizrunde",
+        "en": "Age of the quiz round",
+        "fr": "\u00c2ge de la manche de quiz",
+        "es": "Antig\u00fcedad de la ronda de quiz",
+        "it": "Et\u00e0 del turno di quiz"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie eine der Zeitspannen: weniger als ein Jahr, ein bis drei Jahre, vier bis sechs Jahre, sieben bis zehn Jahre oder mehr als zehn Jahre.",
+        "de@informal": "Sag eine der Zeitspannen: weniger als ein Jahr, ein bis drei Jahre, vier bis sechs Jahre, sieben bis zehn Jahre oder mehr als zehn Jahre.",
+        "en": "Say one of the ranges: less than one year, one to three years, four to six years, seven to ten years, or more than ten years.",
+        "fr": "Dites l\u2019une des dur\u00e9es : moins d\u2019un an, un \u00e0 trois ans, quatre \u00e0 six ans, sept \u00e0 dix ans ou plus de dix ans.",
+        "fr@informal": "Dis l\u2019une des dur\u00e9es : moins d\u2019un an, un \u00e0 trois ans, quatre \u00e0 six ans, sept \u00e0 dix ans ou plus de dix ans.",
+        "es": "Diga uno de los intervalos: menos de un a\u00f1o, de uno a tres a\u00f1os, de cuatro a seis a\u00f1os, de siete a diez a\u00f1os o m\u00e1s de diez a\u00f1os.",
+        "es@informal": "Di uno de los intervalos: menos de un a\u00f1o, de uno a tres a\u00f1os, de cuatro a seis a\u00f1os, de siete a diez a\u00f1os o m\u00e1s de diez a\u00f1os.",
+        "it": "Dica uno degli intervalli: meno di un anno, da uno a tre anni, da quattro a sei anni, da sette a dieci anni o pi\u00f9 di dieci anni.",
+        "it@informal": "Di' uno degli intervalli: meno di un anno, da uno a tre anni, da quattro a sei anni, da sette a dieci anni o pi\u00f9 di dieci anni."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.uebungstreffen_field",
+      "label": {
+        "de": "\u00dcbungstreffen",
+        "en": "Practice meetings",
+        "fr": "S\u00e9ances d\u2019entra\u00eenement",
+        "es": "Ensayos",
+        "it": "Allenamenti"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie eine der Angaben: t\u00e4glich, mehrmals pro Woche, w\u00f6chentlich oder seltener.",
+        "de@informal": "Sag eine der Angaben: t\u00e4glich, mehrmals pro Woche, w\u00f6chentlich oder seltener.",
+        "en": "Say one of the options: daily, several times a week, weekly, or less often.",
+        "fr": "Dites l\u2019une des r\u00e9ponses : quotidiennement, plusieurs fois par semaine, chaque semaine ou plus rarement.",
+        "fr@informal": "Dis l\u2019une des r\u00e9ponses : quotidiennement, plusieurs fois par semaine, chaque semaine ou plus rarement.",
+        "es": "Diga una de las opciones: a diario, varias veces por semana, semanalmente o con menos frecuencia.",
+        "es@informal": "Di una de las opciones: a diario, varias veces por semana, semanalmente o con menos frecuencia.",
+        "it": "Dica una delle opzioni: ogni giorno, pi\u00f9 volte alla settimana, ogni settimana o meno spesso.",
+        "it@informal": "Di' una delle opzioni: ogni giorno, pi\u00f9 volte alla settimana, ogni settimana o meno spesso."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.zusatzpunkte_field",
+      "label": {
+        "de": "Zusatzpunkte",
+        "en": "Bonus points",
+        "fr": "Points bonus",
+        "es": "Puntos extra",
+        "it": "Punti extra"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie eine der Angaben: nie, selten, gelegentlich, h\u00e4ufig oder sehr h\u00e4ufig.",
+        "de@informal": "Sag eine der Angaben: nie, selten, gelegentlich, h\u00e4ufig oder sehr h\u00e4ufig.",
+        "en": "Say one of the options: never, rarely, occasionally, often, or very often.",
+        "fr": "Dites l\u2019une des r\u00e9ponses : jamais, rarement, de temps en temps, souvent ou tr\u00e8s souvent.",
+        "fr@informal": "Dis l\u2019une des r\u00e9ponses : jamais, rarement, de temps en temps, souvent ou tr\u00e8s souvent.",
+        "es": "Diga una de las opciones: nunca, rara vez, de vez en cuando, a menudo o muy a menudo.",
+        "es@informal": "Di una de las opciones: nunca, rara vez, de vez en cuando, a menudo o muy a menudo.",
+        "it": "Dica una delle opzioni: mai, raramente, ogni tanto, spesso o molto spesso.",
+        "it@informal": "Di' una delle opzioni: mai, raramente, ogni tanto, spesso o molto spesso."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.weltraum_vertrautheit_field",
+      "label": {
+        "de": "Weltraum-Vertrautheit",
+        "en": "Space familiarity",
+        "fr": "Familiarit\u00e9 Espace",
+        "es": "Familiaridad Espacio",
+        "it": "Familiarit\u00e0 Spazio"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Sagen Sie eine der Angaben: gar nicht, wenig, mittel, hoch oder sehr hoch.",
+        "de@informal": "Sag eine der Angaben: gar nicht, wenig, mittel, hoch oder sehr hoch.",
+        "en": "Say one of the options: not at all, a little, moderately, well, or very well.",
+        "fr": "Dites l\u2019une des r\u00e9ponses : pas du tout, un peu, moyennement, bien ou tr\u00e8s bien.",
+        "fr@informal": "Dis l\u2019une des r\u00e9ponses : pas du tout, un peu, moyennement, bien ou tr\u00e8s bien.",
+        "es": "Diga una de las opciones: nada, poco, medianamente, bastante o much\u00edsimo.",
+        "es@informal": "Di una de las opciones: nada, poco, medianamente, bastante o much\u00edsimo.",
+        "it": "Dica una delle opzioni: per niente, poco, mediamente, molto o moltissimo.",
+        "it@informal": "Di' una delle opzioni: per niente, poco, mediamente, molto o moltissimo."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.bonusfrage_field",
+      "label": {
+        "de": "Bonusfrage",
+        "en": "Bonus question",
+        "fr": "Question bonus",
+        "es": "Pregunta bonus",
+        "it": "Domanda bonus"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Dies ist eine Einfachauswahl. M\u00f6gliche Angaben: Blauwal, Elefant, Giraffe, Krokodil.",
+        "de@informal": "Dies ist eine Einfachauswahl. M\u00f6gliche Angaben: Blauwal, Elefant, Giraffe, Krokodil.",
+        "en": "This is a single selection. Possible answers: blue whale, elephant, giraffe, crocodile.",
+        "fr": "Ceci est une s\u00e9lection unique. R\u00e9ponses possibles : baleine bleue, \u00e9l\u00e9phant, girafe, crocodile.",
+        "fr@informal": "Ceci est une s\u00e9lection unique. R\u00e9ponses possibles : baleine bleue, \u00e9l\u00e9phant, girafe, crocodile.",
+        "es": "Esto es una selecci\u00f3n simple. Respuestas posibles: ballena azul, elefante, jirafa, cocodrilo.",
+        "es@informal": "Esto es una selecci\u00f3n simple. Respuestas posibles: ballena azul, elefante, jirafa, cocodrilo.",
+        "it": "Questa \u00e8 una selezione singola. Risposte possibili: balenottera azzurra, elefante, giraffa, coccodrillo.",
+        "it@informal": "Questa \u00e8 una selezione singola. Risposte possibili: balenottera azzurra, elefante, giraffa, coccodrillo."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.siegerehrung_field",
+      "label": {
+        "de": "Siegerehrung",
+        "en": "Plan an awards ceremony",
+        "fr": "Pr\u00e9voir une remise des prix",
+        "es": "Planear una premiaci\u00f3n",
+        "it": "Pianificare una premiazione"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Bei nein wird eine schon gemachte Angabe zum Hauptpreis verworfen. Sagen Sie ja oder nein.",
+        "de@informal": "Bei nein wird eine schon gemachte Angabe zum Hauptpreis verworfen. Sag ja oder nein.",
+        "en": "If no, an entry already given for the main prize is discarded. Say yes or no.",
+        "fr": "Si non, une indication d\u00e9j\u00e0 donn\u00e9e pour le prix principal est supprim\u00e9e. Dites oui ou non.",
+        "fr@informal": "Si non, une indication d\u00e9j\u00e0 donn\u00e9e pour le prix principal est supprim\u00e9e. Dis oui ou non.",
+        "es": "Si no, un dato ya indicado para el premio principal se descarta. Diga s\u00ed o no.",
+        "es@informal": "Si no, un dato ya indicado para el premio principal se descarta. Di s\u00ed o no.",
+        "it": "Se no, un\u2019indicazione gi\u00e0 data per il premio principale viene scartata. Dica s\u00ec o no.",
+        "it@informal": "Se no, un\u2019indicazione gi\u00e0 data per il premio principale viene scartata. Di' s\u00ec o no."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ]
+    },
+    {
+      "fieldDefinitionId": "study.umfrage.hintergrund-und-setup.hauptpreis_field",
+      "label": {
+        "de": "Hauptpreis",
+        "en": "Main prize",
+        "fr": "Prix principal",
+        "es": "Premio principal",
+        "it": "Premio principale"
+      },
+      "editability": "userEditable",
+      "helpText": {
+        "de": "Zum Beispiel: ein kleiner Wanderpokal aus Holz.",
+        "de@informal": "Zum Beispiel: ein kleiner Wanderpokal aus Holz.",
+        "en": "For example: a small wooden challenge cup.",
+        "fr": "Par exemple : une petite coupe challenge en bois.",
+        "fr@informal": "Par exemple : une petite coupe challenge en bois.",
+        "es": "Por ejemplo: una peque\u00f1a copa itinerante de madera.",
+        "es@informal": "Por ejemplo: una peque\u00f1a copa itinerante de madera.",
+        "it": "Per esempio: una piccola coppa itinerante di legno.",
+        "it@informal": "Per esempio: una piccola coppa itinerante di legno."
+      },
+      "preferredInputModes": [
+        "voice",
+        "keyboard"
+      ],
+      "examples": [
+        {
+          "de": "ein kleiner Wanderpokal aus Holz",
+          "en": "a small wooden challenge cup",
+          "fr": "une petite coupe challenge en bois",
+          "es": "una peque\u00f1a copa itinerante de madera",
+          "it": "una piccola coppa itinerante di legno"
+        }
+      ]
+    }
+  ]
+}

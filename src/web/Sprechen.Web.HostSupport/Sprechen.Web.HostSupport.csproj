@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Sprechen.Web.HostSupport</RootNamespace>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <GeneratedWebAssetsIncludePatterns>wwwroot/voice-support/**/*.css;wwwroot/voice-support/js/**/*.js;wwwroot/voice-support/vendor/**/*.js;wwwroot/voice-support/vendor/**/*.woff;wwwroot/voice-support/vendor/**/*.woff2</GeneratedWebAssetsIncludePatterns>
+    <GeneratedWebAssetsStamp>$(MSBuildProjectExtensionsPath)generated-web-assets.stamp</GeneratedWebAssetsStamp>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sprechen.Web.HostSupport.Tests" />
+    <InternalsVisibleTo Include="Sprechen.Web.HostSupport.Architecture.Tests" />
+    <InternalsVisibleTo Include="Sprechen.Web.HostSupport.FileSystem.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WebNodeModulesInputs Include="package.json;package-lock.json" />
+    <WebAssetInputs Include="Build/**/*.mjs;TypeScript/**/*.ts;Styles/**/*.scss" />
+    <WebAssetInputs Include="package.json;package-lock.json;tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Content/**/*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+
+  <Target Name="RestoreWebNodeModules" BeforeTargets="GenerateWebAssets" Inputs="@(WebNodeModulesInputs)" Outputs="$(MSBuildProjectDirectory)/node_modules/.web-assets.stamp">
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="npm ci --no-fund --no-audit" />
+    <Touch Files="$(MSBuildProjectDirectory)/node_modules/.web-assets.stamp" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="GenerateWebAssets" DependsOnTargets="RestoreWebNodeModules" Inputs="@(WebAssetInputs)" Outputs="$(GeneratedWebAssetsStamp)">
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="npm run build --silent" />
+    <MakeDir Directories="$(MSBuildProjectExtensionsPath)" />
+    <Touch Files="$(GeneratedWebAssetsStamp)" AlwaysCreate="true" />
+  </Target>
+
+  <Target Name="BuildWebAssets" BeforeTargets="ResolveProjectStaticWebAssets;ResolveStaticWebAssets" DependsOnTargets="GenerateWebAssets">
+    <ItemGroup>
+      <_GeneratedWebAsset Include="$(GeneratedWebAssetsIncludePatterns)" />
+      <Content Remove="@(_GeneratedWebAsset)" />
+      <Content Include="@(_GeneratedWebAsset)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
+    <PackageReference Include="Grpc.AspNetCore.Web" Version="2.80.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.80.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.80.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+    <!-- Die direkte Referenz erlaubt Sicherheitskorrekturen in Microsoft.OpenApi unabhängig von der transitiven Mindestversion von Microsoft.AspNetCore.OpenApi. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.14.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\\..\\evaluation-telemetry\\Sprechen.EvaluationTelemetry.Api\\Sprechen.EvaluationTelemetry.Api.csproj" />
+    <ProjectReference Include="..\\..\\evaluation-telemetry\\Sprechen.EvaluationTelemetry.Ingestion\\Sprechen.EvaluationTelemetry.Ingestion.csproj" />
+    <ProjectReference Include="..\\..\\evaluation-telemetry\\Sprechen.EvaluationTelemetry.JsonlStore\\Sprechen.EvaluationTelemetry.JsonlStore.csproj" />
+    <ProjectReference Include="..\\..\\hosting\\Sprechen.ServiceDefaults\\Sprechen.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\\..\\mda\\Sprechen.Mda.Contracts\\Sprechen.Mda.Contracts.csproj" />
+    <ProjectReference Include="..\\..\\contracts\\Sprechen.Contracts.ApiClient\\Sprechen.Contracts.ApiClient.csproj" />
+    <ProjectReference Include="..\\..\\contracts\\Sprechen.Proto\\Sprechen.Proto.csproj" />
+    <ProjectReference Include="..\\..\\contracts\\Sprechen.Proto.Transport\\Sprechen.Proto.Transport.csproj" />
+    <ProjectReference Include="..\\..\\speech\\Sprechen.Speech.App.MicrophoneRecording\\Sprechen.Speech.App.MicrophoneRecording.csproj" />
+  </ItemGroup>
+</Project>

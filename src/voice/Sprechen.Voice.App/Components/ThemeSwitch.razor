@@ -1,0 +1,70 @@
+@inject IThemeSettings ThemeSettings
+
+@* Die Darstellung lässt sich direkt in der Navigation wählen. Native Optionsfelder
+   erhalten die Bedienung per Tastatur und die Semantik einer Optionsgruppe. *@
+<fieldset class="theme-switch" disabled="@(!_loaded)">
+    <legend class="theme-switch-legend">@Copy.Theme.GetTitle(PreferredIsoCode)</legend>
+    <div class="theme-switch-options">
+        @foreach (var mode in ThemeModes)
+        {
+            var inputId = $"nav-theme-option-{mode.ToStorageValue()}";
+            <input class="theme-switch-input"
+                   type="radio"
+                   name="nav-theme-mode"
+                   id="@inputId"
+                   checked="@(_selected == mode)"
+                   @onchange="() => OnThemeChosenAsync(mode)" />
+            <label class="theme-switch-label" for="@inputId">
+                @Copy.Theme.GetOptionLabel(mode, PreferredIsoCode)
+            </label>
+        }
+    </div>
+</fieldset>
+
+@code {
+    private static readonly ThemeMode[] ThemeModes = [ThemeMode.System, ThemeMode.Light, ThemeMode.Dark];
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public string? PreferredIsoCode { get; set; }
+
+    private ThemeMode _selected = ThemeMode.System;
+    private bool _loaded;
+    private VoiceSettingsCopy Copy { get; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Die gespeicherte Auswahl wird geladen. Bei einem Fehler bleibt die Systemvorgabe aktiv.
+        try
+        {
+            _selected = await ThemeSettings.GetAsync(CancellationToken.None);
+        }
+        catch (Exception)
+        {
+            _selected = ThemeMode.System;
+        }
+        finally
+        {
+            _loaded = true;
+        }
+    }
+
+    private async Task OnThemeChosenAsync(ThemeMode mode)
+    {
+        if (!_loaded || _selected == mode)
+        {
+            return;
+        }
+
+        _selected = mode;
+
+        // Ein Speicherfehler darf die Bedienung der Navigation nicht unterbrechen.
+        try
+        {
+            await ThemeSettings.SetAsync(mode, CancellationToken.None);
+        }
+        catch (Exception)
+        {
+            // Die angezeigte Auswahl bleibt auch dann bestehen, wenn das Speichern scheitert.
+        }
+    }
+}

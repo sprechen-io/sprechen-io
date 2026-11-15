@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "1",
+  "microFlow": {
+    "initialState": "PROMPTING",
+    "states": [
+      {
+        "stateId": "PROMPTING",
+        "entryAction": "Speak field label and optional help or examples.",
+        "description": "System-orientation prompt for the currently focused field."
+      },
+      {
+        "stateId": "LISTENING",
+        "entryAction": "Activate STT and wait for usable speech input.",
+        "description": "Speech capture is active for the focused field."
+      },
+      {
+        "stateId": "INTERPRETING",
+        "entryAction": "Map transcript to intent, command, or field value candidate.",
+        "description": "Runtime interprets the captured transcript."
+      },
+      {
+        "stateId": "VALIDATING",
+        "entryAction": "Apply constraints and field-level acceptance rules.",
+        "description": "Candidate value is checked before confirmation."
+      },
+      {
+        "stateId": "CONFIRMATION",
+        "entryAction": "Read back the interpreted value and request acceptance when needed.",
+        "description": "User can confirm or reject the current value."
+      },
+      {
+        "stateId": "ERROR_PROMPT",
+        "entryAction": "Speak an error or remediation prompt for the current field interaction.",
+        "description": "Runtime explains the problem and prepares the next listen attempt."
+      },
+      {
+        "stateId": "REPAIR",
+        "entryAction": "Enter current-field correction mode.",
+        "description": "Reference runtimes may use this as the field-level correction point after confirmation rejection; richer runtimes can extend it with slot-, word-, or character-level repair."
+      }
+    ],
+    "transitions": [
+      {
+        "from": "PROMPTING",
+        "trigger": "promptComplete",
+        "to": "LISTENING",
+        "description": "Prompt playback finished and the runtime opens listening."
+      },
+      {
+        "from": "LISTENING",
+        "trigger": "speechReceived",
+        "to": "INTERPRETING",
+        "description": "A usable transcript was captured."
+      },
+      {
+        "from": "LISTENING",
+        "trigger": "noInputTimeout",
+        "to": "PROMPTING",
+        "description": "No usable input arrived before timeout and the prompt is repeated."
+      },
+      {
+        "from": "LISTENING",
+        "trigger": "maxRetriesExceeded",
+        "to": "ERROR_PROMPT",
+        "guard": "Configured no-input retries were exhausted.",
+        "description": "Runtime enters remediation after repeated no-input failures."
+      },
+      {
+        "from": "INTERPRETING",
+        "trigger": "interpretationComplete",
+        "to": "VALIDATING",
+        "description": "Transcript interpretation produced a candidate for validation."
+      },
+      {
+        "from": "INTERPRETING",
+        "trigger": "userRejected",
+        "to": "REPAIR",
+        "description": "A readback offer answered during interpretation (the low-confidence spelling escalation) is the same user rejection as at a confirmation turn and enters correction mode."
+      },
+      {
+        "from": "VALIDATING",
+        "trigger": "validationPassed",
+        "to": "CONFIRMATION",
+        "description": "Candidate value passed validation and can be confirmed."
+      },
+      {
+        "from": "VALIDATING",
+        "trigger": "validationFailed",
+        "to": "ERROR_PROMPT",
+        "description": "Validation failed and a remediation prompt is spoken."
+      },
+      {
+        "from": "CONFIRMATION",
+        "trigger": "userConfirmed",
+        "to": null,
+        "description": "Current field interaction is complete and control returns to the outer dialog flow."
+      },
+      {
+        "from": "CONFIRMATION",
+        "trigger": "userRejected",
+        "to": "REPAIR",
+        "description": "User rejected the interpreted value and correction mode begins."
+      },
+      {
+        "from": "ERROR_PROMPT",
+        "trigger": "errorPromptComplete",
+        "to": "LISTENING",
+        "description": "Remediation prompt completed and the runtime retries listening."
+      },
+      {
+        "from": "REPAIR",
+        "trigger": "repairComplete",
+        "to": "LISTENING",
+        "description": "Repair input completed and the runtime captures the corrected value."
+      }
+    ]
+  },
+  "macroFlow": {
+    "initialState": "FIELD_GROUP_INTRO",
+    "terminalStates": [
+      "SUBMITTED",
+      "CANCELLED"
+    ],
+    "states": [
+      {
+        "stateId": "FIELD_GROUP_INTRO",
+        "entryAction": "Speak the field-group orientation prompt before iterating fields.",
+        "description": "Entry point for field-group orientation."
+      },
+      {
+        "stateId": "FIELD_LOOP",
+        "entryAction": "Iterate the fields of the active field group.",
+        "description": "Normal field interaction loop for the active group."
+      },
+      {
+        "stateId": "FIELD_GROUP_SUMMARY",
+        "entryAction": "Speak the current field-group summary before leaving the group.",
+        "description": "Review point for the active field group."
+      },
+      {
+        "stateId": "PROCESS_SUMMARY",
+        "entryAction": "Speak the overall process summary before final submission.",
+        "description": "Final review point before submission."
+      },
+      {
+        "stateId": "SUBMITTED",
+        "entryAction": "Finalize the dialog as successfully submitted.",
+        "isTerminal": true,
+        "description": "Successful dialog completion."
+      },
+      {
+        "stateId": "CANCELLED",
+        "entryAction": "Finalize the dialog as user-cancelled.",
+        "isTerminal": true,
+        "description": "User-initiated dialog cancellation."
+      }
+    ],
+    "transitions": [
+      {
+        "from": "FIELD_GROUP_INTRO",
+        "trigger": "introComplete",
+        "to": "FIELD_LOOP",
+        "description": "Orientation finished and field interaction begins."
+      },
+      {
+        "from": "FIELD_GROUP_INTRO",
+        "trigger": "cancelConfirmed",
+        "to": "CANCELLED",
+        "description": "User confirmed cancellation during group intro."
+      },
+      {
+        "from": "FIELD_LOOP",
+        "trigger": "allFieldsProcessed",
+        "to": "FIELD_GROUP_SUMMARY",
+        "description": "The active field group is complete and enters review."
+      },
+      {
+        "from": "FIELD_LOOP",
+        "trigger": "navigateNext",
+        "to": "FIELD_GROUP_INTRO",
+        "guard": "A later field group exists and becomes the active group before re-entry.",
+        "description": "Explicit navigation advances to another field group."
+      },
+      {
+        "from": "FIELD_LOOP",
+        "trigger": "navigateBack",
+        "to": "FIELD_GROUP_INTRO",
+        "guard": "An earlier field group exists and becomes the active group before re-entry.",
+        "description": "Explicit navigation moves back to another field group."
+      },
+      {
+        "from": "FIELD_LOOP",
+        "trigger": "jumpToFieldGroup",
+        "to": "FIELD_GROUP_INTRO",
+        "guard": "A concrete target field group is resolved before re-entry.",
+        "description": "Jump navigation activates a different field group."
+      },
+      {
+        "from": "FIELD_LOOP",
+        "trigger": "cancelConfirmed",
+        "to": "CANCELLED",
+        "description": "User confirmed cancellation while iterating fields."
+      },
+      {
+        "from": "FIELD_GROUP_SUMMARY",
+        "trigger": "summaryAccepted",
+        "to": "FIELD_GROUP_INTRO",
+        "guard": "Another field group remains after the current group.",
+        "description": "Accepting the current summary advances to the next group."
+      },
+      {
+        "from": "FIELD_GROUP_SUMMARY",
+        "trigger": "summaryAccepted",
+        "to": "PROCESS_SUMMARY",
+        "guard": "The current group is the last remaining field group.",
+        "description": "Accepting the final group summary opens the overall process review."
+      },
+      {
+        "from": "FIELD_GROUP_SUMMARY",
+        "trigger": "summaryRejected",
+        "to": "FIELD_LOOP",
+        "description": "Rejecting the group summary returns to field interaction."
+      },
+      {
+        "from": "FIELD_GROUP_SUMMARY",
+        "trigger": "cancelConfirmed",
+        "to": "CANCELLED",
+        "description": "User confirmed cancellation while reviewing the current group."
+      },
+      {
+        "from": "PROCESS_SUMMARY",
+        "trigger": "processConfirmed",
+        "to": "SUBMITTED",
+        "description": "User confirmed the process summary and submits the dialog."
+      },
+      {
+        "from": "PROCESS_SUMMARY",
+        "trigger": "processRejected",
+        "to": "FIELD_GROUP_INTRO",
+        "guard": "Runtime restores a concrete field group before re-entry.",
+        "description": "Rejecting the final review returns to editable dialog flow."
+      },
+      {
+        "from": "PROCESS_SUMMARY",
+        "trigger": "cancelConfirmed",
+        "to": "CANCELLED",
+        "description": "User confirmed cancellation during final review."
+      }
+    ]
+  }
+}

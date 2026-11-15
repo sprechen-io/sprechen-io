@@ -1,0 +1,101 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SchemaContractRepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..'))</SchemaContractRepoRoot>
+    <SchemaContractGeneratorProject>$([System.IO.Path]::Combine('$(SchemaContractRepoRoot)', 'src', 'mda', 'Sprechen.Mda.Contracts.Generator', 'Sprechen.Mda.Contracts.Generator.csproj'))</SchemaContractGeneratorProject>
+    <GeneratedSchemaContractsDir>$(MSBuildProjectDirectory)\V1\Generated</GeneratedSchemaContractsDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="V1\Generated\**\*.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\ApplicationDescriptor.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\ApplicationDescriptorDocument.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\ApplicationSelectionDialog.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\ApplicationSelectionDialogProfile.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\ApplicationSelectionDialogProfileReference.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\ApplicationSelectionDialogReference.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\CatalogVoiceIntent.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\CatalogVoiceNumberWord.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\CatalogVoicePrompt.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\FormDescriptor.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\FormsCatalogDocument.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Catalog\VoiceDialogSettings.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\ContractProjectionsDocument.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FieldDefinitionsReference.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FieldGroupDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FieldHtmlProjection.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FieldPresentationHints.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FieldProjections.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FieldVoiceProjection.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FormFieldBindingDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FormContractDocument.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\FormVariableBindingDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\GlobalCommandDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\HtmlProjection.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\RuleDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\SensitiveDataPolicy.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\SynonymSet.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\TraceInfo.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\VoiceHintsDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\VoiceIntent.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\VoiceProjectionDocument.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\FormContracts\VoicePrompt.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Fields\FieldDefinitions.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Fields\ReusableFieldDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Variables\ReusableVariableDefinition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Variables\VariableDefinitions.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Variables\VariableDefinitionsReference.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Status\CompletionProgress.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Status\NavigationPosition.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Status\ProgressDimension.cs" />
+    <GeneratedSchemaContract Include="$(GeneratedSchemaContractsDir)\Status\StatusAnnouncement.cs" />
+    <Compile Include="@(GeneratedSchemaContract)" Visible="false" />
+    <SchemaContractGenerationInput Include="$([System.IO.Path]::Combine('$(SchemaContractRepoRoot)', 'src', 'model'))\**\schemas\*.schema.json" />
+    <SchemaContractGenerationInput Include="$([System.IO.Path]::Combine('$(SchemaContractRepoRoot)', 'src', 'mda', 'Sprechen.Mda.Contracts.Generator'))\**\*.cs" />
+    <SchemaContractGenerationInput Include="$(SchemaContractGeneratorProject)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference
+      Include="..\Sprechen.Mda.Contracts.Generator\Sprechen.Mda.Contracts.Generator.csproj"
+      PrivateAssets="all"
+      ReferenceOutputAssembly="false" />
+    <EmbeddedResource Include="..\..\model\**\schemas\*.schema.json">
+      <LogicalName>Sprechen.Mda.Contracts.RuntimeArtifacts.$([System.String]::Copy('%(RecursiveDir)').Replace('\','.').Replace('/','.'))%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\model\**\reference-contracts\**\*.json">
+      <LogicalName>Sprechen.Mda.Contracts.RuntimeArtifacts.$([System.String]::Copy('%(RecursiveDir)').Replace('\','.').Replace('/','.'))%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\apps\**\*.json">
+      <LogicalName>Sprechen.Mda.Contracts.RuntimeArtifacts.apps.$([System.String]::Copy('%(RecursiveDir)').Replace('\','.').Replace('/','.'))%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Remove="..\..\model\dialogmodell\reference-contracts\dialog-state-machine\dialog-state-machine.reference.json" />
+    <EmbeddedResource Remove="..\..\model\dialogmodell\reference-contracts\form-surfaces\form-surface.active.reference.json" />
+    <EmbeddedResource Remove="..\..\model\evaluationsmodell\reference-contracts\canonical-transitions\canonical-transition-projection.reference.json" />
+    <EmbeddedResource Remove="..\..\model\evaluationsmodell\reference-contracts\open-error-identity\open-error-identity.reference.json" />
+    <EmbeddedResource Remove="..\..\model\evaluationsmodell\reference-contracts\task-end\task-end-projection.reference.json" />
+    <EmbeddedResource Remove="..\..\model\evaluationsmodell\reference-contracts\task-card-comparison\task-card-comparison-key.reference.json" />
+    <EmbeddedResource Remove="..\..\model\informationsmodell\reference-contracts\contract-rule-evaluation\contract-rule-evaluation.reference.json" />
+  </ItemGroup>
+
+  <Target
+    Name="GenerateSchemaContracts"
+    BeforeTargets="CoreCompile"
+    Inputs="@(SchemaContractGenerationInput)"
+    Outputs="@(GeneratedSchemaContract)"
+    Condition="'$(DesignTimeBuild)' != 'true'">
+    <Message Importance="high" Text="Generating schema contracts from mda schemas." />
+    <Exec
+      WorkingDirectory="$(SchemaContractRepoRoot)"
+      Command="dotnet run --no-build --project &quot;$(SchemaContractGeneratorProject)&quot; -c $(Configuration) -- --repo-root &quot;$(SchemaContractRepoRoot)&quot;" />
+  </Target>
+
+  <Target Name="CleanGeneratedSchemaContracts" AfterTargets="Clean">
+    <RemoveDir Directories="$(GeneratedSchemaContractsDir)" Condition="Exists('$(GeneratedSchemaContractsDir)')" />
+  </Target>
+
+</Project>

@@ -1,0 +1,59 @@
+{
+  "distributionId": "sample.simple",
+  "applications": [
+    {
+      "applicationId": "sample.simple",
+      "displayName": {
+        "de": "Einfaches Beispiel",
+        "en": "Simple example",
+        "fr": "Exemple simple",
+        "es": "Ejemplo sencillo",
+        "it": "Esempio semplice"
+      },
+      "description": {
+        "de": "Minimalformular mit drei Feldgruppen und sieben adressierbaren Feldern.",
+        "en": "Minimal form with three field groups and seven addressable fields.",
+        "fr": "Formulaire minimal avec trois groupes de champs adressables et sept champs adressables.",
+        "es": "Formulario m\u00ednimo con tres grupos de campos direccionables y siete campos direccionables.",
+        "it": "Modulo minimo con tre gruppi di campi indirizzabili e sette campi indirizzabili."
+      },
+      "tags": [
+        "sample",
+        "simple",
+        "demo"
+      ],
+      "supportedLanguages": [
+        "de",
+        "en",
+        "fr",
+        "es",
+        "it"
+      ],
+      "defaultLanguage": "de",
+      "forms": [
+        {
+          "formId": "two-groups",
+          "displayName": {
+            "de": "Feldgruppen-Beispiel",
+            "en": "Field group example",
+            "fr": "Exemple de groupes de champs",
+            "es": "Ejemplo de grupos de campos",
+            "it": "Esempio di gruppi di campi"
+          },
+          "description": {
+            "de": "Freier Text, Farbauswahl, Zahleneingabe, Datumseingabe, Mehrfachauswahl in Pflicht- und optionaler Variante sowie Uhrzeiteingabe.",
+            "en": "Free text, color selection, number input, date input, multi-selection in a mandatory and an optional variant, and time input.",
+            "fr": "Texte libre, s\u00e9lection de couleur, saisie num\u00e9rique, saisie de date, s\u00e9lection multiple en variante obligatoire et facultative, et saisie de l\u0027heure.",
+            "es": "Texto libre, selecci\u00f3n de color, entrada num\u00e9rica, entrada de fecha, selecci\u00f3n m\u00faltiple en variante obligatoria y opcional, y entrada de hora.",
+            "it": "Testo libero, selezione del colore, inserimento numerico, inserimento della data, selezione multipla in variante obbligatoria e facoltativa e inserimento dell\u0027orario."
+          },
+          "latestContractVersion": "1",
+          "availableContractVersions": [
+            "1"
+          ],
+          "sequence": 1
+        }
+      ]
+    }
+  ]
+}

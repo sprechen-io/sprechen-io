@@ -1,0 +1,68 @@
+@model Sprechen.Forms.ViewComponents.FormNavigationModel
+@*
+    Formularnavigation als View Component für Anwendungen mit mehreren Formularen.
+    Die data-Attribute kennzeichnen Navigationsaktionen für die Studien-Telemetrie.
+*@
+
+@{
+    var chrome = Sprechen.Forms.Pages.FormsChromeCopyResolver.For(Model.Language);
+
+    var navLabel = chrome.NavLabel;
+    var progressLabel = chrome.ProgressLabel;
+    var stepLabel = chrome.NavStep(Model.CurrentFormNumber, Model.TotalForms);
+    var textBack = chrome.NavBack;
+    var textCancel = chrome.NavCancel;
+    var textNext = chrome.NavNext;
+    var textSubmit = chrome.NavSubmit;
+}
+
+<nav class="form-navigation" aria-label="@navLabel" role="navigation">
+    @if (Model.TotalForms > 1)
+    {
+        <div class="progress-indicator" role="status" aria-live="polite">
+            <span class="sr-only">@progressLabel</span>
+            <span aria-hidden="true">@stepLabel</span>
+            <progress value="@Model.CurrentFormNumber" max="@Model.TotalForms" aria-hidden="true"></progress>
+        </div>
+    }
+
+    <div class="navigation-buttons">
+        @if (Model.HasPrevious)
+        {
+            <a href="@Model.PreviousFormUrl"
+               class="btn btn-secondary"
+                 data-nav-action="previous"
+               data-previous-form="@Model.PreviousFormId"
+               onclick="if(window.formNavigation){return window.formNavigation.validateAndNavigate(this);}">
+                <span aria-hidden="true">&larr;</span> @textBack
+            </a>
+        }
+
+        <button type="button"
+                class="btn btn-danger"
+                data-nav-action="cancel"
+                onclick="if(window.formNavigation){window.formNavigation.cancel();}">
+            @textCancel
+        </button>
+
+        @if (Model.HasNext)
+        {
+            <a href="@Model.NextFormUrl"
+               class="btn btn-primary"
+               data-nav-action="next"
+               data-next-form="@Model.NextFormId"
+               onclick="if(window.formNavigation){return window.formNavigation.validateAndNavigate(this);}">
+                @textNext <span aria-hidden="true">&rarr;</span>
+            </a>
+        }
+        else if (Model.IsLastForm)
+        {
+            <button type="submit"
+                    class="btn btn-success"
+                    data-nav-action="submit"
+                    onclick="if(window.formNavigation){return window.formNavigation.submit();}">
+                @textSubmit
+            </button>
+        }
+    </div>
+</nav>

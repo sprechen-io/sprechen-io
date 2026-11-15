@@ -1,0 +1,307 @@
+@page "/value-presets"
+@inject SchemaTextLoader Loader
+@inject AuthoringValuePresetCatalog PresetCatalog
+@inject SessionPersistenceStore Persistence
+
+<PageTitle>Wertvorschläge</PageTitle>
+
+<h4>Wertvorschläge</h4>
+
+@if (!Loader.IsLoaded)
+{
+    <LoadingSpinner Message="Lade Schemas…" />
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">Neuen Wertvorschlag erstellen</div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <label class="form-label">Root-Schema</label>
+                        <select class="form-select form-select-sm" value="@_selectedRootSchemaFileName" @onchange="OnRootSchemaChanged">
+                            @foreach (var root in ComposerRootCatalog.All)
+                            {
+                                <option value="@root.FileName">@root.DisplayName (@root.FileName)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">String-Feld</label>
+                        <select class="form-select form-select-sm" value="@_selectedJsonPointer" @onchange="OnJsonPointerChanged">
+                            @foreach (var option in _pathOptions)
+                            {
+                                <option value="@option.Pointer">@option.Label (@option.Pointer)</option>
+                            }
+                        </select>
+                        @if (!string.IsNullOrWhiteSpace(_selectedPathDescription))
+                        {
+                            <small class="text-muted">@_selectedPathDescription</small>
+                        }
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Bezeichnung</label>
+                        <input type="text" class="form-control form-control-sm" @bind="_presetLabel"
+                               placeholder="z.B. Branchenwerte" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Beschreibung (optional)</label>
+                        <input type="text" class="form-control form-control-sm" @bind="_presetDescription"
+                               placeholder="Wofür diese Werte gedacht sind..." />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Werte (je Zeile ein Wert)</label>
+                        <textarea class="form-control form-control-sm" rows="4" @bind="_presetValuesText"
+                                  placeholder="value1&#10;value2&#10;value3"></textarea>
+                    </div>
+
+                    @if (_error is not null)
+                    {
+                        <div class="alert alert-danger py-1 small">@_error</div>
+                    }
+
+                    <button class="btn btn-primary btn-sm"
+                            disabled="@(_pathOptions.Count == 0)"
+                            @onclick="AddPreset">
+                        Wertvorschlag erstellen
+                    </button>
+                </div>
+            </div>
+
+            @if (PresetCatalog.All.Count > 0)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">Gespeicherte Wertvorschläge (@PresetCatalog.All.Count)</div>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var preset in PresetCatalog.All)
+                        {
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <div>
+                                        <strong>@preset.Label</strong>
+                                        <span class="badge bg-info ms-1">@preset.RootSchemaFileName</span>
+                                        <br />
+                                        <small class="text-muted">@preset.JsonPointer</small>
+                                        <br />
+                                        <small>@string.Join(", ", preset.Values)</small>
+                                        @if (preset.Description is not null)
+                                        {
+                                            <br /><small class="text-muted">@preset.Description</small>
+                                        }
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger align-self-start"
+                                            @onclick="() => RemovePreset(preset)">Entfernen</button>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Schema-Enums (@_filteredSchemaEnums.Count / @Loader.EnumRegistry.GetSchemaEnums().Count)</span>
+                </div>
+                <div class="card-body p-2">
+                    <input type="text" class="form-control form-control-sm mb-2"
+                           placeholder="Enums durchsuchen…" @oninput="OnSearchChanged" />
+                </div>
+                <div class="card-body pt-0" style="max-height: 65vh; overflow-y: auto;">
+                    @foreach (var e in _filteredSchemaEnums)
+                    {
+                        <div class="mb-2 p-2 border rounded">
+                            <strong>@e.Name</strong>
+                            @if (e.SchemaFile is not null)
+                            {
+                                <span class="badge bg-info ms-1">@e.SchemaFile</span>
+                            }
+                            <br />
+                            <small>@string.Join(" | ", e.Values)</small>
+                            @if (e.Description is not null)
+                            {
+                                <br /><small class="text-muted">@e.Description</small>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string _searchText = string.Empty;
+    private IReadOnlyList<EnumDefinition> _filteredSchemaEnums = [];
+    private List<(string Pointer, string Label, string? Description)> _pathOptions = [];
+    private string _selectedRootSchemaFileName = ComposerRootCatalog.All[0].FileName;
+    private string _selectedJsonPointer = JsonPointer.Root;
+    private string _selectedPathDescription = string.Empty;
+    private string _presetLabel = string.Empty;
+    private string _presetDescription = string.Empty;
+    private string _presetValuesText = string.Empty;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Loader.LoadAllAsync();
+        await RestorePresetsAsync();
+        RefreshPathOptions();
+        RefreshFilter();
+    }
+
+    private async Task RestorePresetsAsync()
+    {
+        var savedPresets = await Persistence.LoadAuthoringValuePresetsAsync();
+        PresetCatalog.ReplaceAll(savedPresets.Select(static preset =>
+            new AuthoringValuePreset(
+                preset.RootSchemaFileName,
+                preset.JsonPointer,
+                preset.Label,
+                preset.Values,
+                preset.Description)));
+    }
+
+    private async Task PersistPresetsAsync()
+    {
+        var serializablePresets = PresetCatalog.All
+            .Select(static preset => new SerializableAuthoringValuePreset(
+                preset.RootSchemaFileName,
+                preset.JsonPointer,
+                preset.Label,
+                preset.Values.ToList(),
+                preset.Description))
+            .ToList();
+        await Persistence.SaveAuthoringValuePresetsAsync(serializablePresets);
+    }
+
+    private void OnRootSchemaChanged(ChangeEventArgs e)
+    {
+        _selectedRootSchemaFileName = e.Value?.ToString() ?? ComposerRootCatalog.All[0].FileName;
+        RefreshPathOptions();
+    }
+
+    private void OnJsonPointerChanged(ChangeEventArgs e)
+    {
+        _selectedJsonPointer = e.Value?.ToString() ?? JsonPointer.Root;
+        UpdateSelectedPathDescription();
+    }
+
+    private async Task AddPreset()
+    {
+        _error = null;
+
+        var label = string.IsNullOrWhiteSpace(_presetLabel)
+            ? _pathOptions.FirstOrDefault(option => option.Pointer == _selectedJsonPointer).Label
+            : _presetLabel.Trim();
+        var values = _presetValuesText
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct()
+            .ToList();
+
+        try
+        {
+            PresetCatalog.AddPreset(
+                _selectedRootSchemaFileName,
+                _selectedJsonPointer,
+                label,
+                values,
+                _presetDescription);
+            _presetLabel = string.Empty;
+            _presetDescription = string.Empty;
+            _presetValuesText = string.Empty;
+            await PersistPresetsAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task RemovePreset(AuthoringValuePreset preset)
+    {
+        PresetCatalog.RemovePreset(preset.RootSchemaFileName, preset.JsonPointer, preset.Label);
+        await PersistPresetsAsync();
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        _searchText = e.Value?.ToString() ?? string.Empty;
+        RefreshFilter();
+    }
+
+    private void RefreshFilter()
+    {
+        var all = Loader.EnumRegistry.GetSchemaEnums();
+        if (string.IsNullOrWhiteSpace(_searchText))
+        {
+            _filteredSchemaEnums = all;
+        }
+        else
+        {
+            var term = _searchText;
+            _filteredSchemaEnums = all.Where(e =>
+                e.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || e.Values.Any(v => v.Contains(term, StringComparison.OrdinalIgnoreCase))
+                || (e.SchemaFile?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false)
+            ).ToList();
+        }
+    }
+
+    private void RefreshPathOptions()
+    {
+        _pathOptions = [];
+        if (!Loader.ParsedSchemas.TryGetValue(_selectedRootSchemaFileName, out var rootSchema))
+        {
+            _selectedJsonPointer = JsonPointer.Root;
+            _selectedPathDescription = string.Empty;
+            return;
+        }
+
+        CollectStringFieldPaths(rootSchema, JsonPointer.Root, rootSchema.Name);
+        _selectedJsonPointer = _pathOptions.FirstOrDefault().Pointer ?? JsonPointer.Root;
+        UpdateSelectedPathDescription();
+    }
+
+    private void CollectStringFieldPaths(SchemaNode schema, string pointer, string label)
+    {
+        if (schema.Type == SchemaNodeType.String
+            && schema.EnumValues is null
+            && schema.ConstValue is null
+            && !string.IsNullOrEmpty(pointer))
+        {
+            _pathOptions.Add((pointer, label, schema.Description));
+        }
+
+        if (schema.Properties is not null)
+        {
+            foreach (var property in schema.Properties)
+            {
+                CollectStringFieldPaths(property, JsonPointer.Append(pointer, property.Name), property.Name);
+            }
+        }
+
+        if (schema.OneOf is not null)
+        {
+            foreach (var option in schema.OneOf)
+            {
+                CollectStringFieldPaths(option, pointer, label);
+            }
+        }
+
+        if (schema.AnyOf is not null)
+        {
+            foreach (var option in schema.AnyOf)
+            {
+                CollectStringFieldPaths(option, pointer, label);
+            }
+        }
+    }
+
+    private void UpdateSelectedPathDescription()
+    {
+        _selectedPathDescription = _pathOptions.FirstOrDefault(option => option.Pointer == _selectedJsonPointer).Description ?? string.Empty;
+    }
+}

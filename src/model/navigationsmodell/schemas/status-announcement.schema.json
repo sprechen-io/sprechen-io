@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://Sprechen/schemas/status-announcement.schema.json",
+  "title": "StatusAnnouncement",
+  "description": "Response format for the status command. Navigation position and completion progress MUST be announced separately. Ambiguous output such as 'Schritt x von y' without explicit reference level is forbidden.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "navigation",
+    "progress"
+  ],
+  "properties": {
+    "navigation": {
+      "$ref": "#/$defs/NavigationPosition",
+      "description": "Current navigation position in the form structure. Identifies where the user is, not how much is completed."
+    },
+    "progress": {
+      "$ref": "#/$defs/CompletionProgress",
+      "description": "Completion progress across one or more calculation bases. Each dimension reports completed vs. total counts for relevant items only."
+    },
+    "openRequiredFieldCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of relevant required fields that are not yet completed."
+    },
+    "validationErrorCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of active validation errors with severity=error across all relevant fields."
+    }
+  },
+  "$defs": {
+    "Id": {
+      "description": "Identifier: starts with letter/underscore, followed by alphanumerics, dots, dashes, or underscores.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z_][A-Za-z0-9._-]*$"
+    },
+    "NavigationPosition": {
+      "description": "Current navigation position. Identifies the active field group and field, and optionally the active form in multi-form applications.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currentFieldGroupId",
+        "currentFieldGroupIndex",
+        "totalFieldGroups"
+      ],
+      "properties": {
+        "currentFormId": {
+          "$ref": "#/$defs/Id",
+          "description": "Active form identifier. Present only in multi-form applications."
+        },
+        "currentFormIndex": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based position of the active form. Present only in multi-form applications."
+        },
+        "totalForms": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of forms in the application. Present only in multi-form applications."
+        },
+        "currentFieldGroupId": {
+          "$ref": "#/$defs/Id",
+          "description": "Active field group identifier."
+        },
+        "currentFieldGroupIndex": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based position of the active field group within the relevant form scope (conditionally hidden groups are excluded from the basis)."
+        },
+        "totalFieldGroups": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of field groups in the relevant form scope (conditionally hidden groups are excluded from the basis)."
+        },
+        "currentFieldId": {
+          "$ref": "#/$defs/Id",
+          "description": "Active field identifier within the current field group. Absent when the user is at field-group level (e.g. during FIELD_GROUP_INTRO or FIELD_GROUP_SUMMARY)."
+        }
+      }
+    },
+    "CompletionProgress": {
+      "description": "Completion progress. At least one dimension MUST be present. Each dimension reports completed vs. total counts for relevant items only (non-relevant items are excluded from both numerator and denominator).",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "allFields": {
+          "$ref": "#/$defs/ProgressDimension",
+          "description": "Progress over all relevant fields regardless of mandatory/optional status."
+        },
+        "requiredFieldsOnly": {
+          "$ref": "#/$defs/ProgressDimension",
+          "description": "Progress over relevant required fields only."
+        },
+        "fieldGroupBased": {
+          "$ref": "#/$defs/ProgressDimension",
+          "description": "Progress over relevant field groups. A field group counts as completed when all its relevant required fields are completed without severity=error violations."
+        }
+      }
+    },
+    "ProgressDimension": {
+      "description": "A single progress dimension with completed and total counts.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed",
+        "total"
+      ],
+      "properties": {
+        "completed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of relevant items that are completed (set + no active severity=error violation)."
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of relevant items (excludes non-relevant items from denominator)."
+        }
+      }
+    },
+    "ProgressCalculationBasis": {
+      "description": "Selects which progress dimension is primary for announcements.",
+      "type": "string",
+      "enum": [
+        "allFields",
+        "requiredFieldsOnly",
+        "fieldGroupBased"
+      ]
+    }
+  }
+}
