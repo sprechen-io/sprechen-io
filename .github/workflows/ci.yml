@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/**/package-lock.json
+
+      # Not every project is listed in src/Sprechen.slnx. The CI solution
+      # therefore contains every project under src, so all test projects run.
+      - name: Create CI solution with all projects
+        run: |
+          dotnet new sln --name All --format slnx --output "$RUNNER_TEMP/ci"
+          find src -name '*.csproj' -not -path '*/.vs/*' -print0 \
+            | xargs -0 dotnet sln "$RUNNER_TEMP/ci/All.slnx" add
+          echo "Projects: $(grep -c '\.csproj' "$RUNNER_TEMP/ci/All.slnx")"
+
+      - name: Restore
+        run: dotnet restore "$RUNNER_TEMP/ci/All.slnx"
+
+      - name: Build
+        run: dotnet build "$RUNNER_TEMP/ci/All.slnx" --configuration Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test "$RUNNER_TEMP/ci/All.slnx"
+          --configuration Release
+          --no-build
+          --logger trx
+          --results-directory "$RUNNER_TEMP/test-results"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/test-results/*.trx
+          if-no-files-found: ignore
