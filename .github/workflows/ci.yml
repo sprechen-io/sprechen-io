@@ -69,6 +69,17 @@ jobs:
           --
           DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
+      - name: Merge coverage reports
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator \
+            "-reports:$RUNNER_TEMP/test-results/*/coverage.cobertura.xml" \
+            "-targetdir:$RUNNER_TEMP/coverage" \
+            "-reporttypes:Cobertura;MarkdownSummaryGithub" \
+            "-filefilters:-**/obj/**" \
+            "-assemblyfilters:-*.TestDoubles"
+          cat "$RUNNER_TEMP/coverage/SummaryGithub.md" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,16 +87,9 @@ jobs:
           name: test-results
           path: |
             ${{ runner.temp }}/test-results/*.trx
-            ${{ runner.temp }}/test-results/**/coverage.cobertura.xml
+            ${{ runner.temp }}/coverage/Cobertura.xml
           if-no-files-found: ignore
 
-      # Needs the repository secret CODACY_PROJECT_TOKEN. Without it (for
-      # example in pull requests from forks) the upload is skipped.
       - name: Upload coverage to Codacy
         if: env.CODACY_PROJECT_TOKEN != ''
-        run: |
-          mapfile -t reports < <(find "$RUNNER_TEMP/test-results" -name coverage.cobertura.xml)
-          echo "Coverage reports: ${#reports[@]}"
-          args=()
-          for report in "${reports[@]}"; do args+=(-r "$report"); done
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report "${args[@]}"
+        run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r "$RUNNER_TEMP/coverage/Cobertura.xml"
