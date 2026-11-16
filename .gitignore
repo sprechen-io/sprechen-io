@@ -223,6 +223,7 @@ publish/
 PublishScripts/
 
 # NuGet Packages
+local-feed/
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg

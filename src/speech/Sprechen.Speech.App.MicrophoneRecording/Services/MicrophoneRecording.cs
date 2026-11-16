@@ -1,4 +1,6 @@
+using MicroSharp;
 using Microsoft.JSInterop;
+using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
 namespace Sprechen.Speech.App.MicrophoneRecording.Services;
@@ -18,6 +20,7 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
     private readonly DotNetObjectReference<MicrophoneRecording> _dotNetRef;
 
     private TaskCompletionSource? _stopAttempt;
+    private IMicrophoneSession? _captureSession;
     private bool _disposed;
 
     internal MicrophoneRecording(Func<MicrophoneRecording, CancellationToken, Task> stopAsync)
@@ -33,7 +36,18 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
 
     public string MimeType { get; private set; } = string.Empty;
 
-    public IAsyncEnumerable<byte[]> Chunks => _chunks.Reader.ReadAllAsync();
+    public IAsyncEnumerable<byte[]> Chunks => _captureSession is null
+        ? _chunks.Reader.ReadAllAsync()
+        : ReadCapturedChunks();
+
+    /// <summary>Verworfene Blöcke der Bibliothekswarteschlange. Der Lookback-Ring zählt sie nicht.</summary>
+    public long CaptureDroppedChunkCount => _captureSession?.DroppedChunkCount ?? 0;
+
+    internal void AttachCapture(IMicrophoneSession session)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        _captureSession = session;
+    }
 
     public Task Completion => _stopped.Task;
 
@@ -217,11 +231,140 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
 
         CompleteStopped();
         _dotNetRef.Dispose();
+        await ReleaseAttachedCaptureAsync().ConfigureAwait(false);
+    }
+
+    private async ValueTask ReleaseAttachedCaptureAsync()
+    {
+        IMicrophoneSession? session;
+        lock (_sync)
+        {
+            session = _captureSession;
+            _captureSession = null;
+        }
+
+        if (session is not null)
+        {
+            await session.DisposeAsync().ConfigureAwait(false);
+        }
     }
 
     private void CompleteStopped()
     {
         _chunks.Writer.TryComplete();
         _stopped.TrySetResult();
+    }
+
+    private async IAsyncEnumerable<byte[]> ReadCapturedChunks(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var session = _captureSession ?? throw new InvalidOperationException("The capture session is missing.");
+        using var sessionCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        using var injectedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        await using var injected = _chunks.Reader.ReadAllAsync(injectedCancellation.Token)
+            .GetAsyncEnumerator(injectedCancellation.Token);
+        await using var captured = session.ReadChunksAsync(sessionCancellation.Token)
+            .GetAsyncEnumerator(sessionCancellation.Token);
+        var injectedMove = injected.MoveNextAsync().AsTask();
+        var capturedMove = captured.MoveNextAsync().AsTask();
+        var injectedDone = false;
+        var capturedDone = false;
+
+        while (!injectedDone || !capturedDone)
+        {
+            var completed = injectedDone
+                ? capturedMove
+                : capturedDone
+                    ? injectedMove
+                    : await Task.WhenAny(injectedMove, capturedMove).ConfigureAwait(false);
+
+            if (!injectedDone && ReferenceEquals(completed, injectedMove))
+            {
+                bool hasInjected;
+                try
+                {
+                    hasInjected = await injectedMove.ConfigureAwait(false);
+                }
+                catch (Exception)
+                {
+                    injectedDone = true;
+                    await FinishMoveAsync(sessionCancellation, capturedMove, () => capturedDone = true).ConfigureAwait(false);
+                    throw;
+                }
+
+                if (!hasInjected)
+                {
+                    injectedDone = true;
+                    if (!capturedDone && session.State == MicrophoneSessionState.Running)
+                    {
+                        await FinishMoveAsync(sessionCancellation, capturedMove, () => capturedDone = true).ConfigureAwait(false);
+                    }
+
+                    continue;
+                }
+
+                yield return injected.Current;
+                injectedMove = injected.MoveNextAsync().AsTask();
+                continue;
+            }
+
+            if (capturedDone)
+            {
+                continue;
+            }
+
+            bool hasCaptured;
+            try
+            {
+                hasCaptured = await capturedMove.ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                capturedDone = true;
+                await FinishMoveAsync(injectedCancellation, injectedMove, () => injectedDone = true).ConfigureAwait(false);
+                throw;
+            }
+
+            if (!hasCaptured)
+            {
+                capturedDone = true;
+                continue;
+            }
+
+            var payload = captured.Current.Payload;
+            if (payload.Length > 0)
+            {
+                yield return payload;
+            }
+
+            capturedMove = captured.MoveNextAsync().AsTask();
+        }
+    }
+
+    private static async Task FinishMoveAsync(
+        CancellationTokenSource cancellation,
+        Task<bool> move,
+        Action markDone)
+    {
+        try
+        {
+            await cancellation.CancelAsync().ConfigureAwait(false);
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+
+        try
+        {
+            await move.ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception)
+        {
+        }
+
+        markDone();
     }
 }

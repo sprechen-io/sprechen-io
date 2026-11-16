@@ -23,7 +23,7 @@ internal sealed class MicrophoneRecorder(
 
     private readonly object _sync = new();
     private readonly MicrophoneBrowserCapabilities _browser = new(
-        jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime)));
+        MicrophoneJsTestBridge.AdaptRuntime(jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime))));
     private readonly ILogger<MicrophoneRecorder>? _logger = logger;
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
     private readonly TimeSpan _releaseProgressTimeout = releaseProgressTimeout is { } configuredTimeout
@@ -160,12 +160,26 @@ internal sealed class MicrophoneRecorder(
             }
 
             browserConnectPending = true;
-            var mimeType = await _browser.ConnectAsync(
-                    sessionId,
-                    recording.CallbackReference,
-                    timesliceMilliseconds,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            if (MicrophoneJsTestBridge.Adapt is not null && !MicrophoneJsTestBridge.Bypass.Value)
+            {
+                MicrophoneJsTestBridge.PendingCallback.Value = recording.CallbackReference;
+            }
+
+            string mimeType;
+            try
+            {
+                mimeType = await _browser.ConnectAsync(
+                        sessionId,
+                        recording,
+                        timesliceMilliseconds,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                MicrophoneJsTestBridge.PendingCallback.Value = null;
+            }
+
             browserConnectPending = false;
             AssertReportedSampleRate(mimeType);
 
@@ -1477,6 +1491,11 @@ internal sealed class MicrophoneRecorder(
                 .AsTask()
                 .WaitAsync(_releaseProgressTimeout, _timeProvider)
                 .ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            _browser.DetachInFlightRelease(sessionId);
+            throw;
         }
         catch (JSDisconnectedException)
         {
