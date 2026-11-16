@@ -3,6 +3,7 @@ using MicroSharp;
 using MicroSharp.Browser;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
+using Xunit.Abstractions;
 
 namespace Sprechen.Speech.Runtime.Tests.Services;
 
@@ -12,6 +13,13 @@ namespace Sprechen.Speech.Runtime.Tests.Services;
 /// </summary>
 public sealed class PackageMicrophoneCaptureIntegrationTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public PackageMicrophoneCaptureIntegrationTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     [Fact]
     public async Task SyntheticPcmReachesTheRingAndSegmenter_StopRestartsAndRelease()
     {
@@ -206,6 +214,271 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         {
             MicrophoneJsTestBridge.Bypass.Value = false;
         }
+    }
+
+    [Fact]
+    public async Task OnChunkDoesNotSupplyAudioToAnAttachedRecording()
+    {
+        var js = new PackageMicrophoneJsRuntime();
+        MicrophoneJsTestBridge.Bypass.Value = true;
+        try
+        {
+            var recorder = new MicrophoneRecorder(js);
+            await using var recording = await recorder.StartAsync(CancellationToken.None);
+            var typed = Assert.IsType<MicrophoneRecording>(recording);
+            var marker = new byte[] { 9, 8, 7 };
+            typed.OnChunk(marker);
+            typed.OnError("attached callback must not fault the package reader");
+            Assert.Equal(MicrophoneSessionState.Running, js.StartedSessions.Single().State);
+
+            using var idle = new CancellationTokenSource(TimeSpan.FromMilliseconds(200));
+            var sawMarker = false;
+            try
+            {
+                await foreach (var chunk in recording.Chunks.WithCancellation(idle.Token))
+                {
+                    if (chunk.Length == marker.Length && chunk.AsSpan().SequenceEqual(marker))
+                    {
+                        sawMarker = true;
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            Assert.False(sawMarker);
+            var payload = LoudChunk();
+            js.StartedSessions.Single().OnPcmChunk(payload);
+            await using var reader = recording.Chunks.GetAsyncEnumerator();
+            Assert.True(await reader.MoveNextAsync());
+            Assert.Equal(payload, reader.Current);
+        }
+        finally
+        {
+            MicrophoneJsTestBridge.Bypass.Value = false;
+        }
+    }
+
+    [Fact]
+    public async Task ProductionRecordingWithoutASessionHasNoInjectionQueue()
+    {
+        await using var recording = new MicrophoneRecording(static (candidate, _) =>
+        {
+            candidate.OnStopped();
+            return Task.CompletedTask;
+        });
+        recording.OnChunk(new byte[] { 1, 2, 3 });
+        var failure = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        {
+            await foreach (var _ in recording.Chunks)
+            {
+            }
+        });
+
+        Assert.Contains("no capture session", failure.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task EarlyBreakAfterOnePackageChunkReleasesTheReaderWithoutStopping()
+    {
+        var js = new PackageMicrophoneJsRuntime();
+        MicrophoneJsTestBridge.Bypass.Value = true;
+        try
+        {
+            var recorder = new MicrophoneRecorder(js);
+            await using var recording = await recorder.StartAsync(CancellationToken.None);
+            var session = js.StartedSessions.Single();
+            var first = LoudChunk();
+            var second = LoudChunk();
+            second[0] = 0x11;
+            session.OnPcmChunk(first);
+            session.OnPcmChunk(second);
+
+            byte[]? observed = null;
+            await foreach (var chunk in recording.Chunks)
+            {
+                observed = chunk;
+                break;
+            }
+
+            Assert.Equal(first, observed);
+            Assert.Equal(MicrophoneSessionState.Running, session.State);
+            Assert.DoesNotContain("disconnect", js.Calls);
+
+            await using var again = recording.Chunks.GetAsyncEnumerator();
+            Assert.True(await again.MoveNextAsync());
+            Assert.Equal(second, again.Current);
+        }
+        finally
+        {
+            MicrophoneJsTestBridge.Bypass.Value = false;
+        }
+    }
+
+    [Fact]
+    public async Task CancellingAPendingReadThenDisposingLeavesThePackageSessionRunning()
+    {
+        var js = new PackageMicrophoneJsRuntime();
+        MicrophoneJsTestBridge.Bypass.Value = true;
+        try
+        {
+            var recorder = new MicrophoneRecorder(js);
+            await using var recording = await recorder.StartAsync(CancellationToken.None);
+            var session = js.StartedSessions.Single();
+            using var cancellation = new CancellationTokenSource();
+            var enumerator = recording.Chunks.GetAsyncEnumerator(cancellation.Token);
+            var pending = enumerator.MoveNextAsync();
+            await Task.Delay(50);
+            await cancellation.CancelAsync();
+
+            var canceled = await Record.ExceptionAsync(() => pending.AsTask());
+            await enumerator.DisposeAsync();
+
+            Assert.IsAssignableFrom<OperationCanceledException>(canceled);
+            Assert.Equal(MicrophoneSessionState.Running, session.State);
+            Assert.DoesNotContain("disconnect", js.Calls);
+            var payload = LoudChunk();
+            session.OnPcmChunk(payload);
+            await using var again = recording.Chunks.GetAsyncEnumerator();
+            Assert.True(await again.MoveNextAsync());
+            Assert.Equal(payload, again.Current);
+        }
+        finally
+        {
+            MicrophoneJsTestBridge.Bypass.Value = false;
+        }
+    }
+
+    [Fact]
+    public async Task StoppingWhileTheReaderWaitsCompletesWithoutChannelDisposal()
+    {
+        var js = new PackageMicrophoneJsRuntime();
+        MicrophoneJsTestBridge.Bypass.Value = true;
+        try
+        {
+            var recorder = new MicrophoneRecorder(js);
+            await using var recording = await recorder.StartAsync(CancellationToken.None);
+            await using var enumerator = recording.Chunks.GetAsyncEnumerator();
+            var pending = enumerator.MoveNextAsync();
+            await Task.Delay(50);
+            await recorder.StopAsync(CancellationToken.None);
+            var moved = await pending.AsTask().WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.False(moved);
+            Assert.Equal(1, js.Calls.Count(call => call == "disconnect"));
+            Assert.DoesNotContain("release", js.Calls);
+        }
+        finally
+        {
+            MicrophoneJsTestBridge.Bypass.Value = false;
+        }
+    }
+
+    [Fact]
+    public async Task AttachedPackageReaderMarginalAllocationStaysWithinOnePayloadCopyOfLegacyInjection()
+    {
+        const int sampleRateHz = 16_000;
+        const int bytesPerSample = 2;
+        const int chunkMs = 20;
+        const int frameBytes = sampleRateHz * bytesPerSample * chunkMs / 1000;
+        const int smallCount = 20;
+        const int largeCount = 40;
+        var chunks = new byte[largeCount][];
+        for (var index = 0; index < chunks.Length; index++)
+        {
+            chunks[index] = LoudChunk();
+        }
+
+        var legacyPerChunk = await MeasureLegacyMarginalAsync(chunks, smallCount, largeCount);
+        var attachedPerChunk = await MeasureAttachedMarginalAsync(chunks, smallCount, largeCount);
+        var ceiling = legacyPerChunk + frameBytes + 512;
+        _output.WriteLine(
+            $"legacyPerChunk={legacyPerChunk} attachedPerChunk={attachedPerChunk} frameBytes={frameBytes} ceiling={ceiling}");
+        Assert.True(
+            attachedPerChunk > frameBytes / 2,
+            $"attached path allocated ~{attachedPerChunk} B/chunk; the package copy is missing from the window.");
+        Assert.True(
+            attachedPerChunk < ceiling,
+            $"attached path allocated ~{attachedPerChunk} B/chunk; legacy ~{legacyPerChunk} B/chunk; ceiling {ceiling} allows one {frameBytes}-byte package copy plus 512 B object overhead.");
+    }
+
+    private static async Task<long> MeasureLegacyMarginalAsync(byte[][] chunks, int smallCount, int largeCount)
+    {
+        await MeasureLegacyAsync(chunks, largeCount);
+        await MeasureLegacyAsync(chunks, smallCount);
+        await MeasureLegacyAsync(chunks, largeCount);
+        var small = await MeasureLegacyAsync(chunks, smallCount);
+        var large = await MeasureLegacyAsync(chunks, largeCount);
+        return (large - small) / (largeCount - smallCount);
+    }
+
+    private static async Task<long> MeasureLegacyAsync(byte[][] chunks, int count)
+    {
+        var ring = new InMemorySpeechSampleRing(5_000);
+        var pump = new SpeechCaptureSessionPump(ring, NullLogger.Instance);
+        await using var recording = MicrophoneRecording.CreateLegacy(static (candidate, _) =>
+        {
+            candidate.OnStopped();
+            return Task.CompletedTask;
+        });
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var index = 0; index < count; index++)
+        {
+            recording.OnChunk(chunks[index]);
+        }
+
+        await recording.StopAsync();
+        await pump.RunAsync(
+            recording,
+            static (_, _) => Task.CompletedTask,
+            static _ => { },
+            CancellationToken.None);
+        return GC.GetAllocatedBytesForCurrentThread() - before;
+    }
+
+    private static async Task<long> MeasureAttachedMarginalAsync(byte[][] chunks, int smallCount, int largeCount)
+    {
+        var js = new PackageMicrophoneJsRuntime();
+        MicrophoneJsTestBridge.Bypass.Value = true;
+        try
+        {
+            var recorder = new MicrophoneRecorder(js);
+            await MeasureAttachedAsync(recorder, js, chunks, largeCount);
+            await MeasureAttachedAsync(recorder, js, chunks, smallCount);
+            await MeasureAttachedAsync(recorder, js, chunks, largeCount);
+            var small = await MeasureAttachedAsync(recorder, js, chunks, smallCount);
+            var large = await MeasureAttachedAsync(recorder, js, chunks, largeCount);
+            return (large - small) / (largeCount - smallCount);
+        }
+        finally
+        {
+            MicrophoneJsTestBridge.Bypass.Value = false;
+        }
+    }
+
+    private static async Task<long> MeasureAttachedAsync(
+        MicrophoneRecorder recorder,
+        PackageMicrophoneJsRuntime js,
+        byte[][] chunks,
+        int count)
+    {
+        var ring = new InMemorySpeechSampleRing(5_000);
+        var pump = new SpeechCaptureSessionPump(ring, NullLogger.Instance);
+        await using var recording = await recorder.StartAsync(CancellationToken.None);
+        var session = js.StartedSessions[^1];
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        for (var index = 0; index < count; index++)
+        {
+            session.OnPcmChunk(chunks[index]);
+        }
+
+        await recorder.StopAsync(CancellationToken.None);
+        await pump.RunAsync(
+            recording,
+            static (_, _) => Task.CompletedTask,
+            static _ => { },
+            CancellationToken.None);
+        return GC.GetAllocatedBytesForCurrentThread() - before;
     }
 
     private static byte[] LoudChunk()

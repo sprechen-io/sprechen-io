@@ -7,10 +7,10 @@ using Sprechen.Speech.Runtime.Tests.TestDoubles;
 namespace Sprechen.Speech.Runtime.Tests.Capture;
 
 /// <summary>
-/// Misst Allokationen vom Mikrofoncallback über Kanäle, Sitzungspumpe, Ring und
-/// Verteiler bis zu einer angemeldeten lokalen Audioquelle. Die 664-Byte-Arrays als
-/// Interop-Ersatz entstehen vor dem Messfenster. Das Budget erlaubt eine Kopie des
-/// 640-Byte-Audioblocks sowie Wachstum der beiden unbegrenzten Kanäle.
+/// Misst den ausdrücklich ungebundenen Altpfad über <c>OnChunk</c>. Eine verbundene
+/// Paketaufnahme legt diesen Kanal nicht an und wird hier nicht gemessen. Die
+/// 664-Byte-Arrays entstehen vor dem Messfenster. Das Budget gilt nur für diesen
+/// Altpfad: eine Kopie des 640-Byte-Blocks plus Wachstum der unbegrenzten Kanäle.
 /// </summary>
 public sealed class SpeechCaptureChunkPathAllocationTests
 {
@@ -71,7 +71,7 @@ public sealed class SpeechCaptureChunkPathAllocationTests
         int offset,
         int count)
     {
-        var recording = new MicrophoneRecording(static (_, _) => Task.CompletedTask);
+        var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
         var pump = new SpeechCaptureSessionPump(ring, NullLogger.Instance);
         for (var i = 0; i < count; i++)
         {

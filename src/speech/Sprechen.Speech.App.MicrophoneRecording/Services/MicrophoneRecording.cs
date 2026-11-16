@@ -1,13 +1,13 @@
+using System.Runtime.CompilerServices;
 using MicroSharp;
 using Microsoft.JSInterop;
-using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
 namespace Sprechen.Speech.App.MicrophoneRecording.Services;
 
 /// <summary>
-/// Verbindet Browserrückrufe mit einem asynchronen Audiokanal und dessen Abschluss,
-/// damit Aufrufer eine Aufnahme einschließlich Fehlern und Stoppen gemeinsam verfolgen können.
+/// Verfolgt eine Aufnahme bis zum Stoppen. Eine angehängte Paketsitzung liefert ihre
+/// Blöcke direkt; der unbegrenzte Rückrufkanal bleibt auf die explizite Legacy-Erzeugung beschränkt.
 /// </summary>
 public sealed class MicrophoneRecording : IMicrophoneRecording
 {
@@ -15,7 +15,7 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
 
     private readonly object _sync = new();
     private readonly Func<MicrophoneRecording, CancellationToken, Task> _stopAsync;
-    private readonly Channel<byte[]> _chunks;
+    private readonly Channel<byte[]>? _legacyChunks;
     private readonly TaskCompletionSource _stopped;
     private readonly DotNetObjectReference<MicrophoneRecording> _dotNetRef;
 
@@ -23,22 +23,37 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
     private IMicrophoneSession? _captureSession;
     private bool _disposed;
 
+    internal static MicrophoneRecording CreateLegacy(
+        Func<MicrophoneRecording, CancellationToken, Task> stopAsync)
+        => new(stopAsync, legacyInjection: true);
+
     internal MicrophoneRecording(Func<MicrophoneRecording, CancellationToken, Task> stopAsync)
+        : this(stopAsync, legacyInjection: false)
+    {
+    }
+
+    private MicrophoneRecording(
+        Func<MicrophoneRecording, CancellationToken, Task> stopAsync,
+        bool legacyInjection)
     {
         _stopAsync = stopAsync ?? throw new ArgumentNullException(nameof(stopAsync));
-        _chunks = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions
+        if (legacyInjection)
         {
-            SingleReader = true
-        });
+            _legacyChunks = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions
+            {
+                SingleReader = true
+            });
+        }
+
         _stopped = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _dotNetRef = DotNetObjectReference.Create(this);
     }
 
     public string MimeType { get; private set; } = string.Empty;
 
-    public IAsyncEnumerable<byte[]> Chunks => _captureSession is null
-        ? _chunks.Reader.ReadAllAsync()
-        : ReadCapturedChunks();
+    public IAsyncEnumerable<byte[]> Chunks => _captureSession is not null
+        ? ReadPackageChunks(_captureSession)
+        : ReadLegacyChunks();
 
     /// <summary>Verworfene Blöcke der Bibliothekswarteschlange. Der Lookback-Ring zählt sie nicht.</summary>
     public long CaptureDroppedChunkCount => _captureSession?.DroppedChunkCount ?? 0;
@@ -113,7 +128,7 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
 
         if (completed != _stopped.Task)
         {
-            _chunks.Writer.TryComplete(new TimeoutException("Microphone recorder stop timed out."));
+            CompleteLegacy(new TimeoutException("Microphone recorder stop timed out."));
             _stopped.TrySetResult();
         }
 
@@ -123,24 +138,24 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
     [JSInvokable]
     public void OnChunk(byte[] bytes)
     {
-        if (_disposed || bytes is null || bytes.Length == 0)
+        if (_disposed || _captureSession is not null || _legacyChunks is null || bytes is null || bytes.Length == 0)
         {
             return;
         }
 
-        _chunks.Writer.TryWrite(bytes);
+        _legacyChunks.Writer.TryWrite(bytes);
     }
 
     [JSInvokable]
     public void OnError(string message)
     {
-        if (_disposed)
+        if (_disposed || _captureSession is not null || _legacyChunks is null)
         {
             return;
         }
 
         var exception = new InvalidOperationException(string.IsNullOrWhiteSpace(message) ? "Microphone recorder error." : message);
-        _chunks.Writer.TryComplete(exception);
+        CompleteLegacy(exception);
         _stopped.TrySetResult();
     }
 
@@ -174,7 +189,7 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
             return;
         }
 
-        _chunks.Writer.TryComplete(exception);
+        CompleteLegacy(exception);
         _stopped.TrySetResult();
         _disposed = true;
         _dotNetRef.Dispose();
@@ -251,120 +266,50 @@ public sealed class MicrophoneRecording : IMicrophoneRecording
 
     private void CompleteStopped()
     {
-        _chunks.Writer.TryComplete();
+        CompleteLegacy();
         _stopped.TrySetResult();
     }
 
-    private async IAsyncEnumerable<byte[]> ReadCapturedChunks(
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    private void CompleteLegacy(Exception? error = null)
     {
-        var session = _captureSession ?? throw new InvalidOperationException("The capture session is missing.");
-        using var sessionCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        using var injectedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        await using var injected = _chunks.Reader.ReadAllAsync(injectedCancellation.Token)
-            .GetAsyncEnumerator(injectedCancellation.Token);
-        await using var captured = session.ReadChunksAsync(sessionCancellation.Token)
-            .GetAsyncEnumerator(sessionCancellation.Token);
-        var injectedMove = injected.MoveNextAsync().AsTask();
-        var capturedMove = captured.MoveNextAsync().AsTask();
-        var injectedDone = false;
-        var capturedDone = false;
-
-        while (!injectedDone || !capturedDone)
+        if (_legacyChunks is null)
         {
-            var completed = injectedDone
-                ? capturedMove
-                : capturedDone
-                    ? injectedMove
-                    : await Task.WhenAny(injectedMove, capturedMove).ConfigureAwait(false);
+            return;
+        }
 
-            if (!injectedDone && ReferenceEquals(completed, injectedMove))
-            {
-                bool hasInjected;
-                try
-                {
-                    hasInjected = await injectedMove.ConfigureAwait(false);
-                }
-                catch (Exception)
-                {
-                    injectedDone = true;
-                    await FinishMoveAsync(sessionCancellation, capturedMove, () => capturedDone = true).ConfigureAwait(false);
-                    throw;
-                }
-
-                if (!hasInjected)
-                {
-                    injectedDone = true;
-                    if (!capturedDone && session.State == MicrophoneSessionState.Running)
-                    {
-                        await FinishMoveAsync(sessionCancellation, capturedMove, () => capturedDone = true).ConfigureAwait(false);
-                    }
-
-                    continue;
-                }
-
-                yield return injected.Current;
-                injectedMove = injected.MoveNextAsync().AsTask();
-                continue;
-            }
-
-            if (capturedDone)
-            {
-                continue;
-            }
-
-            bool hasCaptured;
-            try
-            {
-                hasCaptured = await capturedMove.ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                capturedDone = true;
-                await FinishMoveAsync(injectedCancellation, injectedMove, () => injectedDone = true).ConfigureAwait(false);
-                throw;
-            }
-
-            if (!hasCaptured)
-            {
-                capturedDone = true;
-                continue;
-            }
-
-            var payload = captured.Current.Payload;
-            if (payload.Length > 0)
-            {
-                yield return payload;
-            }
-
-            capturedMove = captured.MoveNextAsync().AsTask();
+        if (error is null)
+        {
+            _legacyChunks.Writer.TryComplete();
+        }
+        else
+        {
+            _legacyChunks.Writer.TryComplete(error);
         }
     }
 
-    private static async Task FinishMoveAsync(
-        CancellationTokenSource cancellation,
-        Task<bool> move,
-        Action markDone)
+    private IAsyncEnumerable<byte[]> ReadLegacyChunks()
     {
-        try
+        if (_legacyChunks is null)
         {
-            await cancellation.CancelAsync().ConfigureAwait(false);
-        }
-        catch (ObjectDisposedException)
-        {
+            throw new InvalidOperationException("This recording has no capture session.");
         }
 
-        try
-        {
-            await move.ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception)
-        {
-        }
+        return _legacyChunks.Reader.ReadAllAsync();
+    }
 
-        markDone();
+    private async IAsyncEnumerable<byte[]> ReadPackageChunks(
+        IMicrophoneSession session,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (var chunk in session.ReadChunksAsync(cancellationToken).ConfigureAwait(false))
+        {
+            var payload = chunk.Payload;
+            if (payload.Length == 0)
+            {
+                continue;
+            }
+
+            yield return payload;
+        }
     }
 }

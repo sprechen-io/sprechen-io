@@ -316,8 +316,8 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var firstRecording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
-        await using var secondRecording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var firstRecording = CreateInjectedRecording();
+        await using var secondRecording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -395,7 +395,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -487,7 +487,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -550,7 +550,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -617,7 +617,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -701,7 +701,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -781,7 +781,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -860,7 +860,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -947,7 +947,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -1038,7 +1038,7 @@ public sealed class SpeechCaptureClientTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -1139,6 +1139,17 @@ public sealed class SpeechCaptureClientTests : TestContext
         {
             recording.OnChunk(CreateSilenceChunkMs(20));
         }
+    }
+
+    private static MicrophoneRecording CreateInjectedRecording()
+    {
+        var recording = MicrophoneRecording.CreateLegacy(static (candidate, _) =>
+        {
+            candidate.OnStopped();
+            return Task.CompletedTask;
+        });
+        recording.SetMimeType("audio/pcm;rate=16000");
+        return recording;
     }
 
     private static byte[] CreatePcmChunk(int durationMs, short sampleValue)

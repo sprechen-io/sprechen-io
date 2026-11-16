@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mikrofonharness</title>
+    <base href="/" />
+    <link rel="preload" id="webassembly" />
+    <script type="importmap"></script>
+    <script>
+        (function () {
+            var probe = {
+                gumCount: 0,
+                contextCount: 0,
+                contexts: [],
+                tracks: [],
+                enabledChanges: []
+            };
+            window.__micProbe = probe;
+
+            function publish() {
+                var node = document.getElementById("mic-probe");
+                if (!node) {
+                    return;
+                }
+
+                node.textContent = JSON.stringify({
+                    gumCount: probe.gumCount,
+                    contextCount: probe.contextCount,
+                    contexts: probe.contexts.map(function (context) { return String(context.state); }),
+                    tracks: probe.tracks.map(function (track) {
+                        return { enabled: track.enabled === true, readyState: String(track.readyState) };
+                    }),
+                    enabledChanges: probe.enabledChanges.slice()
+                });
+            }
+
+            function watchTrack(track) {
+                var proto = Object.getPrototypeOf(track);
+                var desc = Object.getOwnPropertyDescriptor(track, "enabled")
+                    || (proto && Object.getOwnPropertyDescriptor(proto, "enabled"))
+                    || Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, "enabled");
+                var stored = track.enabled === true;
+                Object.defineProperty(track, "enabled", {
+                    configurable: true,
+                    enumerable: true,
+                    get: function () {
+                        return desc && desc.get ? desc.get.call(track) : stored;
+                    },
+                    set: function (value) {
+                        var next = value === true;
+                        stored = next;
+                        probe.enabledChanges.push(next);
+                        if (desc && desc.set) {
+                            desc.set.call(track, next);
+                        }
+
+                        publish();
+                    }
+                });
+                probe.tracks.push(track);
+                track.addEventListener("ended", publish);
+            }
+
+            var originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+            navigator.mediaDevices.getUserMedia = function (constraints) {
+                probe.gumCount += 1;
+                publish();
+                return originalGetUserMedia(constraints).then(function (stream) {
+                    stream.getTracks().forEach(watchTrack);
+                    publish();
+                    return stream;
+                });
+            };
+
+            function wrapContext(name) {
+                var Original = window[name];
+                if (typeof Original !== "function") {
+                    return;
+                }
+
+                var Wrapped = class extends Original {
+                    constructor() {
+                        super(...arguments);
+                        probe.contextCount += 1;
+                        probe.contexts.push(this);
+                        this.addEventListener("statechange", publish);
+                        publish();
+                    }
+                };
+                window[name] = Wrapped;
+            }
+
+            wrapContext("AudioContext");
+            wrapContext("webkitAudioContext");
+            window.__micProbePublish = publish;
+            document.addEventListener("DOMContentLoaded", publish);
+        })();
+    </script>
+</head>
+
+<body>
+    <pre id="mic-probe"></pre>
+    <div id="app">loading</div>
+    <div id="blazor-error-ui">
+        Ein Fehler hat die Seite beendet.
+        <a href="." class="reload">Neu laden</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+</body>
+
+</html>

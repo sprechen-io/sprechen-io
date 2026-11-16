@@ -31,11 +31,8 @@ public sealed class GrpcAudioChunkOwnerTests : TestContext
     [Fact]
     public async Task WriteAsync_FromMicrophoneChunks_WhenLanguageCodeProvided_SendsLanguageCodeOnlyOnFirstChunk()
     {
-        JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true).SetResult(new MicrophoneAcquisitionDto { SessionId = "1" });
-        JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
-        JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
-
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20);
+        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
+        recording.SetMimeType("audio/pcm;rate=16000");
         var writer = new CollectingClientStreamWriter<AudioChunk>();
 
         var writeTask = new GrpcAudioChunkSendLoop().WriteAsync(

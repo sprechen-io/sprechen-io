@@ -45,7 +45,7 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
 
         var enumerator = recording.Chunks.GetAsyncEnumerator();
 
@@ -66,7 +66,7 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
 
         recording.OnError("boom");
 
@@ -199,7 +199,7 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
 
         var enumerator = recording.Chunks.GetAsyncEnumerator();
 
@@ -220,7 +220,7 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
 
         recording.OnError("  ");
 

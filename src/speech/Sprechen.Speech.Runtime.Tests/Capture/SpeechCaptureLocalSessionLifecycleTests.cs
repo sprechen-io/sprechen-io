@@ -138,7 +138,7 @@ public sealed class SpeechCaptureLocalSessionLifecycleTests
     {
         var callbackEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var releaseCallback = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var recording = new MicrophoneRecording((candidate, _) =>
+        var recording = MicrophoneRecording.CreateLegacy((candidate, _) =>
         {
             candidate.OnStopped();
             return Task.CompletedTask;

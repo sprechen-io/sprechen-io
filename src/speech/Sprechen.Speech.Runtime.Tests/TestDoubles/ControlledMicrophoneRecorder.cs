@@ -63,7 +63,7 @@ internal sealed class ControlledMicrophoneRecorder : IMicrophoneRecorder
             await _beforeStartCompletesAsync(startCall, cancellationToken).ConfigureAwait(false);
         }
 
-        var recording = new MicrophoneRecording(StopRecordingAsync);
+        var recording = MicrophoneRecording.CreateLegacy(StopRecordingAsync);
         recording.SetMimeType("audio/pcm");
         _currentRecording = recording;
         _afterStart?.Invoke(startCall);

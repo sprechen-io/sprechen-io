@@ -345,8 +345,8 @@ public sealed class SpeechCaptureSessionCoordinatorTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var firstRecording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
-        await using var secondRecording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
+        await using var firstRecording = CreateInjectedRecording();
+        await using var secondRecording = CreateInjectedRecording();
 
         var microphoneRecorder = new Mock<IMicrophoneRecorder>(MockBehavior.Strict);
         microphoneRecorder
@@ -415,5 +415,16 @@ public sealed class SpeechCaptureSessionCoordinatorTests : TestContext
             await coordinator.StopAsync(static _ => { }, CancellationToken.None);
             coordinator.Dispose();
         }
+    }
+
+    private static MicrophoneRecording CreateInjectedRecording()
+    {
+        var recording = MicrophoneRecording.CreateLegacy(static (candidate, _) =>
+        {
+            candidate.OnStopped();
+            return Task.CompletedTask;
+        });
+        recording.SetMimeType("audio/pcm;rate=16000");
+        return recording;
     }
 }

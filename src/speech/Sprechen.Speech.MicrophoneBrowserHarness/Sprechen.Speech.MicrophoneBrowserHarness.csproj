@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+    <!-- Die vorgefertigte Browser-Laufzeit reicht. Eine native Neulinkung ist für die Aufnahme nicht nötig. -->
+    <WasmBuildNative>false</WasmBuildNative>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sprechen.Speech.App.MicrophoneRecording\Sprechen.Speech.App.MicrophoneRecording.csproj" />
+    <ProjectReference Include="..\Sprechen.Speech.App.CaptureRuntime\Sprechen.Speech.App.CaptureRuntime.csproj" />
+  </ItemGroup>
+
+</Project>

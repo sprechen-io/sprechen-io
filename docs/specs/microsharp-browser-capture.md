@@ -25,6 +25,38 @@ Der Browseradapter unterstützt nur `DropOldest`.
 - Ein Leseabbruch nimmt den nächsten Block nicht aus der Warteschlange und beendet die Quelle nicht.
 - Ein zu kurzer oder zu langer Block beendet die Sitzung mit einem Formatfehler.
 
+## Direkter Lesepfad
+
+Eine angehängte Aufnahme liest `IMicrophoneSession.ReadChunksAsync` und gibt die Nutzlast des Blocks weiter. Der unbegrenzte Rückrufkanal entsteht nur in der expliziten Legacy-Erzeugung für unangehängte Prüfungen. Nach dem Anhängen schreibt `OnChunk` nicht in diesen Kanal.
+
+Ein Abbruch nach einem gelesenen Block gibt den Leser frei und lässt die Sitzung laufen. Der nächste Leser erhält den folgenden gültigen Block. Ein ausstehendes Lesen wird über das Abbruchtoken beendet, abgewartet und danach freigegeben. Die Sitzung bleibt laufend und kann erneut gelesen werden.
+
+## Prüfung im Browser
+
+`scripts/run-microphone-browser-harness.sh` veröffentlicht `Sprechen.Speech.MicrophoneBrowserHarness` und startet es in headless Chromium mit einer synthetischen Aufnahmedatei. Das Projekt referenziert die Anwendungsprojekte für Mikrofon und Aufnahme-Laufzeit und registriert `AddMicrophoneRecording`. Dieselbe Instanz bedient Rekorder, Lesespur und Sperre.
+
+Die Veröffentlichung verwendet die mitgelieferte WebAssembly-Laufzeit. Eine native Neulinkung ist für die Aufnahme nicht nötig. Laufzeit-Async bleibt aus.
+
+Der Lauf prüft die gehaltene Quelle nach der Anforderung, die geschlossene Sperre vor dem Start, Stummschaltung und erneutes Öffnen während der Aufnahme, Stopp und Neustart auf derselben Quelle, die Freigabe von Spur und Audiokontext und von null verschiedenes PCM im Ring. Die ausgelieferte `microsharp-capture.js` muss dem Hash im lokalen Paket entsprechen. `microphoneRecorder.js` und `pcmRecorderProcessor.js` werden dabei nicht geladen.
+
+Geskriptete Browser-Doubles bleiben eine eigene Prüfung. Das veröffentlichte Bibliotheksbeispiel ist ein eigener Lauf. Der Anwendungs-Harness deckt das geänderte Browserverhalten mit dem JavaScript aus dem lokalen Paket ab.
+
+## Gemessener Pfad
+
+Am angehängten Leser wurden 718 Byte je Block gemessen, am unangehängten Legacy-Pfad 48 Byte. Der Block hat 640 Byte. Die Prüfung verwendet eine strukturelle Obergrenze von 1200 Byte. Das ist keine Laufzeitzusage.
+
+Ring und Segmentierer der Anwendung, kurzer Lauf mit drei Iterationen:
+
+| Pfad | Mittelwert | Zuweisung |
+| --- | --- | --- |
+| Ring, ein Block schreiben und lesen | 66,63 ns | keine zusätzliche Zuweisung |
+| Segmentierer vor bestätigter Sprache | 1.659,94 ns | 2992 Byte |
+| Segmentierer nach bestätigter Sprache | 14.208,41 ns | 3032 Byte |
+| Typische Äußerung, Stille 960 ms | 14.509,46 ns | 3032 Byte |
+| Typische Äußerung, Stille 3000 ms | 28.335,16 ns | 3032 Byte |
+
+Diese Zeiten messen Ring und Segmentierer. Sie messen nicht den Paketleser. Bei drei Iterationen ist das Konfidenzintervall weit. Die Werte sind keine Laufzeitzusage. Die Live-Warteschlange der Bibliothek bleibt bei 50 Blöcken mit `DropOldest`. Der Vorlauf-Ring bleibt in der Anwendung.
+
 ## Grenzen dieser Prüfung
 
 Die Prüfung verwendet eine nachgebildete Browser-Laufzeit und ein synthetisches PCM-Signal. Sie öffnet kein physisches Mikrofon und ruft keinen Sprachdienst auf.
@@ -34,3 +66,5 @@ Das Paket verwendet `AudioContext` des Browsers. Die Seite kann `standardized-au
 Laufzeit-Async des WebAssembly-Laufzeitsystems bleibt aus. Threads und AOT sind für diesen Pfad nicht eingeschaltet.
 
 Die lokale Paketversion 0.1.0 ist an den hier gepackten Quellstand gebunden. Ein gleichlautendes Paket aus einem anderen Cache darf die Prüfung nicht erfüllen. Dafür ist `NUGET_PACKAGES` bei jeder Wiederherstellung ein neues Verzeichnis.
+
+Die Windows-Prüfung des nativen Adapters bleibt ein eigener Lauf. Dieser Stand prüft den Linux-Ladeweg und ein privates virtuelles Aufnahmegerät. Der native Quelltext ist gegenüber der öffentlichen Qualifikation unverändert. Die lokale Bibliotheksänderung betrifft den Browser.

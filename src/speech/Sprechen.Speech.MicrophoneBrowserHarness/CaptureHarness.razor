@@ -1,0 +1,141 @@
+@implements IAsyncDisposable
+@inject MicrophoneRecorder Recorder
+@inject IMicrophoneRecorder PublicRecorder
+@inject IMicGateBrowserBridge Gate
+@inject ICaptureTrackProcessingReader Tracks
+@inject InMemorySpeechSampleRing Ring
+@inject ILogger<CaptureHarness> Logger
+
+<pre id="harness-status">@Status</pre>
+<button id="request-access" disabled="@_busy" @onclick="RequestAccess">Zugriff anfordern</button>
+<button id="close-gate" disabled="@_busy" @onclick="CloseGate">Sperre zu</button>
+<button id="open-gate" disabled="@_busy" @onclick="OpenGate">Sperre auf</button>
+<button id="start" disabled="@_busy" @onclick="Start">Start</button>
+<button id="stop" disabled="@_busy" @onclick="Stop">Stopp</button>
+<button id="release" disabled="@_busy" @onclick="Release">Freigabe</button>
+
+@code {
+    private PcmSpeechCaptureSegmenter _segmenter = null!;
+    private IMicrophoneRecording? _recording;
+    private Task? _pumpTask;
+    private bool _busy;
+    private bool _sameInstance;
+    private bool _nonzero;
+    private bool _speechStarted;
+    private int _chunkCount;
+    private string _phase = "starting";
+    private string _error = "";
+
+    protected override void OnInitialized()
+    {
+        _sameInstance = ReferenceEquals(Recorder, PublicRecorder)
+            && ReferenceEquals(Recorder, Gate)
+            && ReferenceEquals(Recorder, Tracks);
+        _segmenter = new PcmSpeechCaptureSegmenter(
+            SpeechAudioMimeType.Pcm,
+            silenceDebounceMs: 3_000,
+            new PcmSpeechCaptureSegmenterOptions());
+        _phase = "ready";
+    }
+
+    private string Status =>
+        $"phase={_phase}\nsameInstance={Bool(_sameInstance)}\nchunkCount={_chunkCount}\nnonzeroPcm={Bool(_nonzero)}\nspeechStarted={Bool(_speechStarted)}\nringBytes={Ring.WriteByteIndex}\nerror={_error}";
+
+    private async Task RequestAccess() => await Run("access-held", () => Recorder.RequestAccessAsync(CancellationToken.None));
+
+    private async Task CloseGate() => await Run("gate-closed", () => Gate.SetMicGateAsync(false, CancellationToken.None));
+
+    private async Task OpenGate() => await Run("gate-open", () => Gate.SetMicGateAsync(true, CancellationToken.None));
+
+    private async Task Start()
+    {
+        await Run("recording", async () =>
+        {
+            _recording = await Recorder.StartAsync(CancellationToken.None);
+            var recording = _recording;
+            _pumpTask = new SpeechCaptureSessionPump(Ring, Logger).RunAsync(
+                recording,
+                ProcessChunkAsync,
+                OnFailed,
+                CancellationToken.None);
+        });
+    }
+
+    private async Task Stop()
+    {
+        await Run("stopped", async () =>
+        {
+            await Recorder.StopAsync(CancellationToken.None);
+            if (_pumpTask is not null)
+            {
+                await _pumpTask.WaitAsync(TimeSpan.FromSeconds(5));
+            }
+        });
+    }
+
+    private async Task Release() => await Run("released", () => Recorder.ReleaseAsync(CancellationToken.None));
+
+    private async Task Run(string phase, Func<Task> action)
+    {
+        _busy = true;
+        _error = "";
+        try
+        {
+            await action();
+            _phase = phase;
+        }
+        catch (Exception exception)
+        {
+            _error = exception.GetType().Name + ": " + exception.Message.Replace('\n', ' ');
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private Task ProcessChunkAsync(byte[] chunk, CancellationToken cancellationToken)
+    {
+        _chunkCount++;
+        if (chunk.Length == 640)
+        {
+            for (var index = 0; index < chunk.Length; index++)
+            {
+                if (chunk[index] != 0)
+                {
+                    _nonzero = true;
+                    break;
+                }
+            }
+        }
+
+        if (_segmenter.ProcessChunk(chunk).SpeechStarted)
+        {
+            _speechStarted = true;
+        }
+
+        _ = InvokeAsync(StateHasChanged);
+        return Task.CompletedTask;
+    }
+
+    private void OnFailed(Exception exception)
+    {
+        if (exception is SpeechCaptureSessionEndedException)
+        {
+            return;
+        }
+
+        _error = exception.GetType().Name + ": " + exception.Message.Replace('\n', ' ');
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private static string Bool(bool value) => value ? "true" : "false";
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_recording is not null)
+        {
+            await _recording.DisposeAsync();
+        }
+    }
+}
