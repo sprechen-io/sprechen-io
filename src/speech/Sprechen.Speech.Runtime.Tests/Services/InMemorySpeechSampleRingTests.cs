@@ -12,8 +12,13 @@ public sealed class InMemorySpeechSampleRingTests
     [Fact]
     public void Constructor_rejects_non_positive_lookback()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new InMemorySpeechSampleRing(0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new InMemorySpeechSampleRing(-5));
+        var zero = Assert.Throws<ArgumentOutOfRangeException>(() => new InMemorySpeechSampleRing(0));
+        var negative = Assert.Throws<ArgumentOutOfRangeException>(() => new InMemorySpeechSampleRing(-5));
+        var overflow = Assert.Throws<ArgumentOutOfRangeException>(() => new InMemorySpeechSampleRing(67_108_864));
+
+        Assert.Equal("maxLookbackMs", zero.ParamName);
+        Assert.Equal("maxLookbackMs", negative.ParamName);
+        Assert.Equal("maxLookbackMs", overflow.ParamName);
     }
 
     [Fact]

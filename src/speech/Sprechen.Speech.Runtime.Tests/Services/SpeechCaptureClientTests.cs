@@ -1132,7 +1132,7 @@ public sealed class SpeechCaptureClientTests : TestContext
     /// Speist für diese Testkonfiguration Stille über den modellierten Mindestwert hinaus ein.
     /// Die zusätzlichen 100 ms vermeiden einen Abschluss genau an der Grenze.
     /// </summary>
-    private static void FeedClosingSilence(MicrophoneRecording recording, SpeechCaptureMode mode)
+    private static void FeedClosingSilence(ScriptedMicrophoneRecording recording, SpeechCaptureMode mode)
     {
         var required = (SpeechCaptureProfileCatalogReader.GetSilenceDebounceMs(mode) ?? 0) + 100;
         for (var fed = 0; fed < required; fed += 20)
@@ -1141,9 +1141,9 @@ public sealed class SpeechCaptureClientTests : TestContext
         }
     }
 
-    private static MicrophoneRecording CreateInjectedRecording()
+    private static ScriptedMicrophoneRecording CreateInjectedRecording()
     {
-        var recording = MicrophoneRecording.CreateLegacy(static (candidate, _) =>
+        var recording = ScriptedMicrophoneRecording.Create(static (candidate, _) =>
         {
             candidate.OnStopped();
             return Task.CompletedTask;

@@ -138,7 +138,7 @@ public sealed class SpeechCaptureLocalSessionLifecycleTests
     {
         var callbackEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var releaseCallback = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var recording = MicrophoneRecording.CreateLegacy((candidate, _) =>
+        var recording = ScriptedMicrophoneRecording.Create((candidate, _) =>
         {
             candidate.OnStopped();
             return Task.CompletedTask;
@@ -519,7 +519,7 @@ public sealed class SpeechCaptureLocalSessionLifecycleTests
     public async Task DisposeAsync_DuringPendingBrowserAcquisition_TimesOutWhileOwnerCleanupContinues()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         var lifecycle = CreateLifecycle(recorder, TimeSpan.FromSeconds(30));
         var access = lifecycle.RequestMicrophoneAccessAsync(CancellationToken.None);
         await jsRuntime.WaitForAcquisitionAsync();

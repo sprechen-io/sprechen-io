@@ -1,4 +1,7 @@
+using System.Reflection;
 using Bunit;
+using MicroSharp;
+using MicroSharp.Browser;
 using Microsoft.JSInterop;
 
 namespace Sprechen.Speech.Runtime.Tests.Services;
@@ -8,12 +11,19 @@ public sealed class MicrophoneRecordingTests : TestContext
     [Fact]
     public void PublicSurface_HasNoStaticStartFactoryOutsideTheLifecycleOwner()
     {
-        var factories = typeof(MicrophoneRecording)
+        var type = typeof(MicrophoneRecording);
+        var factories = type
             .GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
             .Where(method => method.Name == "StartAsync")
             .ToArray();
 
         Assert.Empty(factories);
+        foreach (var name in new[] { "OnChunk", "OnError", "OnStopped", "OnBrowserSessionEnded", "CreateLegacy" })
+        {
+            Assert.Null(type.GetMethod(
+                name,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static));
+        }
     }
 
     [Fact]
@@ -33,7 +43,6 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
         await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
-        recording.OnStopped();
 
         Assert.Equal("audio/pcm;rate=16000", recording.MimeType);
     }
@@ -45,17 +54,19 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
-
+        var js = new PackageMicrophoneJsRuntime();
+        var recorder = MicrophoneTestRecorder.Create(js);
+        await using var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
+        var payload = FullChunk(1);
         var enumerator = recording.Chunks.GetAsyncEnumerator();
 
         Assert.False(recording.Completion.IsCompleted);
-        recording.OnChunk(new byte[] { 1, 2 });
-        recording.OnStopped();
+        js.StartedSessions.Single().OnPcmChunk(payload);
+        await recording.StopAsync(CancellationToken.None);
         Assert.True(recording.Completion.IsCompleted);
 
         Assert.True(await enumerator.MoveNextAsync());
-        Assert.Equal(new byte[] { 1, 2 }, enumerator.Current);
+        Assert.Equal(payload, enumerator.Current);
         Assert.False(await enumerator.MoveNextAsync());
     }
 
@@ -66,12 +77,13 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
-
-        recording.OnError("boom");
+        var js = new PackageMicrophoneJsRuntime();
+        var recorder = MicrophoneTestRecorder.Create(js);
+        await using var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
+        await js.StartedSessions.Single().OnCaptureFault("boom");
 
         var enumerator = recording.Chunks.GetAsyncEnumerator();
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        var exception = await Assert.ThrowsAsync<MicrophoneException>(async () =>
         {
             while (await enumerator.MoveNextAsync())
             {
@@ -90,10 +102,7 @@ public sealed class MicrophoneRecordingTests : TestContext
 
         await using var recording = await MicrophoneRecordingTestFactory.StartAsync(JSInterop.JSRuntime, timesliceMilliseconds: 20, CancellationToken.None);
 
-        var stopTask = recording.StopAsync(CancellationToken.None).AsTask();
-        recording.OnStopped();
-
-        await stopTask;
+        await recording.StopAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -125,8 +134,6 @@ public sealed class MicrophoneRecordingTests : TestContext
 
         var firstStop = recording.StopAsync(CancellationToken.None).AsTask();
         var secondStop = recording.StopAsync(CancellationToken.None).AsTask();
-
-        recording.OnStopped();
 
         await Task.WhenAll(firstStop, secondStop);
     }
@@ -199,17 +206,20 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
-
+        var js = new PackageMicrophoneJsRuntime();
+        var recorder = MicrophoneTestRecorder.Create(js);
+        await using var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
+        var session = js.StartedSessions.Single();
+        var payload = FullChunk(2);
         var enumerator = recording.Chunks.GetAsyncEnumerator();
 
-        recording.OnChunk(null!);
-        recording.OnChunk(Array.Empty<byte>());
-        recording.OnChunk(new byte[] { 1, 2 });
-        recording.OnStopped();
+        session.OnPcmChunk(null);
+        session.OnPcmChunk(Array.Empty<byte>());
+        session.OnPcmChunk(payload);
+        await recording.StopAsync(CancellationToken.None);
 
         Assert.True(await enumerator.MoveNextAsync());
-        Assert.Equal(new byte[] { 1, 2 }, enumerator.Current);
+        Assert.Equal(payload, enumerator.Current);
         Assert.False(await enumerator.MoveNextAsync());
     }
 
@@ -220,19 +230,20 @@ public sealed class MicrophoneRecordingTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
-
-        recording.OnError("  ");
+        var js = new PackageMicrophoneJsRuntime();
+        var recorder = MicrophoneTestRecorder.Create(js);
+        await using var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
+        await js.StartedSessions.Single().OnCaptureFault("  ");
 
         var enumerator = recording.Chunks.GetAsyncEnumerator();
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        var exception = await Assert.ThrowsAsync<MicrophoneException>(async () =>
         {
             while (await enumerator.MoveNextAsync())
             {
             }
         });
 
-        Assert.Contains("Microphone recorder error.", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Browser microphone capture failed.", exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -251,5 +262,12 @@ public sealed class MicrophoneRecordingTests : TestContext
         await recording.DisposeAsync();
 
         JSInterop.VerifyInvoke("micRecorder.disconnect", calledTimes: 2);
+    }
+
+    private static byte[] FullChunk(byte marker)
+    {
+        var bytes = new byte[new PcmFormat(16_000, TimeSpan.FromMilliseconds(20)).BytesPerChunk];
+        bytes[0] = marker;
+        return bytes;
     }
 }

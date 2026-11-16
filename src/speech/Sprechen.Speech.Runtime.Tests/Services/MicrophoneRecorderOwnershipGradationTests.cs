@@ -11,7 +11,7 @@ public sealed class MicrophoneRecorderOwnershipGradationTests
     {
         // Der Fehler des älteren Aufrufs darf den inzwischen geänderten Gatezustand nicht verhindern.
         var jsRuntime = new DelayedGateJsRuntime(firstGateFails: true);
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         var staleGateWrite = recorder.SetMicGateAsync(false, CancellationToken.None);
@@ -33,7 +33,7 @@ public sealed class MicrophoneRecorderOwnershipGradationTests
     {
         // Ein verspäteter Fehler für die alte Sitzung darf die inzwischen gestartete Sitzung nicht freigeben.
         var jsRuntime = new ReplacedSessionGateJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         var staleGateWrite = recorder.SetMicGateAsync(false, CancellationToken.None);
@@ -49,7 +49,5 @@ public sealed class MicrophoneRecorderOwnershipGradationTests
         Assert.Equal("audio/pcm;rate=16000", recording.MimeType);
         Assert.Equal(["1"], jsRuntime.ReleasedSessionIds);
         Assert.Equal([("1", false), ("2", false)], jsRuntime.MicGateCalls);
-
-        Assert.IsType<MicrophoneRecording>(recording).OnStopped();
     }
 }

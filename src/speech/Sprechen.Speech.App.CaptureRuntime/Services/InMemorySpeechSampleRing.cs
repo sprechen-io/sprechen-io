@@ -36,21 +36,16 @@ public sealed class InMemorySpeechSampleRing : SpeechSampleRing
                 "Ring lookback window must be positive.");
         }
 
-        var byteCapacityLong = (long)maxLookbackMs * SampleRateHz * BytesPerSample / 1000L;
-        if (byteCapacityLong <= 0 || byteCapacityLong > int.MaxValue)
+        try
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(maxLookbackMs),
-                maxLookbackMs,
-                "Ring lookback window translates to an unsupported byte capacity.");
+            _ring = new PcmHistoryRing(PcmFormat.Default, TimeSpan.FromMilliseconds(maxLookbackMs));
+        }
+        catch (ArgumentOutOfRangeException exception)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxLookbackMs), maxLookbackMs, exception.Message);
         }
 
         MaxLookbackMs = maxLookbackMs;
-        _ring = new PcmHistoryRing(PcmFormat.Default, TimeSpan.FromMilliseconds(maxLookbackMs));
-        if (_ring.CapacityBytes != byteCapacityLong)
-        {
-            throw new InvalidOperationException("History capacity does not match the 16 kHz lookback window.");
-        }
     }
 
     /// <summary>Configured lookback in milliseconds at 16 kHz and two bytes per sample.</summary>
@@ -95,6 +90,25 @@ public sealed class InMemorySpeechSampleRing : SpeechSampleRing
         catch (PcmHistoryCursorInvalidException)
         {
             return 0;
+        }
+    }
+
+    public override byte[]? ReadRightSized(ref SampleCursor cursor, int maxBytes)
+    {
+        var history = new PcmHistoryCursor(cursor.SampleIndex);
+        try
+        {
+            var copy = _ring.ReadRightSized(ref history, maxBytes);
+            cursor = new SampleCursor(history.BytePosition);
+            return copy;
+        }
+        catch (PcmHistoryCursorStaleException exception)
+        {
+            throw new RingCursorStaleException(exception.RequestedBytePosition, exception.EarliestRetainedBytePosition);
+        }
+        catch (PcmHistoryCursorInvalidException)
+        {
+            return null;
         }
     }
 }

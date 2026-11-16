@@ -114,7 +114,6 @@
         window.sprechenIoWeb = window.sprechenIoWeb || {};
         window.sprechenIoWeb.version = @((MarkupString)applicationVersionJson);
         console.info("[sprechen-version]", window.sprechenIoWeb.version);
-        window.sprechenIoWeb.pcmRecorderWorkletUrl = '@Assets["_content/Sprechen.Speech.App.MicrophoneRecording/js/worklets/pcmRecorderProcessor.js"]';
         // Ringpuffer und Resampler müssen vor dem Prozessor im gemeinsamen
         // AudioWorkletGlobalScope verfügbar sein.
         window.sprechenIoWeb.pcmPlaybackWorkletUrls = [

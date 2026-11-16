@@ -6,7 +6,7 @@ Das Projekt zielt auf `net11.0`. Ein zusätzliches Ziel `net10.0` gibt es für d
 
 ## Grenze
 
-MicroSharp liefert die Browserquelle, das Format und eine begrenzte Live-Warteschlange. Die Anwendung behält Berechtigung, Gerätelebenszyklus, Mikrofonsperre, Vorlauf-Ring, Segmentierung und die weitere Sprachverarbeitung.
+MicroSharp liefert die Browserquelle, das Format, die begrenzte Live-Warteschlange sowie Lebenszyklus und Besitz. Die Anwendung behaelt die Mikrofonsperre, Sprachschwellen, Segmentierung und die weitere Sprachverarbeitung. Der Vorlauf-Ring delegiert Kopie und Cursor an die Bibliothek.
 
 Die Live-Warteschlange fasst 50 Blöcke. Ein voller Puffer verwirft den ältesten Block und zählt ihn. Jeder Block ist eine Kopie, die der Leser besitzt. Der Vorlauf-Ring der Anwendung ist davon getrennt und wird nicht durch ein weiteres Paket ersetzt.
 
@@ -27,7 +27,7 @@ Der Browseradapter unterstützt nur `DropOldest`.
 
 ## Direkter Lesepfad
 
-Eine angehängte Aufnahme liest `IMicrophoneSession.ReadChunksAsync` und gibt die Nutzlast des Blocks weiter. Der unbegrenzte Rückrufkanal entsteht nur in der expliziten Legacy-Erzeugung für unangehängte Prüfungen. Nach dem Anhängen schreibt `OnChunk` nicht in diesen Kanal.
+Eine Aufnahme liest die begrenzte Paketsitzung und gibt die Nutzlast weiter. Die Produktion hat keine zweite unbegrenzte Warteschlange und keinen Rueckruf `OnChunk`. Pruefungen, die Bloecke ohne Browser einspeisen, nutzen ein Test-Doppel.
 
 Ein Abbruch nach einem gelesenen Block gibt den Leser frei und lässt die Sitzung laufen. Der nächste Leser erhält den folgenden gültigen Block. Ein ausstehendes Lesen wird über das Abbruchtoken beendet, abgewartet und danach freigegeben. Die Sitzung bleibt laufend und kann erneut gelesen werden.
 
@@ -43,7 +43,7 @@ Geskriptete Browser-Doubles bleiben eine eigene Prüfung. Das veröffentlichte B
 
 ## Gemessener Pfad
 
-Am angehängten Leser wurden 718 Byte je Block gemessen, am unangehängten Legacy-Pfad 48 Byte. Der Block hat 640 Byte. Die Prüfung verwendet eine strukturelle Obergrenze von 1200 Byte. Das ist keine Laufzeitzusage.
+Der Produktionsleser vergleicht seine Zuweisung mit einem Test-Doppel, das Bloecke ohne Browser einspeist. Der Block hat 640 Byte. Die Pruefung verlangt mehr als die halbe Blockgroesse und weniger als das Test-Doppel plus einen Block plus 512 Byte. Das ist keine Laufzeitzusage.
 
 Ring und Segmentierer der Anwendung, kurzer Lauf mit drei Iterationen:
 

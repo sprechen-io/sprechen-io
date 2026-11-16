@@ -31,4 +31,11 @@ public abstract class SpeechSampleRing
     /// gespeicherten Sample liegt, und <see cref="ArgumentException"/> bei leerem Zielpuffer.
     /// </summary>
     public abstract int Read(SampleCursor cursor, Span<byte> destination);
+
+    /// <summary>
+    /// Reads at most <paramref name="maxBytes"/> into a new array and advances <paramref name="cursor"/>.
+    /// Returns null when no bytes are available.
+    /// </summary>
+    public virtual byte[]? ReadRightSized(ref SampleCursor cursor, int maxBytes)
+        => throw new NotSupportedException("This ring does not provide a right-sized copy.");
 }

@@ -71,7 +71,7 @@ public sealed class SpeechCaptureChunkPathAllocationTests
         int offset,
         int count)
     {
-        var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
+        var recording = ScriptedMicrophoneRecording.Create(static (_, _) => Task.CompletedTask);
         var pump = new SpeechCaptureSessionPump(ring, NullLogger.Instance);
         for (var i = 0; i < count; i++)
         {

@@ -9,7 +9,7 @@ internal static class MicrophoneRecordingTestFactory
         int timesliceMilliseconds,
         CancellationToken cancellationToken = default)
     {
-        return new MicrophoneRecorder(jsRuntime)
+        return MicrophoneTestRecorder.Create(jsRuntime)
             .StartRecordingAsync(timesliceMilliseconds, cancellationToken);
     }
 }

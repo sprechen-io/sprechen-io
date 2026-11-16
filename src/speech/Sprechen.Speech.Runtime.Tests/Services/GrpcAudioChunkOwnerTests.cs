@@ -31,7 +31,7 @@ public sealed class GrpcAudioChunkOwnerTests : TestContext
     [Fact]
     public async Task WriteAsync_FromMicrophoneChunks_WhenLanguageCodeProvided_SendsLanguageCodeOnlyOnFirstChunk()
     {
-        await using var recording = MicrophoneRecording.CreateLegacy(static (_, _) => Task.CompletedTask);
+        await using var recording = ScriptedMicrophoneRecording.Create(static (_, _) => Task.CompletedTask);
         recording.SetMimeType("audio/pcm;rate=16000");
         var writer = new CollectingClientStreamWriter<AudioChunk>();
 

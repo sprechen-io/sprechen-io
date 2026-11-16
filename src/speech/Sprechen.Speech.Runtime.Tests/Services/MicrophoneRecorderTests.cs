@@ -1,4 +1,5 @@
 using Bunit;
+using MicroSharp.Browser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Sprechen.Speech.App.BrowserInfrastructure.Extensions;
@@ -21,13 +22,11 @@ public sealed class MicrophoneRecorderTests : TestContext
 
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
 
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await using var recording = await recorder.StartAsync(CancellationToken.None);
 
         Assert.Equal("audio/pcm;rate=16000", recording.MimeType);
-
-        Assert.IsType<MicrophoneRecording>(recording).OnStopped();
     }
 
     [Fact]
@@ -36,7 +35,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true).SetResult(new MicrophoneAcquisitionDto { SessionId = "1" });
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
 
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         await recorder.ReleaseAsync(CancellationToken.None);
@@ -51,7 +50,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.SetupVoid("micRecorder.release", _ => true)
             .SetException(new JSDisconnectedException("browser context is gone"));
 
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         await recorder.ReleaseAsync(CancellationToken.None);
@@ -65,7 +64,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         release.SetException(new JSException("teardown failed"));
         JSInterop.Setup<bool>("micRecorder.isLive", _ => true).SetResult(true);
         var logger = new RecordingLogger<MicrophoneRecorder>();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime, logger);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime, logger);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         await Assert.ThrowsAsync<JSException>(() => recorder.ReleaseAsync(CancellationToken.None));
@@ -99,7 +98,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         var release = JSInterop.SetupVoid("micRecorder.release", _ => true);
         release.SetException(new JSException("teardown failed"));
         JSInterop.Setup<bool>("micRecorder.isLive", _ => true).SetResult(true);
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         await Assert.ThrowsAsync<JSException>(() => recorder.ReleaseAsync(CancellationToken.None));
@@ -122,7 +121,7 @@ public sealed class MicrophoneRecorderTests : TestContext
             .SetResult("audio/pcm;rate=16000");
         var release = JSInterop.SetupVoid("micRecorder.release", _ => true);
         release.SetException(new JSException("teardown failed"));
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
 
         await Assert.ThrowsAsync<JSException>(() => recorder.ReleaseAsync(CancellationToken.None));
@@ -146,7 +145,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         isLive.SetResult(false);
         var release = JSInterop.SetupVoid("micRecorder.release", _ => true);
         release.SetException(new JSException("teardown failed"));
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         var first = await recorder.StartRecordingAsync(20, CancellationToken.None);
 
         await Assert.ThrowsAsync<JSException>(() => recorder.ReleaseAsync(CancellationToken.None));
@@ -168,7 +167,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true).SetResult(new MicrophoneAcquisitionDto { SessionId = "1" });
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
 
@@ -190,7 +189,7 @@ public sealed class MicrophoneRecorderTests : TestContext
                 AutoGainControl = false
             });
 
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         var processing = await recorder.ReadAsync(CancellationToken.None);
@@ -207,7 +206,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<MicrophoneTrackProcessingDto>("micRecorder.trackProcessing", _ => true)
             .SetException(new JSException("disconnected"));
 
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         var processing = await recorder.ReadAsync(CancellationToken.None);
@@ -219,7 +218,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task StopAsync_DuringAcquisition_StopsThePendingStartAndKeepsTheSessionReusable()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
 
         var start = recorder.StartAsync(CancellationToken.None);
         await jsRuntime.WaitForAcquisitionAsync();
@@ -240,7 +239,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task ReleaseAsync_DuringWarmup_ReleasesTheAcquiredSession()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
 
         var warmup = recorder.RequestAccessAsync(CancellationToken.None);
         await jsRuntime.WaitForAcquisitionAsync();
@@ -258,7 +257,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task ReleaseAsync_DuringPendingWarmup_HonorsTheCallerAndStillReleasesEventually()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         var warmup = recorder.RequestAccessAsync(CancellationToken.None);
         await jsRuntime.WaitForAcquisitionAsync();
         using var cancellation = new CancellationTokenSource();
@@ -281,7 +280,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
         jsRuntime.CompleteAcquisition();
         jsRuntime.HoldBrowserRelease();
-        var recorder = new MicrophoneRecorder(
+        var recorder = MicrophoneTestRecorder.Create(
             jsRuntime,
             releaseProgressTimeout: TimeSpan.FromMilliseconds(20));
         await recorder.RequestAccessAsync(CancellationToken.None);
@@ -306,7 +305,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task RequestAccessAsync_WhenPendingAcquisitionNeverCompletes_RemainsTypedAndRetryable()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(
+        var recorder = MicrophoneTestRecorder.Create(
             jsRuntime,
             releaseProgressTimeout: TimeSpan.FromMilliseconds(20));
         using var accessCancellation = new CancellationTokenSource();
@@ -335,7 +334,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task ReleaseAsync_WhenPendingAcquisitionCompletesLate_ReleasesWithoutAnotherLifecycleCall()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(
+        var recorder = MicrophoneTestRecorder.Create(
             jsRuntime,
             releaseProgressTimeout: TimeSpan.FromMilliseconds(20));
         using var accessCancellation = new CancellationTokenSource();
@@ -357,7 +356,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task ReleaseAsync_DuringPendingAcquisitionRecovery_SerializesBehindTheRecovery()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(
+        var recorder = MicrophoneTestRecorder.Create(
             jsRuntime,
             releaseProgressTimeout: TimeSpan.FromMilliseconds(100));
         using var accessCancellation = new CancellationTokenSource();
@@ -384,7 +383,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
         jsRuntime.CompleteAcquisition();
-        var recorder = new MicrophoneRecorder(
+        var recorder = MicrophoneTestRecorder.Create(
             jsRuntime,
             releaseProgressTimeout: TimeSpan.FromMilliseconds(20));
         await recorder.RequestAccessAsync(CancellationToken.None);
@@ -414,7 +413,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task RequestAccessAsync_WhenHardOffArrivesDuringAcquisition_GatesBeforePublishingTheSession()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
 
         var access = recorder.RequestAccessAsync(CancellationToken.None);
         await jsRuntime.WaitForAcquisitionAsync();
@@ -432,7 +431,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
         jsRuntime.CompleteAcquisition();
         jsRuntime.HoldBrowserRelease();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await using var recording = await recorder.StartAsync(CancellationToken.None);
 
         var release = recorder.ReleaseAsync(CancellationToken.None);
@@ -455,7 +454,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
         jsRuntime.CompleteAcquisition();
         jsRuntime.HoldBrowserRelease();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await using var recording = await recorder.StartAsync(CancellationToken.None);
 
         var release = recorder.ReleaseAsync(CancellationToken.None);
@@ -474,7 +473,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task StartAsync_WhenReleaseSupersedesConnect_LeavesCleanupWithTheCanonicalReleaseOwner()
     {
         var jsRuntime = new StalledFirstConnectJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
 
         var start = recorder.StartAsync(CancellationToken.None);
         await jsRuntime.WaitForFirstConnectAsync();
@@ -495,7 +494,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task StartAsync_WhenAnotherStartIsAcquiring_RejectsTheSecondStart()
     {
         var jsRuntime = new ControlledMicrophoneLifecycleJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
 
         var first = recorder.StartAsync(CancellationToken.None);
         await jsRuntime.WaitForAcquisitionAsync();
@@ -515,7 +514,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
         JSInterop.Setup<bool>("micRecorder.isLive", _ => true).SetResult(true);
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         await using var recording = await recorder.StartAsync(CancellationToken.None);
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
@@ -537,7 +536,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         var disconnect = JSInterop.SetupVoid("micRecorder.disconnect", _ => true);
         disconnect.SetException(new JSException("disconnect failed"));
         JSInterop.Setup<bool>("micRecorder.isLive", _ => true).SetResult(true);
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         await using var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
 
         await Assert.ThrowsAsync<JSException>(() => recording.StopAsync(CancellationToken.None).AsTask());
@@ -559,7 +558,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true)
             .SetException(new JSException("disconnect failed"));
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         var recording = await recorder.StartRecordingAsync(20, CancellationToken.None);
 
         await Assert.ThrowsAsync<JSException>(() => recording.DisposeAsync().AsTask());
@@ -580,7 +579,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
         JSInterop.Setup<bool>("micRecorder.isLive", _ => true).SetResult(false);
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         await using var first = await recorder.StartAsync(CancellationToken.None);
         await recorder.StopAsync(CancellationToken.None);
         acquisition.SetResult(new MicrophoneAcquisitionDto { SessionId = "2" });
@@ -597,7 +596,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task SetMicGateAsync_WhenDeadSessionReacquisitionWaitsForTheWriter_DoesNotDeadlockRelease()
     {
         var jsRuntime = new GateReleaseReacquisitionJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         var start = recorder.StartAsync(CancellationToken.None);
@@ -624,12 +623,8 @@ public sealed class MicrophoneRecorderTests : TestContext
         MicrophoneRecorder recorder,
         int expectedMinimum)
     {
-        var field = typeof(MicrophoneRecorder).GetField(
-            "_lifecycleVersion",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            ?? throw new InvalidOperationException("Microphone lifecycle version field is missing.");
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-        while ((int)field.GetValue(recorder)! < expectedMinimum)
+        while (recorder.SourceOwnershipGeneration < expectedMinimum)
         {
             await Task.Delay(1, timeout.Token);
         }
@@ -640,14 +635,19 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         var acquisition = JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true);
         acquisition.SetResult(new MicrophoneAcquisitionDto { SessionId = "1" });
-        JSInterop.Setup<string>("micRecorder.connect", _ => true).SetResult("audio/pcm;rate=16000");
         JSInterop.SetupVoid("micRecorder.disconnect", _ => true).SetVoidResult();
         JSInterop.Setup<bool>("micRecorder.isLive", _ => true).SetResult(false);
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
-        var first = Assert.IsType<MicrophoneRecording>(await recorder.StartAsync(CancellationToken.None));
+        DotNetObjectReference<BrowserMicrophoneSession>? session = null;
+        JSInterop.Setup<string>("micRecorder.connect", invocation =>
+        {
+            session = Assert.IsType<DotNetObjectReference<BrowserMicrophoneSession>>(invocation.Arguments[1]);
+            return true;
+        }).SetResult("audio/pcm;rate=16000");
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
+        await recorder.StartAsync(CancellationToken.None);
 
-        await first.OnBrowserSessionEnded("MICROPHONE_TRACK_ENDED");
+        await session!.Value.OnCaptureFault("MICROPHONE_TRACK_ENDED");
         acquisition.SetResult(new MicrophoneAcquisitionDto { SessionId = "2" });
         await using var second = await recorder.StartAsync(CancellationToken.None);
 
@@ -661,7 +661,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task StartAsync_WhenSupersedingStopFailsDuringConnect_RetriesBeforeReturningTheFailure()
     {
         var jsRuntime = new StoppedDuringConnectJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
 
         var start = recorder.StartAsync(CancellationToken.None);
         await jsRuntime.WaitForConnectAsync();
@@ -684,7 +684,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true).SetException(new JSException("connect failed"));
         var release = JSInterop.SetupVoid("micRecorder.release", _ => true);
         release.SetException(new JSException("release failed"));
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.StartAsync(CancellationToken.None));
@@ -711,7 +711,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true)
             .SetException(new JSException("MIC_SESSION_NOT_LIVE"));
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.StartAsync(CancellationToken.None));
@@ -729,7 +729,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<string>("micRecorder.connect", _ => true)
             .SetException(new OperationCanceledException("browser connect canceled"));
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var captureClient = new RecorderBackedCaptureClient(new MicrophoneRecorder(JSInterop.JSRuntime));
+        var captureClient = new RecorderBackedCaptureClient(MicrophoneTestRecorder.Create(JSInterop.JSRuntime));
         var phase = new WakeUtteranceCapturePhase(NoOpWakeWordTelemetrySink.Instance, "connect-cancellation");
 
         var outcome = await phase.CaptureAsync(
@@ -749,7 +749,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.SetupVoid("micRecorder.setMicGate", _ => true)
             .SetException(new JSException("gate failed"));
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         await recorder.SetMicGateAsync(false, CancellationToken.None);
         var captureClient = new RecorderBackedCaptureClient(recorder);
         var phase = new WakeUtteranceCapturePhase(NoOpWakeWordTelemetrySink.Instance, "gate-failure");
@@ -768,7 +768,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true)
             .SetException(new JSException("acquire failed"));
-        var captureClient = new RecorderBackedCaptureClient(new MicrophoneRecorder(JSInterop.JSRuntime));
+        var captureClient = new RecorderBackedCaptureClient(MicrophoneTestRecorder.Create(JSInterop.JSRuntime));
         var phase = new WakeUtteranceCapturePhase(NoOpWakeWordTelemetrySink.Instance, "acquire-failure");
 
         var outcome = await phase.CaptureAsync(
@@ -789,7 +789,7 @@ public sealed class MicrophoneRecorderTests : TestContext
                 ErrorName = "NotAllowedError",
             });
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var captureClient = new RecorderBackedCaptureClient(new MicrophoneRecorder(JSInterop.JSRuntime));
+        var captureClient = new RecorderBackedCaptureClient(MicrophoneTestRecorder.Create(JSInterop.JSRuntime));
         var phase = new WakeUtteranceCapturePhase(NoOpWakeWordTelemetrySink.Instance, "partial-acquisition");
 
         var outcome = await phase.CaptureAsync(
@@ -809,7 +809,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         var gate = JSInterop.SetupVoid("micRecorder.setMicGate", _ => true);
         gate.SetException(new JSException("gate failed"));
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         await Assert.ThrowsAsync<JSException>(() => recorder.SetMicGateAsync(false, CancellationToken.None));
@@ -830,7 +830,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         gate.SetException(new JSException("gate failed"));
         var release = JSInterop.SetupVoid("micRecorder.release", _ => true);
         release.SetException(new JSException("release failed"));
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         var failure = await Assert.ThrowsAsync<AggregateException>(
@@ -852,7 +852,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task SetMicGateAsync_WhenAnOldFailureArrivesAfterReacquisition_PreservesTheNewSession()
     {
         var jsRuntime = new DelayedGateJsRuntime(firstGateFails: true);
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         var staleGateWrite = recorder.SetMicGateAsync(false, CancellationToken.None);
@@ -877,7 +877,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task SetMicGateAsync_SerializesWritesAndAppliesTheLatestStateAcrossReacquisition()
     {
         var jsRuntime = new DelayedGateJsRuntime(firstGateFails: false);
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
 
         var staleGateWrite = recorder.SetMicGateAsync(false, CancellationToken.None);
@@ -908,7 +908,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true)
             .SetResult(new MicrophoneAcquisitionDto { ErrorName = browserErrorName });
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var exception = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.RequestAccessAsync(CancellationToken.None));
@@ -931,7 +931,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true)
             .SetResult(new MicrophoneAcquisitionDto { SessionId = sessionId, ErrorName = errorName });
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var exception = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.RequestAccessAsync(CancellationToken.None));
@@ -949,7 +949,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         acquisition.SetResult(new MicrophoneAcquisitionDto { SessionId = "1", ErrorName = "NotAllowedError" });
         JSInterop.SetupVoid("micRecorder.release", invocation => invocation.Arguments[0] is string sessionId && sessionId == "1")
             .SetVoidResult();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var exception = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.RequestAccessAsync(CancellationToken.None));
@@ -973,7 +973,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         acquisition.SetResult(new MicrophoneAcquisitionDto { SessionId = "1", ErrorName = " " });
         var release = JSInterop.SetupVoid("micRecorder.release", _ => true);
         release.SetException(new JSException("teardown failed"));
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var malformedFailure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.RequestAccessAsync(CancellationToken.None));
@@ -997,7 +997,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     public async Task RequestAccessAsync_RejectsNullAcquisitionResult()
     {
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true).SetResult(null!);
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var exception = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.RequestAccessAsync(CancellationToken.None));
@@ -1014,7 +1014,7 @@ public sealed class MicrophoneRecorderTests : TestContext
         JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true).SetResult(new MicrophoneAcquisitionDto { SessionId = "1" });
         JSInterop.SetupVoid("micRecorder.release", _ => true).SetVoidResult();
         var logger = new RecordingLogger<MicrophoneRecorder>();
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime, logger);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime, logger);
 
         await recorder.RequestAccessAsync(CancellationToken.None);
         await recorder.ReleaseAsync(CancellationToken.None);
@@ -1030,7 +1030,7 @@ public sealed class MicrophoneRecorderTests : TestContext
     {
         var acquisition = JSInterop.Setup<MicrophoneAcquisitionDto>("micRecorder.acquire", _ => true);
         acquisition.SetException(new JSException("NotReadableError: device busy"));
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.RequestAccessAsync(CancellationToken.None));

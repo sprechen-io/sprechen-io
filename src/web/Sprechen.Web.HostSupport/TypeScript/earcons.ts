@@ -32,7 +32,6 @@ type EarconApi = {
 interface Window {
     earcons: EarconApi;
     sprechenIoWeb?: {
-        pcmRecorderWorkletUrl?: string;
         pcmPlaybackWorkletUrls?: string[];
         earconUrls?: Record<string, string>;
     };

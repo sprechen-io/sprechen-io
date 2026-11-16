@@ -417,9 +417,9 @@ public sealed class SpeechCaptureSessionCoordinatorTests : TestContext
         }
     }
 
-    private static MicrophoneRecording CreateInjectedRecording()
+    private static ScriptedMicrophoneRecording CreateInjectedRecording()
     {
-        var recording = MicrophoneRecording.CreateLegacy(static (candidate, _) =>
+        var recording = ScriptedMicrophoneRecording.Create(static (candidate, _) =>
         {
             candidate.OnStopped();
             return Task.CompletedTask;

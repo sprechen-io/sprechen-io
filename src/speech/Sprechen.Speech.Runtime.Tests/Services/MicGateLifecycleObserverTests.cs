@@ -11,7 +11,7 @@ public sealed class MicGateLifecycleObserverTests
         var tts = new RecordingPlaybackState();
         var earcon = new RecordingEarconPlaybackState();
         var jsRuntime = new CancellationAwareMicGateJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         await recorder.RequestAccessAsync(CancellationToken.None);
         var observer = new MicGateLifecycleObserver(
             tts,
@@ -34,7 +34,7 @@ public sealed class MicGateLifecycleObserverTests
     {
         var tts = new RecordingPlaybackState();
         var jsRuntime = new CancellationAwareMicGateJsRuntime();
-        var recorder = new MicrophoneRecorder(jsRuntime);
+        var recorder = MicrophoneTestRecorder.Create(jsRuntime);
         var observer = new MicGateLifecycleObserver(
             tts,
             new RecordingEarconPlaybackState(),

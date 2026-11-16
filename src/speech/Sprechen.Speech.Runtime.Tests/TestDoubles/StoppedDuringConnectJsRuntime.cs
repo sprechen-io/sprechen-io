@@ -1,3 +1,4 @@
+using MicroSharp.Browser;
 using Microsoft.JSInterop;
 
 namespace Sprechen.Speech.Runtime.Tests.TestDoubles;
@@ -8,7 +9,7 @@ internal sealed class StoppedDuringConnectJsRuntime : IJSRuntime
         new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _connectCompletion =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private MicrophoneRecording? _recording;
+    private BrowserMicrophoneSession? _session;
     private int _connectCalls;
     private int _disconnectCalls;
 
@@ -18,8 +19,8 @@ internal sealed class StoppedDuringConnectJsRuntime : IJSRuntime
         => _connectEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
     public Task EndBrowserSessionAsync()
-        => (_recording ?? throw new InvalidOperationException("The browser callback is not connected."))
-            .OnBrowserSessionEnded("MICROPHONE_TRACK_ENDED");
+        => (_session ?? throw new InvalidOperationException("The browser callback is not connected."))
+            .OnCaptureFault("MICROPHONE_TRACK_ENDED");
 
     public void CompleteConnect() => _connectCompletion.TrySetResult();
 
@@ -46,7 +47,7 @@ internal sealed class StoppedDuringConnectJsRuntime : IJSRuntime
     private async ValueTask<TValue> ConnectAsync<TValue>(object?[]? args)
     {
         var call = Interlocked.Increment(ref _connectCalls);
-        _recording = Assert.IsType<DotNetObjectReference<MicrophoneRecording>>(args![1]).Value;
+        _session = Assert.IsType<DotNetObjectReference<BrowserMicrophoneSession>>(args![1]).Value;
         if (call == 1)
         {
             _connectEntered.TrySetResult();

@@ -54,7 +54,7 @@
             "heuristic",
             "hardOff"
           ],
-          "description": "Mic-vs-TTS gating policy. 'heuristic' keeps the historical amplitude/AEC/cooldown heuristics. 'hardOff' physically silences the active MediaStreamTrack (track.enabled = false in microphoneRecorder.ts). Capture waits until the gate opens again; it does not fail-fast the turn."
+          "description": "Mic-vs-TTS gating policy. 'heuristic' keeps the historical amplitude/AEC/cooldown heuristics. 'hardOff' physically silences the active MediaStreamTrack (track.enabled = false). Capture waits until the gate opens again; it does not fail-fast the turn."
         }
       }
     },

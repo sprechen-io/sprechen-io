@@ -24,10 +24,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task SyntheticPcmReachesTheRingAndSegmenter_StopRestartsAndRelease()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await using var recording = await recorder.StartAsync(CancellationToken.None);
             var typed = Assert.IsType<MicrophoneRecording>(recording);
             var session = js.StartedSessions.Single();
@@ -113,7 +112,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -121,10 +119,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task CancellingThePumpBeforeDequeueLeavesThePackageSessionRunning()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await using var recording = await recorder.StartAsync(CancellationToken.None);
             var session = js.StartedSessions.Single();
             using var cancellation = new CancellationTokenSource();
@@ -144,7 +141,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -152,10 +148,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task WrongLengthChunkFaultsThePackageSession()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await using var recording = await recorder.StartAsync(CancellationToken.None);
             js.StartedSessions.Single().OnPcmChunk(new byte[4]);
 
@@ -171,7 +166,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -179,10 +173,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task NotAllowedErrorMapsToPermissionDenied()
     {
         var js = new PackageMicrophoneJsRuntime { AcquireErrorName = "NotAllowedError" };
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
                 () => recorder.RequestAccessAsync(CancellationToken.None));
 
@@ -192,7 +185,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -200,10 +192,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task ReportedRateMismatchIsRejected()
     {
         var js = new PackageMicrophoneJsRuntime { ReportedSampleRateHz = 48_000 };
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
                 () => recorder.StartAsync(CancellationToken.None));
             var cause = Assert.IsType<InvalidOperationException>(failure.InnerException);
@@ -212,7 +203,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -220,73 +210,40 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task OnChunkDoesNotSupplyAudioToAnAttachedRecording()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
-        try
-        {
-            var recorder = new MicrophoneRecorder(js);
-            await using var recording = await recorder.StartAsync(CancellationToken.None);
-            var typed = Assert.IsType<MicrophoneRecording>(recording);
-            var marker = new byte[] { 9, 8, 7 };
-            typed.OnChunk(marker);
-            typed.OnError("attached callback must not fault the package reader");
-            Assert.Equal(MicrophoneSessionState.Running, js.StartedSessions.Single().State);
+        var recorder = MicrophoneTestRecorder.Create(js);
+        await using var recording = await recorder.StartAsync(CancellationToken.None);
+        var typed = Assert.IsType<MicrophoneRecording>(recording);
+        Assert.Null(typed.GetType().GetMethod("OnChunk"));
+        Assert.Null(typed.GetType().GetMethod("OnError"));
+        var session = js.StartedSessions.Single();
+        session.OnPcmChunk(Array.Empty<byte>());
+        var payload = LoudChunk();
+        session.OnPcmChunk(payload);
 
-            using var idle = new CancellationTokenSource(TimeSpan.FromMilliseconds(200));
-            var sawMarker = false;
-            try
-            {
-                await foreach (var chunk in recording.Chunks.WithCancellation(idle.Token))
-                {
-                    if (chunk.Length == marker.Length && chunk.AsSpan().SequenceEqual(marker))
-                    {
-                        sawMarker = true;
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-
-            Assert.False(sawMarker);
-            var payload = LoudChunk();
-            js.StartedSessions.Single().OnPcmChunk(payload);
-            await using var reader = recording.Chunks.GetAsyncEnumerator();
-            Assert.True(await reader.MoveNextAsync());
-            Assert.Equal(payload, reader.Current);
-        }
-        finally
-        {
-            MicrophoneJsTestBridge.Bypass.Value = false;
-        }
+        await using var reader = recording.Chunks.GetAsyncEnumerator();
+        Assert.True(await reader.MoveNextAsync());
+        Assert.Equal(payload, reader.Current);
+        Assert.Equal(MicrophoneSessionState.Running, session.State);
     }
 
     [Fact]
-    public async Task ProductionRecordingWithoutASessionHasNoInjectionQueue()
+    public void ProductionRecordingWithoutASessionHasNoInjectionQueue()
     {
-        await using var recording = new MicrophoneRecording(static (candidate, _) =>
-        {
-            candidate.OnStopped();
-            return Task.CompletedTask;
-        });
-        recording.OnChunk(new byte[] { 1, 2, 3 });
-        var failure = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-        {
-            await foreach (var _ in recording.Chunks)
-            {
-            }
-        });
-
-        Assert.Contains("no capture session", failure.Message, StringComparison.Ordinal);
+        var constructors = typeof(MicrophoneRecording).GetConstructors(
+            System.Reflection.BindingFlags.Instance
+            | System.Reflection.BindingFlags.Public
+            | System.Reflection.BindingFlags.NonPublic);
+        var constructor = Assert.Single(constructors);
+        Assert.Equal(typeof(BrowserCaptureLease), constructor.GetParameters().Single().ParameterType);
     }
 
     [Fact]
     public async Task EarlyBreakAfterOnePackageChunkReleasesTheReaderWithoutStopping()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await using var recording = await recorder.StartAsync(CancellationToken.None);
             var session = js.StartedSessions.Single();
             var first = LoudChunk();
@@ -312,7 +269,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -320,10 +276,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task CancellingAPendingReadThenDisposingLeavesThePackageSessionRunning()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await using var recording = await recorder.StartAsync(CancellationToken.None);
             var session = js.StartedSessions.Single();
             using var cancellation = new CancellationTokenSource();
@@ -346,7 +301,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -354,10 +308,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     public async Task StoppingWhileTheReaderWaitsCompletesWithoutChannelDisposal()
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await using var recording = await recorder.StartAsync(CancellationToken.None);
             await using var enumerator = recording.Chunks.GetAsyncEnumerator();
             var pending = enumerator.MoveNextAsync();
@@ -370,7 +323,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -416,7 +368,7 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     {
         var ring = new InMemorySpeechSampleRing(5_000);
         var pump = new SpeechCaptureSessionPump(ring, NullLogger.Instance);
-        await using var recording = MicrophoneRecording.CreateLegacy(static (candidate, _) =>
+        await using var recording = ScriptedMicrophoneRecording.Create(static (candidate, _) =>
         {
             candidate.OnStopped();
             return Task.CompletedTask;
@@ -439,10 +391,9 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
     private static async Task<long> MeasureAttachedMarginalAsync(byte[][] chunks, int smallCount, int largeCount)
     {
         var js = new PackageMicrophoneJsRuntime();
-        MicrophoneJsTestBridge.Bypass.Value = true;
         try
         {
-            var recorder = new MicrophoneRecorder(js);
+            var recorder = MicrophoneTestRecorder.Create(js);
             await MeasureAttachedAsync(recorder, js, chunks, largeCount);
             await MeasureAttachedAsync(recorder, js, chunks, smallCount);
             await MeasureAttachedAsync(recorder, js, chunks, largeCount);
@@ -452,7 +403,6 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
         finally
         {
-            MicrophoneJsTestBridge.Bypass.Value = false;
         }
     }
 
@@ -491,128 +441,5 @@ public sealed class PackageMicrophoneCaptureIntegrationTests
         }
 
         return bytes;
-    }
-
-    private sealed class PackageMicrophoneJsRuntime : IJSRuntime, IJSObjectReference
-    {
-        private readonly List<string> _calls = [];
-        private readonly List<BrowserMicrophoneSession> _sessions = [];
-        private IDictionary? _acquirePreferences;
-        private int _released;
-
-        public string? AcquireErrorName { get; init; }
-
-        public int ReportedSampleRateHz { get; init; } = 16_000;
-
-        public IReadOnlyList<string> Calls
-        {
-            get
-            {
-                lock (_calls)
-                {
-                    return [.. _calls];
-                }
-            }
-        }
-
-        public IReadOnlyList<BrowserMicrophoneSession> StartedSessions
-        {
-            get
-            {
-                lock (_sessions)
-                {
-                    return [.. _sessions];
-                }
-            }
-        }
-
-        public object? LastAcquirePreference(string name)
-            => _acquirePreferences is not null && _acquirePreferences.Contains(name)
-                ? _acquirePreferences[name]
-                : null;
-
-        public ValueTask<bool> IsLiveAsync()
-            => ValueTask.FromResult(Volatile.Read(ref _released) == 0 && _sessions.Count > 0);
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-            => InvokeAsync<TValue>(identifier, CancellationToken.None, args);
-
-        public ValueTask<TValue> InvokeAsync<TValue>(
-            string identifier,
-            CancellationToken cancellationToken,
-            object?[]? args)
-        {
-            if (identifier.Contains("micRecorder", StringComparison.Ordinal))
-            {
-                throw new InvalidOperationException($"Package bypass via '{identifier}'.");
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            lock (_calls)
-            {
-                _calls.Add(identifier);
-            }
-
-            return identifier switch
-            {
-                "import" => ValueTask.FromResult((TValue)(object)this),
-                "describe" => ValueTask.FromResult((TValue)(object)new BrowserHostDescription
-                {
-                    Media = true,
-                    Audio = true,
-                    Worklet = true,
-                }),
-                "acquire" => ValueTask.FromResult((TValue)(object)Acquire(args)),
-                "start" => ValueTask.FromResult((TValue)(object)Start(args)),
-                "isLive" => ValueTask.FromResult((TValue)(object)(Volatile.Read(ref _released) == 0)),
-                "trackProcessing" => ValueTask.FromResult((TValue)(object)new BrowserTrackProcessing
-                {
-                    EchoCancellation = true,
-                    NoiseSuppression = false,
-                    AutoGainControl = null,
-                }),
-                "disconnect" or "release" or "stop" or "setSourceEnabled" => CompleteVoid<TValue>(identifier),
-                _ => throw new InvalidOperationException($"Unexpected JS invocation '{identifier}'."),
-            };
-        }
-
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
-
-        private BrowserAcquireResult Acquire(object?[]? args)
-        {
-            _acquirePreferences = args is { Length: > 0 } ? args[0] as IDictionary : null;
-            if (!string.IsNullOrEmpty(AcquireErrorName))
-            {
-                return new BrowserAcquireResult { ErrorName = AcquireErrorName };
-            }
-
-            return new BrowserAcquireResult { SessionId = "pkg-1" };
-        }
-
-        private BrowserStartResult Start(object?[]? args)
-        {
-            var session = Assert.IsType<DotNetObjectReference<BrowserMicrophoneSession>>(args![1]).Value;
-            lock (_sessions)
-            {
-                _sessions.Add(session);
-            }
-
-            return new BrowserStartResult
-            {
-                SampleRateHz = ReportedSampleRateHz,
-                Channels = 1,
-                ChunkMilliseconds = 20,
-            };
-        }
-
-        private ValueTask<TValue> CompleteVoid<TValue>(string identifier)
-        {
-            if (identifier == "release")
-            {
-                Interlocked.Increment(ref _released);
-            }
-
-            return ValueTask.FromResult(default(TValue)!);
-        }
     }
 }

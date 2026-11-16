@@ -23,7 +23,6 @@ type PcmPlayerInvocationResult = {
 interface Window {
     pcmPlayer: PcmPlayerApi;
     sprechenIoWeb?: {
-        pcmRecorderWorkletUrl?: string;
         pcmPlaybackWorkletUrls?: string[];
         earconUrls?: Record<string, string>;
     };

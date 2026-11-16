@@ -24,7 +24,7 @@ public sealed class MicrophoneRecorderSampleRateOwnerTests : TestContext
     public async Task StartAsync_WhenTheShellReportsAnotherRate_RejectsTheRecording()
     {
         ArrangeConnect(this, "audio/pcm;rate=48000");
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.StartAsync(CancellationToken.None));
@@ -38,7 +38,7 @@ public sealed class MicrophoneRecorderSampleRateOwnerTests : TestContext
     public async Task StartAsync_WhenTheShellReportsNoRate_RejectsTheRecording()
     {
         ArrangeConnect(this, "audio/pcm");
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         var failure = await Assert.ThrowsAsync<MicrophoneAcquisitionException>(
             () => recorder.StartAsync(CancellationToken.None));
@@ -50,11 +50,10 @@ public sealed class MicrophoneRecorderSampleRateOwnerTests : TestContext
     public async Task StartAsync_WhenTheShellReportsTheOwnersRate_KeepsTheRecording()
     {
         ArrangeConnect(this, $"audio/pcm;rate={InMemorySpeechSampleRing.SampleRateHz}");
-        var recorder = new MicrophoneRecorder(JSInterop.JSRuntime);
+        var recorder = MicrophoneTestRecorder.Create(JSInterop.JSRuntime);
 
         await using var recording = await recorder.StartAsync(CancellationToken.None);
 
         Assert.Equal($"audio/pcm;rate={InMemorySpeechSampleRing.SampleRateHz}", recording.MimeType);
-        Assert.IsType<MicrophoneRecording>(recording).OnStopped();
     }
 }

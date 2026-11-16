@@ -1,8 +1,8 @@
 namespace Sprechen.Speech.App.MicrophoneRecording.Services;
 
 /// <summary>
-/// Überträgt die tatsächlichen Verarbeitungseinstellungen der Browserspur,
-/// wobei fehlende Angaben von ausdrücklich deaktivierten Funktionen unterscheidbar bleiben.
+/// Scripted browser track-processing flags. A missing value stays distinct from false.
+/// Production capture reads the library track report.
 /// </summary>
 internal sealed class MicrophoneTrackProcessingDto
 {

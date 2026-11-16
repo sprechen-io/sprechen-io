@@ -1,8 +1,8 @@
 namespace Sprechen.Speech.App.MicrophoneRecording.Services;
 
 /// <summary>
-/// Überträgt Sitzungskennung oder Browserfehler der Mikrofonanforderung,
-/// damit die Mikrofonverwaltung das Ergebnis vor der Verwendung prüfen kann.
+/// Session id or browser error name from a scripted microphone acquire result.
+/// Production capture does not use this shape.
 /// </summary>
 internal sealed class MicrophoneAcquisitionDto
 {

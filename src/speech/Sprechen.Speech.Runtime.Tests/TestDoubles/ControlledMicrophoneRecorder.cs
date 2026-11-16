@@ -8,7 +8,7 @@ internal sealed class ControlledMicrophoneRecorder : IMicrophoneRecorder
     private readonly Func<int, CancellationToken, Task>? _beforeStartCompletesAsync;
     private readonly Action<int>? _afterStart;
 
-    private MicrophoneRecording? _currentRecording;
+    private ScriptedMicrophoneRecording? _currentRecording;
     private int _requestAccessCallCount;
     private int _startCallCount;
     private int _stopCallCount;
@@ -63,7 +63,7 @@ internal sealed class ControlledMicrophoneRecorder : IMicrophoneRecorder
             await _beforeStartCompletesAsync(startCall, cancellationToken).ConfigureAwait(false);
         }
 
-        var recording = MicrophoneRecording.CreateLegacy(StopRecordingAsync);
+        var recording = ScriptedMicrophoneRecording.Create(StopRecordingAsync);
         recording.SetMimeType("audio/pcm");
         _currentRecording = recording;
         _afterStart?.Invoke(startCall);
@@ -82,7 +82,7 @@ internal sealed class ControlledMicrophoneRecorder : IMicrophoneRecorder
         _currentRecording?.OnStopped();
     }
 
-    private async Task StopRecordingAsync(MicrophoneRecording recording, CancellationToken cancellationToken)
+    private async Task StopRecordingAsync(ScriptedMicrophoneRecording recording, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         Interlocked.Increment(ref _stopCallCount);

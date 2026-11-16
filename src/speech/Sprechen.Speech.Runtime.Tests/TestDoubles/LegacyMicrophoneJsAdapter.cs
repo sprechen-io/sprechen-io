@@ -6,8 +6,8 @@ using Microsoft.JSInterop.Infrastructure;
 namespace Sprechen.Speech.Runtime.Tests.TestDoubles;
 
 /// <summary>
-/// Übersetzt die Paketschnittstelle auf die bisherigen Test-Doppel von micRecorder.
-/// Die Anwendung selbst ruft micRecorder nicht auf.
+/// Translates the package JavaScript contract onto existing micRecorder test doubles.
+/// Production code does not call micRecorder.
 /// </summary>
 internal sealed class LegacyMicrophoneJsAdapter(IJSRuntime inner) : IJSRuntime, IJSObjectReference
 {
@@ -58,8 +58,7 @@ internal sealed class LegacyMicrophoneJsAdapter(IJSRuntime inner) : IJSRuntime, 
     private async ValueTask<TValue> StartAsync<TValue>(CancellationToken cancellationToken, object?[]? args)
     {
         var sessionId = args is { Length: > 0 } ? args[0] : null;
-        var callback = MicrophoneJsTestBridge.PendingCallback.Value
-            ?? (args is { Length: > 1 } ? args[1] : null);
+        var callback = args is { Length: > 1 } ? args[1] : null;
         var chunkMilliseconds = ReadChunkMilliseconds(args);
         var mime = await inner.InvokeAsync<string>(
             "micRecorder.connect",
