@@ -1,7 +1,7 @@
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Sprechen.Common.Cqrs;
+using Monstertacle.SharpQrs;
 using Sprechen.Proto.Transport;
 using Sprechen.Service.Application.Cqrs.SpeechConversation;
 using Sprechen.Service.Options;

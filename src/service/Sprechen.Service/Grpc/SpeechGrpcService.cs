@@ -1,6 +1,6 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Sprechen.Common.Cqrs;
+using Monstertacle.SharpQrs;
 using Sprechen.Service.Application.Cqrs.LanguageCatalog;
 using SprechenProto = Sprechen.Proto;
 

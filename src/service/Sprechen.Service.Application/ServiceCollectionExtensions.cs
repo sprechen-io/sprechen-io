@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Sprechen.Common.Cqrs;
+using Monstertacle.SharpQrs;
 using Sprechen.Service.Application.Cqrs.LanguageCatalog;
 using Sprechen.Service.Application.Cqrs.SpeechConversation;
 using Sprechen.Service.Application.Cqrs.SpeechSynthesis;

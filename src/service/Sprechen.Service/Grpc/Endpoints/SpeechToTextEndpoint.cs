@@ -1,6 +1,6 @@
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
-using Sprechen.Common.Cqrs;
+using Monstertacle.SharpQrs;
 using Sprechen.Proto.Transport;
 using Sprechen.Service.Application.Cqrs.SpeechTranscription;
 using SprechenProto = Sprechen.Proto;

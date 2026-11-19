@@ -4,7 +4,6 @@
     <File Path="../../azure-pipelines-service-deploy.yml" />
   </Folder>
   <Folder Name="/Shared/">
-    <Project Path="../_shared/Sprechen.Common.Cqrs/Sprechen.Common.Cqrs.csproj" />
     <Project Path="../hosting/Sprechen.ServiceDefaults/Sprechen.ServiceDefaults.csproj" />
     <Project Path="../mda/Sprechen.Mda.Contracts/Sprechen.Mda.Contracts.csproj" />
     <Project Path="../mda/Sprechen.Mda.Contracts.Generator/Sprechen.Mda.Contracts.Generator.csproj" />

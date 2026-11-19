@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Sprechen.Common.Cqrs;
+using Monstertacle.SharpQrs;
 using Sprechen.Service.Application;
 using Sprechen.Service.Application.Cqrs.LanguageCatalog;
 using Sprechen.Service.Application.Cqrs.SpeechConversation;

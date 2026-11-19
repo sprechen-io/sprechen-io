@@ -1,4 +1,4 @@
-using Sprechen.Common.Cqrs;
+using Monstertacle.SharpQrs;
 
 namespace Sprechen.Service.Application.Cqrs.SpeechTranscription;
 

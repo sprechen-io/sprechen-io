@@ -15,11 +15,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
+    <PackageReference Include="Monstertacle.SharpQrs" Version="0.2.0-alpha.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Sprechen.Service.Abstractions\Sprechen.Service.Abstractions.csproj" />
-    <ProjectReference Include="..\..\_shared\Sprechen.Common.Cqrs\Sprechen.Common.Cqrs.csproj" />
   </ItemGroup>
 
 </Project>

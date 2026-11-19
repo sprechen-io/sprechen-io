@@ -36,6 +36,9 @@ jobs:
         with:
           dotnet-version: 11.0.x
 
+      - name: Install WebAssembly tooling
+        run: dotnet workload install wasm-tools
+
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
@@ -53,7 +56,7 @@ jobs:
           echo "Projects: $(grep -c '\.csproj' "$RUNNER_TEMP/ci/All.slnx")"
 
       - name: Restore
-        run: dotnet restore "$RUNNER_TEMP/ci/All.slnx"
+        run: dotnet restore "$RUNNER_TEMP/ci/All.slnx" --configfile nuget.config
 
       - name: Build
         run: dotnet build "$RUNNER_TEMP/ci/All.slnx" --configuration Release --no-restore
@@ -63,11 +66,26 @@ jobs:
           dotnet test "$RUNNER_TEMP/ci/All.slnx"
           --configuration Release
           --no-build
+          --filter "FullyQualifiedName!~CaptureHarnessBrowserTests"
           --logger trx
           --collect "XPlat Code Coverage"
           --results-directory "$RUNNER_TEMP/test-results"
           --
           DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+
+      - name: Verify MicroSharp capture in Chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/playwright
+        run: |
+          set -euo pipefail
+          harness_tests=src/speech/Sprechen.Speech.MicrophoneBrowserHarness.Tests
+          pwsh "$harness_tests/bin/Release/net11.0/playwright.ps1" install --with-deps chromium
+          feed="$RUNNER_TEMP/microsharp-reference"
+          mkdir -p "$feed"
+          curl --fail --silent --show-error --retry 3 \
+            https://api.nuget.org/v3-flatcontainer/microsharp.browser/0.1.0/microsharp.browser.0.1.0.nupkg \
+            --output "$feed/MicroSharp.Browser.0.1.0.nupkg"
+          bash scripts/run-microphone-browser-harness.sh "$feed" "$RUNNER_TEMP/microphone-harness" --nuget-org
 
       - name: Merge coverage reports
         run: |
