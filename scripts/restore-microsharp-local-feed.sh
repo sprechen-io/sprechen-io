@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copies a locally packed MicroSharp feed into the repo-relative local-feed directory.
 # Pass the feed directory as the only argument. No home directory is embedded here.
-# Set NUGET_PACKAGES to a fresh empty directory before restoring, so an older 0.1.0
+# Set NUGET_PACKAGES to a fresh empty directory before restoring, so a previously restored
 # cache cannot satisfy MicroSharp. Source mapping then reads only this local feed.
 set -euo pipefail
 

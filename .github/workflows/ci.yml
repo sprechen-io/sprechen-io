@@ -83,8 +83,8 @@ jobs:
           feed="$RUNNER_TEMP/microsharp-reference"
           mkdir -p "$feed"
           curl --fail --silent --show-error --retry 3 \
-            https://api.nuget.org/v3-flatcontainer/microsharp.browser/0.1.0/microsharp.browser.0.1.0.nupkg \
-            --output "$feed/MicroSharp.Browser.0.1.0.nupkg"
+            https://api.nuget.org/v3-flatcontainer/microsharp.browser/0.2.0/microsharp.browser.0.2.0.nupkg \
+            --output "$feed/MicroSharp.Browser.0.2.0.nupkg"
           bash scripts/run-microphone-browser-harness.sh "$feed" "$RUNNER_TEMP/microphone-harness" --nuget-org
 
       - name: Merge coverage reports

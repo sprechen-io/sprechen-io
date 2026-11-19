@@ -57,6 +57,12 @@ public sealed class DeepgramAudioPayloadTests
     }
 
     [Fact]
+    public void Prepare_Pcm_IncompleteSample_Throws()
+    {
+        Assert.Throws<ArgumentException>(() => DeepgramAudioPayload.Prepare(new byte[] { 1 }, AudioMimeType.Pcm));
+    }
+
+    [Fact]
     public void Prepare_UnspecifiedMimeType_Throws()
     {
         var exception = Assert.Throws<InvalidOperationException>(() =>

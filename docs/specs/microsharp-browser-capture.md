@@ -1,6 +1,6 @@
 # Mikrofonaufnahme über MicroSharp.Browser
 
-Die Sprechaufnahme im Browser bezieht die rohen PCM-Blöcke aus dem Paket `MicroSharp.Browser` 0.1.0. Standardmäßig werden die Pakete von NuGet.org wiederhergestellt. Für unveröffentlichte Kandidaten steht `nuget.microsharp-local.config` mit dem relativen Feed `local-feed` zur Verfügung. Die Pakete werden nicht in das Repository übernommen.
+Die Sprechaufnahme im Browser bezieht die rohen PCM-Blöcke aus dem Paket `MicroSharp.Browser`. Standardmäßig werden die Pakete von NuGet.org wiederhergestellt. Für unveröffentlichte Kandidaten steht `nuget.microsharp-local.config` mit dem relativen Feed `local-feed` zur Verfügung. Die Pakete werden nicht in das Repository übernommen.
 
 Das Projekt zielt auf `net11.0`. Ein zusätzliches Ziel `net10.0` gibt es für diese Integration nicht.
 
@@ -65,7 +65,7 @@ Das Paket verwendet `AudioContext` des Browsers. Die Seite kann `standardized-au
 
 Laufzeit-Async des WebAssembly-Laufzeitsystems bleibt aus. Threads und AOT sind für diesen Pfad nicht eingeschaltet.
 
-Die lokale Paketversion 0.1.0 ist an den hier gepackten Quellstand gebunden. Ein gleichlautendes Paket aus einem anderen Cache darf die Prüfung nicht erfüllen. Dafür ist `NUGET_PACKAGES` bei jeder Wiederherstellung ein neues Verzeichnis.
+Die lokale Paketversion ist an den hier gepackten Quellstand gebunden. Ein gleichlautendes Paket aus einem anderen Cache darf die Prüfung nicht erfüllen. Dafür ist `NUGET_PACKAGES` bei jeder Wiederherstellung ein neues Verzeichnis.
 
 Die Windows-Prüfung des nativen Adapters bleibt ein eigener Lauf. Dieser Stand prüft den Linux-Ladeweg und ein privates virtuelles Aufnahmegerät. Der native Quelltext ist gegenüber der öffentlichen Qualifikation unverändert. Die lokale Bibliotheksänderung betrifft den Browser.
 

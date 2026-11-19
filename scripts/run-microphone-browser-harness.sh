@@ -30,7 +30,7 @@ export NUGET_PACKAGES="$WORK/nuget-packages"
 export HARNESS_PUBLISH_DIR="$WORK/publish/wwwroot"
 export HARNESS_WAV_DIR="$WORK/wav"
 export MIC_CAPTURE_JS_SHA256
-MIC_CAPTURE_JS_SHA256=$(unzip -p "$SOURCE/MicroSharp.Browser.0.1.0.nupkg" staticwebassets/microsharp-capture.js | sha256sum | awk '{print $1}')
+MIC_CAPTURE_JS_SHA256=$(unzip -p "$SOURCE/MicroSharp.Browser.0.2.0.nupkg" staticwebassets/microsharp-capture.js | sha256sum | awk '{print $1}')
 if [[ ! "$MIC_CAPTURE_JS_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
   echo "capture module hash was not read from the package." >&2
   exit 1
@@ -59,6 +59,8 @@ dotnet restore "$tests" --configfile "$config" --nologo
 dotnet test "$tests" --no-restore \
   --configuration Release \
   --nologo \
+  --results-directory "$WORK/test-results" \
+  --logger "trx;LogFileName=browser-capture.trx" \
   --filter FullyQualifiedName~CaptureHarnessBrowserTests
 
 echo "harness-js-sha256=$MIC_CAPTURE_JS_SHA256"

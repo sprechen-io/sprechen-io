@@ -45,6 +45,8 @@ internal sealed class GrpcPcmAudioStreamReader
                 yield return (bytes, sampleRateHz);
             }
         }
+
+        alignmentBuffer.Complete();
     }
 }
 
