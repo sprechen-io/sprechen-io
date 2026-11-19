@@ -25,6 +25,6 @@ cp -f "$SOURCE"/MicroSharp*.nupkg "$SOURCE"/MicroSharp*.snupkg "$DEST"/
 if [[ -n "${NUGET_PACKAGES:-}" ]]; then
   mkdir -p "$NUGET_PACKAGES"
   dotnet restore "$ROOT/src/speech/Sprechen.Speech.App.MicrophoneRecording/Sprechen.Speech.App.MicrophoneRecording.csproj" \
-    --configfile "$ROOT/nuget.config" \
+    --configfile "$ROOT/nuget.microsharp-local.config" \
     --nologo
 fi

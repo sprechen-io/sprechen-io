@@ -5,13 +5,12 @@ using System.Text.Json;
 namespace Sprechen.Speech.Runtime.Tests.Services;
 
 /// <summary>
-/// Prüft, dass MicroSharp aus dem lokalen Paketfeed stammt und die wiederhergestellten
-/// Bytes mit dem gepackten Inhalt übereinstimmen.
+/// Checks the MicroSharp package references and their restored payloads.
 /// </summary>
-public sealed class MicroSharpLocalFeedTests
+public sealed class MicroSharpPackageRestoreTests
 {
     [Fact]
-    public void RestoredBrowserPackageMatchesTheLocalFeedAndIsNotAProject()
+    public void RestoredBrowserPackageContainsTheExpectedPayloadAndIsNotAProject()
     {
         var root = FindRepositoryRoot();
         var assetsPath = Path.Combine(
@@ -40,7 +39,7 @@ public sealed class MicroSharpLocalFeedTests
 
         var packageFolder = rootElement.GetProperty("packageFolders").EnumerateObject().Single().Name;
         var restoredDirectory = Path.Combine(packageFolder, "microsharp.browser", "0.1.0");
-        var nupkgPath = Path.Combine(root, "local-feed", "MicroSharp.Browser.0.1.0.nupkg");
+        var nupkgPath = Path.Combine(restoredDirectory, "microsharp.browser.0.1.0.nupkg");
         using var nupkg = ZipFile.OpenRead(nupkgPath);
         AssertSameEntry(nupkg, "lib/net11.0/MicroSharp.Browser.dll", Path.Combine(restoredDirectory, "lib", "net11.0", "MicroSharp.Browser.dll"));
         AssertSameEntry(
@@ -65,8 +64,7 @@ public sealed class MicroSharpLocalFeedTests
         while (directory is not null)
         {
             var config = Path.Combine(directory.FullName, "nuget.config");
-            var feed = Path.Combine(directory.FullName, "local-feed");
-            if (File.Exists(config) && Directory.Exists(feed))
+            if (File.Exists(config) && Directory.Exists(Path.Combine(directory.FullName, "src", "speech")))
             {
                 return directory.FullName;
             }
@@ -74,6 +72,6 @@ public sealed class MicroSharpLocalFeedTests
             directory = directory.Parent;
         }
 
-        throw new InvalidOperationException("The local MicroSharp feed is not beside nuget.config.");
+        throw new InvalidOperationException("The application repository containing nuget.config was not found.");
     }
 }
