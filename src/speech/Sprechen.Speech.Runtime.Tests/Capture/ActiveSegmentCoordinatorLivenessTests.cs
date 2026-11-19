@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using Microsoft.Extensions.Time.Testing;
 using Microsoft.Extensions.Options;
 using Sprechen.Speech.Runtime.Tests.TestDoubles;
 
@@ -97,84 +98,75 @@ public sealed class ActiveSegmentCoordinatorLivenessTests
     }
 
     [Fact]
-    public async Task AwaitAsync_WhenChunkArrivesDuringStallTrace_DoesNotFailHealthyCapture()
+    public async Task AwaitAsync_WhenAChunkArrivesAtTheDeadline_ReportsAStallWithoutWaitingForDiagnostics()
     {
+        var clock = new FakeTimeProvider();
+        var timeout = TimeSpan.FromSeconds(1);
         var debugConsole = new FirstWriteBlockingBrowserDebugConsole();
-        var guard = new CaptureChunkLivenessGuard(
-            TimeSpan.FromSeconds(1),
-            debugConsole,
-            "capture stalled");
-        var capture = new TaskCompletionSource<CapturedSpeechAudio>(
-            TaskCreationOptions.RunContinuationsAsynchronously);
-        var failed = false;
-        var guardedCapture = guard.AwaitAsync(
-            capture.Task,
-            _ => failed = true,
-            CancellationToken.None);
+        var guard = new CaptureChunkLivenessGuard(timeout, debugConsole, "capture stalled", clock);
+        var capture = NewCapture();
+        var guardedCapture = guard.AwaitAsync(capture.Task, capture.TrySetException, CancellationToken.None);
 
         try
         {
-            await debugConsole.FirstWriteStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            clock.Advance(timeout);
             guard.ObserveChunk();
-            debugConsole.ContinueFirstWrite.TrySetResult();
-            await Task.Delay(400);
-            Assert.False(failed);
-
-            var expected = new CapturedSpeechAudio(SpeechAudioMimeType.Pcm, [new byte[] { 1 }]);
-            capture.TrySetResult(expected);
-            Assert.Same(expected, await guardedCapture.WaitAsync(TimeSpan.FromSeconds(2)));
-        }
-        finally
-        {
-            debugConsole.ContinueFirstWrite.TrySetResult();
-            capture.TrySetCanceled();
-            try
-            {
-                await guardedCapture.WaitAsync(TimeSpan.FromSeconds(2));
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-    }
-
-    [Fact]
-    public async Task AwaitAsync_WhenStallTraceNeverCompletes_StillFailsCapture()
-    {
-        var debugConsole = new FirstWriteBlockingBrowserDebugConsole();
-        var guard = new CaptureChunkLivenessGuard(
-            TimeSpan.FromMilliseconds(50),
-            debugConsole,
-            "capture stalled");
-        var capture = new TaskCompletionSource<CapturedSpeechAudio>(
-            TaskCreationOptions.RunContinuationsAsynchronously);
-        var guardedCapture = guard.AwaitAsync(
-            capture.Task,
-            exception => capture.TrySetException(exception),
-            CancellationToken.None);
-
-        try
-        {
             await debugConsole.FirstWriteStarted.Task.WaitAsync(TimeSpan.FromSeconds(2));
+
             await Assert.ThrowsAsync<SpeechCaptureStreamStalledException>(
                 () => guardedCapture.WaitAsync(TimeSpan.FromSeconds(2)));
         }
         finally
         {
             debugConsole.ContinueFirstWrite.TrySetResult();
-            capture.TrySetCanceled();
-            try
-            {
-                await guardedCapture.WaitAsync(TimeSpan.FromSeconds(2));
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (SpeechCaptureStreamStalledException)
-            {
-            }
         }
     }
+
+    [Fact]
+    public async Task AwaitAsync_WhenCaptureCompletesAtTheDeadline_KeepsTheCaptureResult()
+    {
+        var clock = new FakeTimeProvider();
+        var timeout = TimeSpan.FromSeconds(1);
+        var guard = new CaptureChunkLivenessGuard(timeout, new NoOpBrowserDebugConsole(), "capture stalled", clock);
+        var capture = NewCapture();
+        var guardedCapture = guard.AwaitAsync(capture.Task, capture.TrySetException, CancellationToken.None);
+        var expected = new CapturedSpeechAudio(SpeechAudioMimeType.Pcm, [new byte[] { 1 }]);
+
+        Assert.True(capture.TrySetResult(expected));
+        clock.Advance(timeout);
+
+        Assert.Same(expected, await guardedCapture.WaitAsync(TimeSpan.FromSeconds(2)));
+    }
+
+    [Fact]
+    public async Task AwaitAsync_WhenCancelled_StopsObservingAndCanBeReused()
+    {
+        var clock = new FakeTimeProvider();
+        var timeout = TimeSpan.FromSeconds(1);
+        var guard = new CaptureChunkLivenessGuard(timeout, new NoOpBrowserDebugConsole(), "capture stalled", clock);
+        var capture = NewCapture();
+        using var cancellation = new CancellationTokenSource();
+        var cancelled = guard.AwaitAsync(capture.Task, capture.TrySetException, cancellation.Token);
+        guard.ObserveChunk();
+
+        cancellation.Cancel();
+        var error = await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => cancelled.WaitAsync(TimeSpan.FromSeconds(2)));
+        Assert.Equal(cancellation.Token, error.CancellationToken);
+        Assert.False(capture.Task.IsCompleted);
+
+        clock.Advance(timeout);
+        var restarted = NewCapture();
+        var next = guard.AwaitAsync(restarted.Task, restarted.TrySetException, CancellationToken.None);
+        Assert.False(next.IsCompleted);
+        clock.Advance(timeout);
+
+        await Assert.ThrowsAsync<SpeechCaptureStreamStalledException>(() => next.WaitAsync(TimeSpan.FromSeconds(2)));
+        Assert.False(capture.Task.IsCompleted);
+    }
+
+    private static TaskCompletionSource<CapturedSpeechAudio> NewCapture() =>
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private static ActiveSegmentCoordinator CreateCoordinator(
         TimeSpan livenessTimeout,

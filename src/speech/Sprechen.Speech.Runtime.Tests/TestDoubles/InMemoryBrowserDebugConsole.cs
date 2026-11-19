@@ -97,7 +97,11 @@ internal sealed class InMemoryBrowserDebugConsole : IBrowserDebugConsole
         return WaitForEntryAsync(expectedEntry, timeout, CancellationToken.None);
     }
 
-    public async Task WaitForEntryAsync(string expectedEntry, TimeSpan timeout, CancellationToken cancellationToken)
+    public async Task WaitForEntryAsync(
+        string expectedEntry,
+        TimeSpan timeout,
+        CancellationToken cancellationToken,
+        int firstEntryIndex = 0)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedEntry);
 
@@ -114,7 +118,7 @@ internal sealed class InMemoryBrowserDebugConsole : IBrowserDebugConsole
 
             lock (_gate)
             {
-                if (_entries.Contains(expectedEntry, StringComparer.Ordinal))
+                if (_entries.Skip(firstEntryIndex).Contains(expectedEntry, StringComparer.Ordinal))
                 {
                     return;
                 }

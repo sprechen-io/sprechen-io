@@ -367,12 +367,14 @@ public sealed class SpeechCaptureClientTests : TestContext
         var firstException = await Assert.ThrowsAsync<InvalidOperationException>(() => firstCaptureTask);
         Assert.Equal("boom", firstException.Message);
 
+        var firstRestartEntry = browserDebugConsole.Entries.Count;
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         var secondCaptureTask = client.RecordAsync(cts.Token);
         await browserDebugConsole.WaitForEntryAsync(
             "speech-capture: capture armed mode=Listening startContext=CleanListening",
             TimeSpan.FromSeconds(1),
-            cts.Token);
+            cts.Token,
+            firstEntryIndex: firstRestartEntry);
 
         for (var i = 0; i < 6; i++)
         {

@@ -130,7 +130,7 @@ internal sealed class ActiveSegmentCoordinator : ISpeechCaptureChunkConsumer, ID
             await _trace.RecordArmedAsync().ConfigureAwait(false);
 
             var captured = await _chunkLiveness
-                .AwaitAsync(activeSlot.CaptureTask, exception => activeSlot.TryFail(exception), cancellationToken)
+                .AwaitAsync(activeSlot.CaptureTask, activeSlot.TryFail, cancellationToken)
                 .ConfigureAwait(false);
             return await _terminalFlow.CompleteAsync(activeSlot, captured).ConfigureAwait(false);
         }

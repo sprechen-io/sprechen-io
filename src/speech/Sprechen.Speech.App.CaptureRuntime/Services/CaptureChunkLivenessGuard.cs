@@ -1,15 +1,15 @@
-using System.Diagnostics;
+using MicroSharp;
 
 namespace Sprechen.Speech.App.CaptureRuntime.Services;
 
 /// <summary>
-/// Überwacht das Eintreffen von Audioblöcken während eines Aufnahmeversuchs,
-/// damit ein stehengebliebener Datenstrom als technischer Fehler statt als Stille gemeldet wird.
+/// Übersetzt den Stillstand der Blocklieferung in den technischen Fehler des Aufnahmeversuchs.
 /// </summary>
 internal sealed class CaptureChunkLivenessGuard(
     TimeSpan timeout,
     IBrowserDebugConsole browserDebugConsole,
-    string stalledMessage)
+    string stalledMessage,
+    TimeProvider? timeProvider = null)
 {
     private readonly TimeSpan _timeout = timeout > TimeSpan.Zero
         ? timeout
@@ -19,46 +19,50 @@ internal sealed class CaptureChunkLivenessGuard(
     private readonly string _stalledMessage = !string.IsNullOrWhiteSpace(stalledMessage)
         ? stalledMessage
         : throw new ArgumentException("A stalled-capture message is required.", nameof(stalledMessage));
-    private long _lastChunkTimestamp;
+    private CaptureLivenessMonitor? _activeMonitor;
 
-    internal void ObserveChunk() => Volatile.Write(ref _lastChunkTimestamp, Stopwatch.GetTimestamp());
+    internal void ObserveChunk() => Volatile.Read(ref _activeMonitor)?.ObserveBlock();
 
     internal async Task<CapturedSpeechAudio> AwaitAsync(
         Task<CapturedSpeechAudio> capture,
-        Action<Exception> failCapture,
+        Func<Exception, bool> tryFailCapture,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(capture);
-        ArgumentNullException.ThrowIfNull(failCapture);
+        ArgumentNullException.ThrowIfNull(tryFailCapture);
 
-        ObserveChunk();
-        var pollInterval = TimeSpan.FromMilliseconds(Math.Clamp(_timeout.TotalMilliseconds / 4d, 10d, 250d));
-        while (true)
+        if (capture.IsCompleted)
         {
-            var pollDelay = Task.Delay(pollInterval, cancellationToken);
-            var finished = await Task.WhenAny(capture, pollDelay).ConfigureAwait(false);
-            if (ReferenceEquals(finished, capture))
-            {
-                return await capture.ConfigureAwait(false);
-            }
-
-            await pollDelay.ConfigureAwait(false);
-            var expiredTimestamp = Volatile.Read(ref _lastChunkTimestamp);
-            if (Stopwatch.GetElapsedTime(expiredTimestamp) < _timeout)
-            {
-                continue;
-            }
-
-            _browserDebugConsole.WriteOptional("speech-capture", _stalledMessage);
-            await Task.Delay(pollInterval, cancellationToken).ConfigureAwait(false);
-            if (Volatile.Read(ref _lastChunkTimestamp) != expiredTimestamp)
-            {
-                continue;
-            }
-
-            failCapture(new SpeechCaptureStreamStalledException());
             return await capture.ConfigureAwait(false);
         }
-    }
 
+        var monitor = new CaptureLivenessMonitor(_timeout, _timeout, timeProvider);
+        if (Interlocked.CompareExchange(ref _activeMonitor, monitor, null) is not null)
+        {
+            throw new InvalidOperationException("A capture is already being monitored.");
+        }
+
+        try
+        {
+            var stall = monitor.WaitForStallAsync(cancellationToken);
+            await Task.WhenAny(capture, stall).ConfigureAwait(false);
+            if (!capture.IsCompleted)
+            {
+                var outcome = await stall.ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (outcome is CaptureLivenessOutcome.StartupTimeout or CaptureLivenessOutcome.InterBlockTimeout
+                    && tryFailCapture(new SpeechCaptureStreamStalledException()))
+                {
+                    _browserDebugConsole.WriteOptional("speech-capture", _stalledMessage);
+                }
+            }
+
+            return await capture.ConfigureAwait(false);
+        }
+        finally
+        {
+            Volatile.Write(ref _activeMonitor, null);
+            monitor.Complete();
+        }
+    }
 }
