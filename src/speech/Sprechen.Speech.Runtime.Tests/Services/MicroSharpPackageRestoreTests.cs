@@ -22,10 +22,10 @@ public sealed class MicroSharpPackageRestoreTests
             "project.assets.json");
         using var assets = JsonDocument.Parse(File.ReadAllText(assetsPath));
         var rootElement = assets.RootElement;
-        var library = rootElement.GetProperty("libraries").GetProperty("MicroSharp.Browser/0.3.0");
+        var library = rootElement.GetProperty("libraries").GetProperty("MicroSharp.Browser/0.3.1");
         Assert.Equal("package", library.GetProperty("type").GetString());
-        Assert.Equal("microsharp.browser/0.3.0", library.GetProperty("path").GetString());
-        var core = rootElement.GetProperty("libraries").GetProperty("MicroSharp/0.3.0");
+        Assert.Equal("microsharp.browser/0.3.1", library.GetProperty("path").GetString());
+        var core = rootElement.GetProperty("libraries").GetProperty("MicroSharp/0.3.1");
         Assert.Equal("package", core.GetProperty("type").GetString());
 
         foreach (var project in rootElement.GetProperty("libraries").EnumerateObject())
@@ -38,8 +38,8 @@ public sealed class MicroSharpPackageRestoreTests
         }
 
         var packageFolder = rootElement.GetProperty("packageFolders").EnumerateObject().Single().Name;
-        var restoredDirectory = Path.Combine(packageFolder, "microsharp.browser", "0.3.0");
-        var nupkgPath = Path.Combine(restoredDirectory, "microsharp.browser.0.3.0.nupkg");
+        var restoredDirectory = Path.Combine(packageFolder, "microsharp.browser", "0.3.1");
+        var nupkgPath = Path.Combine(restoredDirectory, "microsharp.browser.0.3.1.nupkg");
         using var nupkg = ZipFile.OpenRead(nupkgPath);
         AssertSameEntry(nupkg, "lib/net11.0/MicroSharp.Browser.dll", Path.Combine(restoredDirectory, "lib", "net11.0", "MicroSharp.Browser.dll"));
         AssertSameEntry(

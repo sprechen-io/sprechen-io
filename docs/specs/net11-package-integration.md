@@ -1,6 +1,6 @@
 # .NET 11 und wiederverwendbare Pakete
 
-Die Anwendung und ihre Testprojekte laufen auf .NET 11. Der Browser verwendet MicroSharp.Browser und MicroSharp.Processing in Version 0.3.0. Bis zur Veröffentlichung von 0.3.0 steht der lokale Paketfeed für die Wiederherstellung zur Verfügung. MicroSharp verwaltet Aufnahme, Lebenszyklus und PCM-Puffer. Sprachregeln und Dialoge gehören zur Anwendung.
+Die Anwendung und ihre Testprojekte laufen auf .NET 11. Der Browser verwendet MicroSharp.Browser und MicroSharp.Processing in Version 0.3.1. Die CI stellt die veröffentlichten Pakete von NuGet.org wieder her. MicroSharp verwaltet Aufnahme, Lebenszyklus und PCM-Puffer. Sprachregeln und Dialoge gehören zur Anwendung.
 
 Der Sprachdienst verwendet Monstertacle.SharpQrs für seine Kommandos und Abfragen. Die Handler, ihre Lebensdauer und der gRPC-Vertrag gehören zum Sprachdienst. Die formularspezifische Zustands- und Ereignislogik bleibt im Formularlaufzeitprojekt.
 
