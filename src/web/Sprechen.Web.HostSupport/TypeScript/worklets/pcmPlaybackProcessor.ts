@@ -20,6 +20,7 @@ type PlaybackDspNamespace = {
 type PlaybackMessage =
     | { kind: "chunk"; generation: number; frames: Float32Array }
     | { kind: "clear"; generation: number; routeLeadMs: number }
+    | { kind: "inputRate"; generation: number; rate: number }
     | { kind: "endOfStream"; generation: number };
 
 const dsp = (globalThis as unknown as { sprechenIoPlaybackDsp?: PlaybackDspNamespace }).sprechenIoPlaybackDsp;
@@ -44,7 +45,7 @@ const CreditIntervalFrames = 4800;
  */
 class PcmPlaybackProcessor extends AudioWorkletProcessor {
     private readonly _ring: InstanceType<PlaybackDspNamespace["PcmRingBuffer"]>;
-    private readonly _resampler: InstanceType<PlaybackDspNamespace["StreamingResampler"]>;
+    private _resampler: InstanceType<PlaybackDspNamespace["StreamingResampler"]>;
     // Callback einmal anlegen, damit nicht je Verarbeitungsblock eine neue Funktion entsteht.
     private readonly _pull = (into: Float32Array): number => this._ring.read(into);
     private _playedFrames = 0;
@@ -79,6 +80,13 @@ class PcmPlaybackProcessor extends AudioWorkletProcessor {
     }
 
     private handle(message: PlaybackMessage): void {
+        if (message.kind === "inputRate") {
+            if (dsp && message.generation === this._generation && this._ring.available === 0 && this._playedFrames === 0) {
+                this._resampler = new dsp.StreamingResampler(message.rate, sampleRate);
+            }
+            return;
+        }
+
         this._generation = message.generation;
 
         if (message.kind === "chunk") {

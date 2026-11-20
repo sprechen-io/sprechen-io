@@ -17,6 +17,7 @@ type PlaybackSinkProgress = {
 type PlaybackSink = PlaybackSinkProgress & {
     /** Übergibt Samples an den Audiothread und überträgt deren Pufferbesitz. */
     write(frames: Float32Array): void;
+    bindInputRate(rate: number): void;
     /**
      * Verwirft bisherige Wiedergabedaten und beginnt eine neue Äußerung.
      * routeLeadMs gibt die vom Aufrufer bestimmte Vorlaufzeit des Audioausgangs an.
@@ -99,6 +100,7 @@ const createWorkletPlaybackSink = async (
     // Die Generation ordnet jede Nachricht ihrer Äußerung zu. Veraltete Platzmeldungen
     // dürfen nach clear die Schätzung für die neue Äußerung nicht überschreiben.
     let generation = 0;
+    let boundInputRate = inputSampleRate;
     let estimatedFree = SinkRingCapacityFrames;
     let writtenFrames = 0;
     let playedFrames = 0;
@@ -197,6 +199,12 @@ const createWorkletPlaybackSink = async (
         },
         get routeLeadMs(): number {
             return lastRouteLeadMs;
+        },
+        bindInputRate(rate: number): void {
+            if (rate !== boundInputRate) {
+                node.port.postMessage({ kind: "inputRate", generation, rate });
+                boundInputRate = rate;
+            }
         },
         write(frames: Float32Array): void {
             writtenFrames += frames.length;
