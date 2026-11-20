@@ -86,6 +86,7 @@ interface Window {
         readonly droppedFrames: number;
         readonly routeLeadMs: number;
         write(frames: Float32Array): void;
+        bindInputRate(rate: number): void;
         clear(routeLeadMs: number): void;
         endOfStream(timeoutMs: number): Promise<"drained" | "watchdog" | "cancelled">;
         dispose(): void;
@@ -433,6 +434,7 @@ interface Window {
     let audioCtx: AudioContext | null = null;
     let masterGainNode: GainNode | null = null;
     let pcmSampleRate = 24000;
+    let scheduledInputRate: number | null = null;
     let volume = DefaultVolume;
     // Verstärkungsfaktor vor der Begrenzung und vor der Benutzerlautstärke.
     // Er wird über setMakeup eingestellt.
@@ -1096,6 +1098,15 @@ interface Window {
             return;
         }
 
+        if (scheduledInputRate === null) {
+            // Bind the authoritative rate before the first samples reach the worklet.
+            streamingSink?.bindInputRate(pcmSampleRate);
+            scheduledInputRate = pcmSampleRate;
+        } else if (scheduledInputRate !== pcmSampleRate) {
+            throw createPcmPlayerFailure(
+                "PCM_PLAYER_SAMPLE_RATE_CHANGED", "The PCM sample rate changed within an utterance.");
+        }
+
         const dsp = ensureScheduledDsp();
         const dspNamespace = resolveOfflineDsp();
         const decoded = decodeInt16ToFloat(buffer);
@@ -1254,7 +1265,6 @@ interface Window {
             pcmSampleRate = sampleRate;
         }
 
-        ensureScheduledDsp();
         await ensureScheduledContextAsync();
         await ensureStreamingSinkAsync();
         if (scheduledKeepAlivePrimingRequested) {
@@ -1271,6 +1281,7 @@ interface Window {
         recordCtxStateEvent("reset");
 
         stopAllScheduledSources();
+        scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
             const streamingLeadMs = ScheduledFirstContentLeadMs + remainingFirstContentWakeMs();

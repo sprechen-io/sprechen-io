@@ -39,6 +39,7 @@ const createWorkletPlaybackSink = async (context, destination, inputSampleRate, 
     // Die Generation ordnet jede Nachricht ihrer Äußerung zu. Veraltete Platzmeldungen
     // dürfen nach clear die Schätzung für die neue Äußerung nicht überschreiben.
     let generation = 0;
+    let boundInputRate = inputSampleRate;
     let estimatedFree = SinkRingCapacityFrames;
     let writtenFrames = 0;
     let playedFrames = 0;
@@ -116,6 +117,12 @@ const createWorkletPlaybackSink = async (context, destination, inputSampleRate, 
         },
         get routeLeadMs() {
             return lastRouteLeadMs;
+        },
+        bindInputRate(rate) {
+            if (rate !== boundInputRate) {
+                node.port.postMessage({ kind: "inputRate", generation, rate });
+                boundInputRate = rate;
+            }
         },
         write(frames) {
             writtenFrames += frames.length;

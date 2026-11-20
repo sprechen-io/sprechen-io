@@ -44,6 +44,12 @@ class PcmPlaybackProcessor extends AudioWorkletProcessor {
         this.port.onmessage = (event) => this.handle(event.data);
     }
     handle(message) {
+        if (message.kind === "inputRate") {
+            if (dsp && message.generation === this._generation && this._ring.available === 0 && this._playedFrames === 0) {
+                this._resampler = new dsp.StreamingResampler(message.rate, sampleRate);
+            }
+            return;
+        }
         this._generation = message.generation;
         if (message.kind === "chunk") {
             const taken = this._ring.write(message.frames);

@@ -306,6 +306,7 @@
     let audioCtx = null;
     let masterGainNode = null;
     let pcmSampleRate = 24000;
+    let scheduledInputRate = null;
     let volume = DefaultVolume;
     // Verstärkungsfaktor vor der Begrenzung und vor der Benutzerlautstärke.
     // Er wird über setMakeup eingestellt.
@@ -871,6 +872,14 @@
         if (buffer.byteLength < 2) {
             return;
         }
+        if (scheduledInputRate === null) {
+            // Bind the authoritative rate before the first samples reach the worklet.
+            streamingSink?.bindInputRate(pcmSampleRate);
+            scheduledInputRate = pcmSampleRate;
+        }
+        else if (scheduledInputRate !== pcmSampleRate) {
+            throw createPcmPlayerFailure("PCM_PLAYER_SAMPLE_RATE_CHANGED", "The PCM sample rate changed within an utterance.");
+        }
         const dsp = ensureScheduledDsp();
         const dspNamespace = resolveOfflineDsp();
         const decoded = decodeInt16ToFloat(buffer);
@@ -998,7 +1007,6 @@
         if (typeof sampleRate === "number" && sampleRate > 0) {
             pcmSampleRate = sampleRate;
         }
-        ensureScheduledDsp();
         await ensureScheduledContextAsync();
         await ensureStreamingSinkAsync();
         if (scheduledKeepAlivePrimingRequested) {
@@ -1013,6 +1021,7 @@
         firstContentCtxState = null;
         recordCtxStateEvent("reset");
         stopAllScheduledSources();
+        scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
             const streamingLeadMs = ScheduledFirstContentLeadMs + remainingFirstContentWakeMs();
