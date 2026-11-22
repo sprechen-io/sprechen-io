@@ -23,7 +23,11 @@ type PlaybackMessage =
     | { kind: "inputRate"; generation: number; rate: number }
     | { kind: "endOfStream"; generation: number };
 
-const dsp = (globalThis as unknown as { sprechenIoPlaybackDsp?: PlaybackDspNamespace }).sprechenIoPlaybackDsp;
+const workletScope = globalThis as typeof globalThis & {
+    readonly sampleRate: number;
+    readonly sprechenIoPlaybackDsp?: PlaybackDspNamespace;
+};
+const dsp = workletScope.sprechenIoPlaybackDsp;
 
 // Der Hauptthread übergibt die Ringpufferkapazität für seine Rückstaukontrolle.
 // Ohne gültige Option gilt diese Vorgabe.
@@ -71,18 +75,18 @@ class PcmPlaybackProcessor extends AudioWorkletProcessor {
             throw new Error("sprechenIoPlaybackDsp must be added to the worklet before this processor.");
         }
 
-        const inputRate = Number(options?.processorOptions?.inputSampleRate) || sampleRate;
+        const inputRate = Number(options?.processorOptions?.inputSampleRate) || workletScope.sampleRate;
         this._ring = new dsp.PcmRingBuffer(
             Number(options?.processorOptions?.ringCapacityFrames) || FallbackRingCapacityFrames);
-        this._resampler = new dsp.StreamingResampler(inputRate, sampleRate);
-        this._requiredLeadFrames = Math.round((DefaultFirstContentLeadMs / 1000) * sampleRate);
+        this._resampler = new dsp.StreamingResampler(inputRate, workletScope.sampleRate);
+        this._requiredLeadFrames = Math.round((DefaultFirstContentLeadMs / 1000) * workletScope.sampleRate);
         this.port.onmessage = (event: MessageEvent<PlaybackMessage>) => this.handle(event.data);
     }
 
     private handle(message: PlaybackMessage): void {
         if (message.kind === "inputRate") {
             if (dsp && message.generation === this._generation && this._ring.available === 0 && this._playedFrames === 0) {
-                this._resampler = new dsp.StreamingResampler(message.rate, sampleRate);
+                this._resampler = new dsp.StreamingResampler(message.rate, workletScope.sampleRate);
             }
             return;
         }
@@ -116,7 +120,7 @@ class PcmPlaybackProcessor extends AudioWorkletProcessor {
             this._gatedFrames = 0;
             const routeLeadMs = Number(message.routeLeadMs);
             this._requiredLeadFrames = Math.max(0, Math.round(
-                ((Number.isFinite(routeLeadMs) ? routeLeadMs : DefaultFirstContentLeadMs) / 1000) * sampleRate));
+                ((Number.isFinite(routeLeadMs) ? routeLeadMs : DefaultFirstContentLeadMs) / 1000) * workletScope.sampleRate));
             this._playedFrames = 0;
             this._reportedFrames = 0;
             this._underruns = 0;
@@ -201,7 +205,7 @@ class PcmPlaybackProcessor extends AudioWorkletProcessor {
         }
 
         // Fortschritt etwa alle 250 ms melden, um den Nachrichtenverkehr zu begrenzen.
-        if (this._playedFrames - this._reportedFrames >= sampleRate / 4) {
+        if (this._playedFrames - this._reportedFrames >= workletScope.sampleRate / 4) {
             this._reportedFrames = this._playedFrames;
             this.port.postMessage({
                 kind: "progress",
