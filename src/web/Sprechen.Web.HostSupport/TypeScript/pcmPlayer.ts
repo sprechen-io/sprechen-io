@@ -464,7 +464,7 @@ interface Window {
     let scheduledAnalyserNode: AnalyserNode | null = null;
 
     let scheduledCtxInitPromise: Promise<void> | null = null;
-    let playbackOutputInitPromise: Promise<void> | null = null;
+    let playbackOutputInitPromise: Promise<StreamingPlaybackSink | null> | null = null;
     let scheduledDsp: OfflineDspProcessor | null = null;
     let scheduledDspRate = 0;
     let scheduledSources: AudioBufferSourceNode[] = [];
@@ -807,20 +807,22 @@ interface Window {
         return promise;
     };
 
-    const ensurePlaybackOutputAsync = (): Promise<void> => {
+    const ensurePlaybackOutputAsync = (): Promise<StreamingPlaybackSink | null> => {
         if (playbackOutputInitPromise) {
             return playbackOutputInitPromise;
         }
         if (scheduledContextReady() && streamingSinkAttempted) {
-            return Promise.resolve();
+            return Promise.resolve(streamingSink);
         }
 
-        playbackOutputInitPromise = ensureScheduledContextAsync()
-            .then(async () => { await ensureStreamingSinkAsync(); })
-            .finally(() => {
-                playbackOutputInitPromise = null;
-            });
-        return playbackOutputInitPromise;
+        const initialization = ensureScheduledContextAsync().then(ensureStreamingSinkAsync);
+        playbackOutputInitPromise = initialization;
+        const clearInitialization = () => {
+            playbackOutputInitPromise = null;
+        };
+        // Clear only once the shared promise settles and earlier enqueues are ready to resume.
+        void initialization.then(clearInitialization, clearInitialization);
+        return initialization;
     };
 
     // Keep-alive-Quelle und optionalen Analyser einmal pro Kontext einrichten.

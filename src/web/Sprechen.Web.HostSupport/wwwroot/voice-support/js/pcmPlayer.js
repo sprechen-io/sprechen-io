@@ -603,14 +603,16 @@
             return playbackOutputInitPromise;
         }
         if (scheduledContextReady() && streamingSinkAttempted) {
-            return Promise.resolve();
+            return Promise.resolve(streamingSink);
         }
-        playbackOutputInitPromise = ensureScheduledContextAsync()
-            .then(async () => { await ensureStreamingSinkAsync(); })
-            .finally(() => {
+        const initialization = ensureScheduledContextAsync().then(ensureStreamingSinkAsync);
+        playbackOutputInitPromise = initialization;
+        const clearInitialization = () => {
             playbackOutputInitPromise = null;
-        });
-        return playbackOutputInitPromise;
+        };
+        // Clear only once the shared promise settles and earlier enqueues are ready to resume.
+        void initialization.then(clearInitialization, clearInitialization);
+        return initialization;
     };
     // Keep-alive-Quelle und optionalen Analyser einmal pro Kontext einrichten.
     // Scheitert die benötigte Quelle, den Fehler melden, damit ein späterer Aufruf erneut versuchen kann.

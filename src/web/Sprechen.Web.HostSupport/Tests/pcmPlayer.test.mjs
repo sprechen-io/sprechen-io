@@ -19,6 +19,7 @@ function fixture(useWorklet) {
     const dspRates = [];
     const scanRates = [];
     const output = [];
+    const starts = { context: 0, worklet: 0 };
 
     class AudioContext {
         state = "suspended";
@@ -27,6 +28,7 @@ function fixture(useWorklet) {
         destination = {};
 
         async resume() {
+            starts.context++;
             await resume.promise;
             this.state = "running";
         }
@@ -80,6 +82,7 @@ function fixture(useWorklet) {
         },
         sprechenIoPlaybackSink: {
             async createWorkletPlaybackSink(_context, _destination, rate) {
+                starts.worklet++;
                 workletStarted.open();
                 await workletReady.promise;
                 return {
@@ -90,7 +93,7 @@ function fixture(useWorklet) {
             }
         }
     });
-    return { player: window.pcmPlayer, resume, workletStarted, workletReady, dspRates, scanRates, output };
+    return { player: window.pcmPlayer, resume, workletStarted, workletReady, dspRates, scanRates, output, starts };
 }
 
 const firstChunk = new Uint8Array([0, 64, 0, 64]);
@@ -142,3 +145,29 @@ test("reset discards a chunk still waiting for the worklet", { timeout: 5000 }, 
     assert.ok(results.every(result => result.succeeded));
     assert.deepEqual(output, [{ route: "worklet", rate: 48000, sample: 0.25 }]);
 });
+
+test("concurrent startup shares the output and preserves enqueue order as it becomes ready",
+    { timeout: 5000 }, async () => {
+        const { player, resume, workletStarted, workletReady, output, starts } = fixture(true);
+        const firstInit = player.init(32000);
+        const first = player.enqueue(firstChunk);
+        const secondInit = player.init(32000);
+        resume.open();
+        await workletStarted.promise;
+        assert.deepEqual(output, []);
+        workletReady.open();
+
+        // Submit distinct chunks on successive microtasks spanning worklet startup completion.
+        const submissions = [];
+        const expected = [0.5];
+        for (let frame = 1; frame <= 16; frame++) {
+            await Promise.resolve();
+            submissions.push(player.enqueue(new Uint8Array([0, frame])));
+            expected.push(frame / 128);
+        }
+
+        const results = await Promise.all([firstInit, first, secondInit, ...submissions]);
+        assert.ok(results.every(result => result.succeeded));
+        assert.deepEqual(starts, { context: 1, worklet: 1 });
+        assert.deepEqual(output.map(entry => entry.sample), expected);
+    });
