@@ -61,6 +61,9 @@ jobs:
       - name: Build
         run: dotnet build "$RUNNER_TEMP/ci/All.slnx" --configuration Release --no-restore
 
+      - name: Verify PCM player queue behavior
+        run: node --test src/web/Sprechen.Web.HostSupport/Tests/pcmPlayer.test.mjs
+
       - name: Test
         run: |
           set -euo pipefail

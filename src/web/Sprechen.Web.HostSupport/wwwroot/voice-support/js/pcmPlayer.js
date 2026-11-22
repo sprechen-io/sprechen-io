@@ -307,12 +307,13 @@
     let masterGainNode = null;
     let pcmSampleRate = 24000;
     let scheduledInputRate = null;
+    let scheduledGeneration = 0;
     // A later init may prepare the next utterance while the current one still owns its DSP.
     const playbackSampleRate = () => scheduledInputRate ?? pcmSampleRate;
-    const bindScheduledInputRate = () => {
+    const bindScheduledInputRate = (rate) => {
         if (scheduledInputRate === null) {
-            streamingSink?.bindInputRate(pcmSampleRate);
-            scheduledInputRate = pcmSampleRate;
+            streamingSink?.bindInputRate(rate);
+            scheduledInputRate = rate;
         }
     };
     let volume = DefaultVolume;
@@ -334,6 +335,7 @@
     let scheduledFirstUtteranceWakeMs = tryReadScheduledFirstUtteranceWakeMs();
     let scheduledAnalyserNode = null;
     let scheduledCtxInitPromise = null;
+    let playbackOutputInitPromise = null;
     let scheduledDsp = null;
     let scheduledDspRate = 0;
     let scheduledSources = [];
@@ -595,6 +597,20 @@
             scheduledCtxInitPromise = null;
         }).catch(() => { });
         return promise;
+    };
+    const ensurePlaybackOutputAsync = () => {
+        if (playbackOutputInitPromise) {
+            return playbackOutputInitPromise;
+        }
+        if (scheduledContextReady() && streamingSinkAttempted) {
+            return Promise.resolve();
+        }
+        playbackOutputInitPromise = ensureScheduledContextAsync()
+            .then(async () => { await ensureStreamingSinkAsync(); })
+            .finally(() => {
+            playbackOutputInitPromise = null;
+        });
+        return playbackOutputInitPromise;
     };
     // Keep-alive-Quelle und optionalen Analyser einmal pro Kontext einrichten.
     // Scheitert die benötigte Quelle, den Fehler melden, damit ein späterer Aufruf erneut versuchen kann.
@@ -878,14 +894,11 @@
             frames[frames.length - fadeLength + index] *= weight;
         }
     };
-    const processAndScheduleChunk = (buffer) => {
-        if (buffer.byteLength < 2) {
-            return;
-        }
-        if (scheduledInputRate !== null && scheduledInputRate !== pcmSampleRate) {
+    const processAndScheduleChunk = (buffer, rate) => {
+        if (scheduledInputRate !== null && scheduledInputRate !== rate) {
             throw createPcmPlayerFailure("PCM_PLAYER_SAMPLE_RATE_CHANGED", "The PCM sample rate changed within an utterance.");
         }
-        bindScheduledInputRate();
+        bindScheduledInputRate(rate);
         const dsp = ensureScheduledDsp();
         const dspNamespace = resolveOfflineDsp();
         const decoded = decodeInt16ToFloat(buffer);
@@ -901,7 +914,7 @@
                 // braucht an internen Blockgrenzen keinen künstlichen Übergang zu null.
                 fadeBufferEndToZero(processed);
             }
-            scan = dspNamespace.scanSilentOutput(processed, ScheduledSilenceScanQuantumFrames, pcmSampleRate);
+            scan = dspNamespace.scanSilentOutput(processed, ScheduledSilenceScanQuantumFrames, rate);
             if (streamingSink) {
                 // Stillewerte auch für den Streamingpfad sammeln, bevor der Puffer weitergegeben wird.
                 scheduledSilentOutputWindows += scan.silentOutputWindows;
@@ -1015,8 +1028,7 @@
             pcmSampleRate = sampleRate;
         }
         ensureScheduledDsp();
-        await ensureScheduledContextAsync();
-        await ensureStreamingSinkAsync();
+        await ensurePlaybackOutputAsync();
         if (scheduledKeepAlivePrimingRequested) {
             ensureScheduledKeepAlive();
         }
@@ -1029,6 +1041,7 @@
         firstContentCtxState = null;
         recordCtxStateEvent("reset");
         stopAllScheduledSources();
+        scheduledGeneration++;
         scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
@@ -1058,32 +1071,24 @@
             await ensureScheduledContextRunningAsync(ctx, "reset");
         }
     };
-    const scheduledEnqueue = (pcm16leBytes) => {
+    const scheduledEnqueue = async (pcm16leBytes) => {
         const buffer = toPcmArrayBuffer(pcm16leBytes);
-        if (!buffer) {
-            return Promise.resolve();
+        if (!buffer || buffer.byteLength < 2) {
+            return;
         }
-        if (scheduledContextReady()) {
-            try {
-                if (scheduledKeepAlivePrimingRequested) {
-                    ensureScheduledKeepAlive();
-                }
-                processAndScheduleChunk(buffer);
-                return Promise.resolve();
-            }
-            catch (error) {
-                return Promise.reject(error);
-            }
+        const rate = pcmSampleRate;
+        const generation = scheduledGeneration;
+        await ensurePlaybackOutputAsync();
+        if (generation !== scheduledGeneration) {
+            return;
         }
-        return ensureScheduledContextAsync().then(() => {
-            if (scheduledKeepAlivePrimingRequested) {
-                ensureScheduledKeepAlive();
-            }
-            processAndScheduleChunk(buffer);
-        });
+        if (scheduledKeepAlivePrimingRequested) {
+            ensureScheduledKeepAlive();
+        }
+        processAndScheduleChunk(buffer, rate);
     };
     const scheduledDrain = async () => {
-        await ensureScheduledContextAsync();
+        await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
         if (!audioCtx || audioCtx.state === "closed" || !masterGainNode) {
             throw createPcmPlayerFailure("PCM_PLAYER_GRAPH_INIT_FAILED", "The playback output graph is unavailable during drain.");
         }
@@ -1099,7 +1104,7 @@
         if (scheduledDsp && (scheduledCursorArmed || streamingSink)) {
             let tail;
             try {
-                bindScheduledInputRate();
+                bindScheduledInputRate(pcmSampleRate);
                 tail = ensureScheduledDsp().flush();
             }
             catch (error) {
