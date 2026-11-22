@@ -9,8 +9,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="11.0.0" />
-    <PackageReference Include="MicroSharp" Version="0.3.0" />
-    <PackageReference Include="MicroSharp.Processing" Version="0.3.0" />
+    <PackageReference Include="MicroSharp" Version="0.3.1" />
+    <PackageReference Include="MicroSharp.Processing" Version="0.3.1" />
   </ItemGroup>
 
   <ItemGroup>

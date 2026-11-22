@@ -86,6 +86,7 @@ interface Window {
         readonly droppedFrames: number;
         readonly routeLeadMs: number;
         write(frames: Float32Array): void;
+        bindInputRate(rate: number): void;
         clear(routeLeadMs: number): void;
         endOfStream(timeoutMs: number): Promise<"drained" | "watchdog" | "cancelled">;
         dispose(): void;
@@ -433,6 +434,15 @@ interface Window {
     let audioCtx: AudioContext | null = null;
     let masterGainNode: GainNode | null = null;
     let pcmSampleRate = 24000;
+    let scheduledInputRate: number | null = null;
+    // A later init may prepare the next utterance while the current one still owns its DSP.
+    const playbackSampleRate = (): number => scheduledInputRate ?? pcmSampleRate;
+    const bindScheduledInputRate = (): void => {
+        if (scheduledInputRate === null) {
+            streamingSink?.bindInputRate(pcmSampleRate);
+            scheduledInputRate = pcmSampleRate;
+        }
+    };
     let volume = DefaultVolume;
     // Verstärkungsfaktor vor der Begrenzung und vor der Benutzerlautstärke.
     // Er wird über setMakeup eingestellt.
@@ -859,11 +869,12 @@ interface Window {
     };
 
     const ensureScheduledDsp = (): OfflineDspProcessor => {
-        if (!scheduledDsp || scheduledDspRate !== pcmSampleRate) {
+        const rate = playbackSampleRate();
+        if (!scheduledDsp || scheduledDspRate !== rate) {
             const DspProcessor = resolveOfflineDsp().MakeupLimiterProcessor;
             try {
-                scheduledDsp = new DspProcessor(pcmSampleRate, { makeup });
-                scheduledDspRate = pcmSampleRate;
+                scheduledDsp = new DspProcessor(rate, { makeup });
+                scheduledDspRate = rate;
             } catch (error) {
                 scheduledDsp = null;
                 scheduledDspRate = 0;
@@ -931,7 +942,7 @@ interface Window {
         let audioBuffer: AudioBuffer;
         let source: AudioBufferSourceNode;
         try {
-            audioBuffer = ctx.createBuffer(1, processed.length, pcmSampleRate);
+            audioBuffer = ctx.createBuffer(1, processed.length, playbackSampleRate());
             audioBuffer.getChannelData(0).set(processed);
             source = ctx.createBufferSource();
             source.buffer = audioBuffer;
@@ -966,8 +977,9 @@ interface Window {
             const leadingSilenceMs = scheduledLeadingSilenceMs;
             if (leadingSilenceMs > 0) {
                 try {
-                    const leadingSilenceFrames = Math.max(1, Math.round((leadingSilenceMs / 1000) * pcmSampleRate));
-                    const leadingSilenceBuffer = ctx.createBuffer(1, leadingSilenceFrames, pcmSampleRate);
+                    const rate = playbackSampleRate();
+                    const leadingSilenceFrames = Math.max(1, Math.round((leadingSilenceMs / 1000) * rate));
+                    const leadingSilenceBuffer = ctx.createBuffer(1, leadingSilenceFrames, rate);
                     leadingSilenceSource = ctx.createBufferSource();
                     leadingSilenceSource.buffer = leadingSilenceBuffer;
                     leadingSilenceSource.connect(gain);
@@ -979,7 +991,7 @@ interface Window {
                         }
                     };
                     leadingSilenceStartAttempted = true;
-                    leadingSilenceSource.start(contentStart - leadingSilenceFrames / pcmSampleRate);
+                    leadingSilenceSource.start(contentStart - leadingSilenceFrames / rate);
                 } catch (error) {
                     if (leadingSilenceSource) {
                         const idx = scheduledSources.indexOf(leadingSilenceSource);
@@ -1096,6 +1108,12 @@ interface Window {
             return;
         }
 
+        if (scheduledInputRate !== null && scheduledInputRate !== pcmSampleRate) {
+            throw createPcmPlayerFailure(
+                "PCM_PLAYER_SAMPLE_RATE_CHANGED", "The PCM sample rate changed within an utterance.");
+        }
+        bindScheduledInputRate();
+
         const dsp = ensureScheduledDsp();
         const dspNamespace = resolveOfflineDsp();
         const decoded = decodeInt16ToFloat(buffer);
@@ -1203,8 +1221,9 @@ interface Window {
         const contextRate = audioCtx && typeof audioCtx.sampleRate === "number" && audioCtx.sampleRate > 0
             ? audioCtx.sampleRate
             : 0;
-        const writtenFramesAtContextRate = contextRate > 0 && pcmSampleRate > 0
-            ? (sink.writtenFrames / pcmSampleRate) * contextRate
+        const rate = playbackSampleRate();
+        const writtenFramesAtContextRate = contextRate > 0 && rate > 0
+            ? (sink.writtenFrames / rate) * contextRate
             : 0;
         emitPlaybackReport(
             writtenFramesAtContextRate,
@@ -1271,6 +1290,7 @@ interface Window {
         recordCtxStateEvent("reset");
 
         stopAllScheduledSources();
+        scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
             const streamingLeadMs = ScheduledFirstContentLeadMs + remainingFirstContentWakeMs();
@@ -1352,7 +1372,8 @@ interface Window {
         if (scheduledDsp && (scheduledCursorArmed || streamingSink)) {
             let tail: Float32Array;
             try {
-                tail = scheduledDsp.flush();
+                bindScheduledInputRate();
+                tail = ensureScheduledDsp().flush();
             } catch (error) {
                 const detail = error instanceof Error ? error.message : "DSP flush failed";
                 throw createPcmPlayerFailure(
@@ -1374,7 +1395,7 @@ interface Window {
         if (streamingSink) {
             const outstandingMs = Math.max(
                 0,
-                ((streamingSink.writtenFrames / Math.max(pcmSampleRate, 1))
+                ((streamingSink.writtenFrames / Math.max(playbackSampleRate(), 1))
                     - (streamingSink.playedFrames / Math.max(audioCtx.sampleRate, 1))) * 1000);
             drainStartMs = nowMs();
             // Neben der verbleibenden Audiodauer den bereits zugewiesenen Vorlauf einrechnen.

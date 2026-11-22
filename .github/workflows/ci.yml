@@ -62,16 +62,24 @@ jobs:
         run: dotnet build "$RUNNER_TEMP/ci/All.slnx" --configuration Release --no-restore
 
       - name: Test
-        run: >
-          dotnet test "$RUNNER_TEMP/ci/All.slnx"
-          --configuration Release
-          --no-build
-          --filter "FullyQualifiedName!~CaptureHarnessBrowserTests"
-          --logger trx
-          --collect "XPlat Code Coverage"
-          --results-directory "$RUNNER_TEMP/test-results"
-          --
-          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+        run: |
+          set -euo pipefail
+          solution="$RUNNER_TEMP/ci/All.slnx"
+          dialogs="src/voice-assistant/Sprechen.VoiceAssistant.Dialogs.Tests/Sprechen.VoiceAssistant.Dialogs.Tests.csproj"
+          test_args=(
+            --configuration Release
+            --no-build
+            --filter "FullyQualifiedName!~CaptureHarnessBrowserTests"
+            --logger trx
+            --collect "XPlat Code Coverage"
+            --results-directory "$RUNNER_TEMP/test-results"
+            --
+            DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+          )
+          # Run the Dialogs collector in isolation because solution-wide runs can lose its hits.
+          dotnet sln "$solution" remove "$dialogs"
+          dotnet test "$dialogs" "${test_args[@]}"
+          dotnet test "$solution" "${test_args[@]}"
 
       - name: Verify MicroSharp capture in Chromium
         env:
@@ -83,8 +91,8 @@ jobs:
           feed="$RUNNER_TEMP/microsharp-reference"
           mkdir -p "$feed"
           curl --fail --silent --show-error --retry 3 \
-            https://api.nuget.org/v3-flatcontainer/microsharp.browser/0.3.0/microsharp.browser.0.3.0.nupkg \
-            --output "$feed/MicroSharp.Browser.0.3.0.nupkg"
+            https://api.nuget.org/v3-flatcontainer/microsharp.browser/0.3.1/microsharp.browser.0.3.1.nupkg \
+            --output "$feed/MicroSharp.Browser.0.3.1.nupkg"
           bash scripts/run-microphone-browser-harness.sh "$feed" "$RUNNER_TEMP/microphone-harness" --nuget-org
 
       - name: Merge coverage reports
@@ -105,6 +113,7 @@ jobs:
           name: test-results
           path: |
             ${{ runner.temp }}/test-results/*.trx
+            ${{ runner.temp }}/test-results/*/coverage.cobertura.xml
             ${{ runner.temp }}/coverage/Cobertura.xml
           if-no-files-found: ignore
 
