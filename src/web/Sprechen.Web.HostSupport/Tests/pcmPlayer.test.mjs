@@ -12,13 +12,16 @@ function gate() {
     return { promise, open };
 }
 
-function fixture(useWorklet) {
+function fixture(useWorklet, drainOutcome = "cancelled") {
     const resume = gate();
     const workletStarted = gate();
     const workletReady = gate();
+    const drainEnded = gate();
     const dspRates = [];
     const scanRates = [];
     const output = [];
+    const drains = [];
+    const reports = [];
     const starts = { context: 0, worklet: 0 };
 
     class AudioContext {
@@ -53,6 +56,10 @@ function fixture(useWorklet) {
     class MakeupLimiterProcessor {
         constructor(rate) { this.rate = rate; }
         reset() {}
+        flush() {
+            drains.push("flush");
+            return new Float32Array();
+        }
         process(samples) {
             dspRates.push(this.rate);
             return samples;
@@ -71,7 +78,10 @@ function fixture(useWorklet) {
         sprechenIoWeb: { pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : [] }
     };
     runInNewContext(playerSource, {
-        window, console, ArrayBuffer, Uint8Array, Float32Array,
+        window, ArrayBuffer, Uint8Array, Float32Array,
+        console: { ...console, info(message) {
+            if (message.startsWith("pcmPlayer: playback report")) reports.push(message);
+        } },
         setTimeout, clearTimeout,
         sprechenIoAudioDsp: {
             MakeupLimiterProcessor,
@@ -88,12 +98,22 @@ function fixture(useWorklet) {
                 return {
                     bindInputRate(newRate) { rate = newRate; },
                     clear() {},
-                    write(samples) { output.push({ route: "worklet", rate, sample: samples[0] }); }
+                    write(samples) { output.push({ route: "worklet", rate, sample: samples[0] }); },
+                    writtenFrames: 0,
+                    playedFrames: 0,
+                    underruns: 0,
+                    routeLeadMs: 0,
+                    async endOfStream() {
+                        drains.push("endOfStream");
+                        drainEnded.open();
+                        return drainOutcome;
+                    }
                 };
             }
         }
     });
-    return { player: window.pcmPlayer, resume, workletStarted, workletReady, dspRates, scanRates, output, starts };
+    return { player: window.pcmPlayer, resume, workletStarted, workletReady, drainEnded,
+        dspRates, scanRates, output, drains, reports, starts };
 }
 
 const firstChunk = new Uint8Array([0, 64, 0, 64]);
@@ -144,6 +164,40 @@ test("reset discards a chunk still waiting for the worklet", { timeout: 5000 }, 
     const results = await Promise.all([stale, next, init, nextInit]);
     assert.ok(results.every(result => result.succeeded));
     assert.deepEqual(output, [{ route: "worklet", rate: 48000, sample: 0.25 }]);
+});
+
+test("reset invalidates a drain still waiting for playback startup", { timeout: 5000 }, async () => {
+    const { player, resume, workletStarted, workletReady, output, drains } = fixture(true);
+    const init = player.init(32000);
+    resume.open();
+    await workletStarted.promise;
+    const staleDrain = player.drain();
+    assert.equal((await player.reset()).succeeded, true);
+    const nextInit = player.init(48000);
+    const next = player.enqueue(laterChunk);
+    workletReady.open();
+
+    const results = await Promise.all([staleDrain, init, nextInit, next]);
+    assert.ok(results.every(result => result.succeeded));
+    assert.deepEqual(drains, []);
+    assert.deepEqual(output, [{ route: "worklet", rate: 48000, sample: 0.25 }]);
+
+    assert.equal((await player.drain()).succeeded, true);
+    assert.deepEqual(drains, ["flush", "endOfStream"]);
+});
+
+test("reset suppresses a completed worklet drain report from the old generation", { timeout: 5000 }, async () => {
+    const { player, resume, workletReady, drainEnded, reports } = fixture(true, "drained");
+    const init = player.init(32000);
+    resume.open();
+    workletReady.open();
+    assert.equal((await init).succeeded, true);
+    const staleDrain = player.drain();
+    await drainEnded.promise;
+    assert.equal((await player.reset()).succeeded, true);
+
+    assert.equal((await staleDrain).succeeded, true);
+    assert.deepEqual(reports, []);
 });
 
 test("concurrent startup shares the output and preserves enqueue order as it becomes ready",

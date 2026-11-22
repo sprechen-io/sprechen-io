@@ -1357,7 +1357,11 @@ interface Window {
     };
 
     const scheduledDrain = async (): Promise<void> => {
+        const generation = scheduledGeneration;
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
+        if (generation !== scheduledGeneration) {
+            return;
+        }
 
         if (!audioCtx || audioCtx.state === "closed" || !masterGainNode) {
             throw createPcmPlayerFailure(
@@ -1412,7 +1416,7 @@ interface Window {
             const routeLeadBudgetMs = streamingSink.routeLeadMs;
             const outcome = await streamingSink.endOfStream(
                 outstandingMs + routeLeadBudgetMs + ScheduledDrainWatchdogMarginMs);
-            if (outcome === "cancelled") {
+            if (generation !== scheduledGeneration || outcome === "cancelled") {
                 // Eine durch Unterbrechung beendete Ausgabe nicht als vollständig abgespielte
                 // oder durch Zeitablauf verkürzte Äußerung melden.
                 return;

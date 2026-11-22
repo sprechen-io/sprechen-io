@@ -1090,7 +1090,11 @@
         processAndScheduleChunk(buffer, rate);
     };
     const scheduledDrain = async () => {
+        const generation = scheduledGeneration;
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
+        if (generation !== scheduledGeneration) {
+            return;
+        }
         if (!audioCtx || audioCtx.state === "closed" || !masterGainNode) {
             throw createPcmPlayerFailure("PCM_PLAYER_GRAPH_INIT_FAILED", "The playback output graph is unavailable during drain.");
         }
@@ -1133,7 +1137,7 @@
             // Eine erneute Berechnung der Aufwachfrist könnte nach ihrer Verwendung null liefern.
             const routeLeadBudgetMs = streamingSink.routeLeadMs;
             const outcome = await streamingSink.endOfStream(outstandingMs + routeLeadBudgetMs + ScheduledDrainWatchdogMarginMs);
-            if (outcome === "cancelled") {
+            if (generation !== scheduledGeneration || outcome === "cancelled") {
                 // Eine durch Unterbrechung beendete Ausgabe nicht als vollständig abgespielte
                 // oder durch Zeitablauf verkürzte Äußerung melden.
                 return;
