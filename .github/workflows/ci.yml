@@ -62,16 +62,24 @@ jobs:
         run: dotnet build "$RUNNER_TEMP/ci/All.slnx" --configuration Release --no-restore
 
       - name: Test
-        run: >
-          dotnet test "$RUNNER_TEMP/ci/All.slnx"
-          --configuration Release
-          --no-build
-          --filter "FullyQualifiedName!~CaptureHarnessBrowserTests"
-          --logger trx
-          --collect "XPlat Code Coverage"
-          --results-directory "$RUNNER_TEMP/test-results"
-          --
-          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+        run: |
+          set -euo pipefail
+          solution="$RUNNER_TEMP/ci/All.slnx"
+          dialogs="src/voice-assistant/Sprechen.VoiceAssistant.Dialogs.Tests/Sprechen.VoiceAssistant.Dialogs.Tests.csproj"
+          test_args=(
+            --configuration Release
+            --no-build
+            --filter "FullyQualifiedName!~CaptureHarnessBrowserTests"
+            --logger trx
+            --collect "XPlat Code Coverage"
+            --results-directory "$RUNNER_TEMP/test-results"
+            --
+            DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+          )
+          # Run the Dialogs collector in isolation because solution-wide runs can lose its hits.
+          dotnet sln "$solution" remove "$dialogs"
+          dotnet test "$dialogs" "${test_args[@]}"
+          dotnet test "$solution" "${test_args[@]}"
 
       - name: Verify MicroSharp capture in Chromium
         env:
@@ -105,6 +113,7 @@ jobs:
           name: test-results
           path: |
             ${{ runner.temp }}/test-results/*.trx
+            ${{ runner.temp }}/test-results/*/coverage.cobertura.xml
             ${{ runner.temp }}/coverage/Cobertura.xml
           if-no-files-found: ignore
 
