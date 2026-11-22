@@ -76,13 +76,16 @@ jobs:
             --logger trx
             --collect "XPlat Code Coverage"
             --results-directory "$RUNNER_TEMP/test-results"
-            --
-            DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
           )
+          coverage_format=DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
           # Run the Dialogs collector in isolation because solution-wide runs can lose its hits.
           dotnet sln "$solution" remove "$dialogs"
-          dotnet test "$dialogs" "${test_args[@]}"
-          dotnet test "$solution" "${test_args[@]}"
+          # Capture the last running test before a hang consumes the job's time limit.
+          timeout 4m dotnet test "$dialogs" "${test_args[@]}" \
+            --logger "console;verbosity=normal" \
+            --blame-hang --blame-hang-timeout 60s --blame-hang-dump-type none \
+            -- "$coverage_format"
+          dotnet test "$solution" "${test_args[@]}" -- "$coverage_format"
 
       - name: Verify MicroSharp capture in Chromium
         env:
@@ -116,6 +119,7 @@ jobs:
           name: test-results
           path: |
             ${{ runner.temp }}/test-results/*.trx
+            ${{ runner.temp }}/test-results/*/Sequence_*.xml
             ${{ runner.temp }}/test-results/*/coverage.cobertura.xml
             ${{ runner.temp }}/coverage/Cobertura.xml
           if-no-files-found: ignore
