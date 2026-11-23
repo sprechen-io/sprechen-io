@@ -319,6 +319,36 @@ test("reset fences a drain whose admission callback is still pending", { timeout
     assert.deepEqual(drains, ["flush"]);
 });
 
+test("a drain waits for audio queued before output initialization completes",
+    { timeout: 5000 }, async () => {
+        const { player, resume, workletStarted, workletReady, drains, output } = fixture(true, "drained");
+        const init = player.init(32000);
+        const accepted = gate();
+        const admission = gate();
+        const enqueue = player.enqueue(firstChunk, { async invokeMethodAsync() {
+            accepted.open();
+            await admission.promise;
+        } });
+        let drainFinished = false;
+        const drain = player.drain().then(result => {
+            drainFinished = true;
+            return result;
+        });
+
+        resume.open();
+        await workletStarted.promise;
+        assert.equal(drainFinished, false);
+        workletReady.open();
+        await accepted.promise;
+        assert.equal(drainFinished, false);
+        assert.deepEqual(drains, []);
+        admission.open();
+
+        assert.ok((await Promise.all([init, enqueue, drain])).every(result => result.succeeded));
+        assert.equal(output.length, 1);
+        assert.deepEqual(drains, ["flush", "endOfStream"]);
+    });
+
 test("concurrent drains share completion while admission is pending", { timeout: 5000 }, async () => {
     const { player, resume, workletReady, drains } = fixture(true, "drained", undefined, true);
     const init = player.init(32000);

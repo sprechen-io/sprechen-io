@@ -1151,17 +1151,17 @@
         }
         const rate = pcmSampleRate;
         const generation = scheduledGeneration;
-        await ensurePlaybackOutputAsync();
-        if (generation !== scheduledGeneration) {
-            return;
-        }
-        if (scheduledKeepAlivePrimingRequested) {
-            ensureScheduledKeepAlive();
-        }
         const onAccepted = observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined;
         const queued = pendingEnqueues.then(async () => {
             if (generation !== scheduledGeneration) {
                 return;
+            }
+            await ensurePlaybackOutputAsync();
+            if (generation !== scheduledGeneration) {
+                return;
+            }
+            if (scheduledKeepAlivePrimingRequested) {
+                ensureScheduledKeepAlive();
             }
             await processAndScheduleChunk(buffer, rate, generation, onAccepted);
         });
