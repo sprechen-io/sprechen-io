@@ -38,14 +38,30 @@ internal sealed class PcmAudioPlaybackLifecycle(
         return _pcmAudioPlayer.ResetAsync(cancellationToken);
     }
 
-    internal ValueTask EnqueuePcm16LeAsync(byte[] bytes, CancellationToken cancellationToken)
+    internal async ValueTask EnqueuePcm16LeAsync(byte[] bytes, Action? onAccepted, CancellationToken cancellationToken)
     {
-        return _pcmAudioPlayer.EnqueuePcm16LeAsync(bytes, cancellationToken);
+        if (onAccepted is not null && _pcmAudioPlayer is IPcmPlaybackAdmission admission)
+        {
+            await admission.EnqueuePcm16LeAsync(bytes, onAccepted, cancellationToken);
+            return;
+        }
+
+        await _pcmAudioPlayer.EnqueuePcm16LeAsync(bytes, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        onAccepted?.Invoke();
     }
 
-    internal ValueTask DrainAsync(CancellationToken cancellationToken)
+    internal async ValueTask DrainAsync(Action? onAccepted, CancellationToken cancellationToken)
     {
-        return _pcmAudioPlayer.DrainAsync(cancellationToken);
+        if (onAccepted is not null && _pcmAudioPlayer is IPcmPlaybackAdmission admission)
+        {
+            await admission.DrainAsync(onAccepted, cancellationToken);
+            return;
+        }
+
+        await _pcmAudioPlayer.DrainAsync(cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        onAccepted?.Invoke();
     }
 
     internal ValueTask SetMakeupAsync(double makeup, CancellationToken cancellationToken)

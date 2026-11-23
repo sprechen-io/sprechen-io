@@ -31,10 +31,6 @@ type EarconApi = {
 /** Globale Earcon-Schnittstelle und vom Host bereitgestellte Audioressourcen. */
 interface Window {
     earcons: EarconApi;
-    sprechenIoWeb?: {
-        pcmPlaybackWorkletUrls?: string[];
-        earconUrls?: Record<string, string>;
-    };
 }
 
 ((): void => {
