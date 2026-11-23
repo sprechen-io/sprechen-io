@@ -42,7 +42,13 @@ internal sealed class SpeechAssistantVoiceInputToggle
 
         if (state.Phase is SpeechAssistantPhase.Armed or SpeechAssistantPhase.Engaged)
         {
-            await host.DispatchToActiveAsync(new SpeechAssistantVoiceInputPausedEvent(), DispatchMode.Interrupt, cancellationToken)
+            var pause = new SpeechAssistantVoiceInputPausedEvent();
+            // Reserve the pause ahead of any partial result published by an interrupted dialog.
+            // The reducer treats a second pause in the paused phase as a no-op.
+            await host.DispatchToActiveAsync(pause, DispatchMode.Enqueue, cancellationToken)
+                .ConfigureAwait(false);
+            await host.DispatchToActiveAsync(
+                pause, DispatchMode.Interrupt, SpeechAssistantTerminalCancellation.ForRequiredTerminalWork())
                 .ConfigureAwait(false);
             _writeState(
                 state with
