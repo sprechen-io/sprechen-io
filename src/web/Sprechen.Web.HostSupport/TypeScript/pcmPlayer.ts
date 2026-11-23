@@ -103,7 +103,8 @@ interface Window {
     let streamingSinkAttempted = false;
     let microSharpPlayback = false;
     let pendingEnqueues: Promise<void> = Promise.resolve();
-    let activeDrain: Promise<void> | null = null;
+    let pendingEnqueueFailure: { error: unknown } | null = null;
+    let activeDrain: ((observer?: PcmAdmissionObserver) => Promise<void>) | null = null;
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
     let streamingSinkStatus: "pending" | "streaming" | "microsharp" | "unwired" | "no-context" | "error" = "pending";
@@ -1390,6 +1391,7 @@ interface Window {
         scheduledGeneration++;
         activeDrain = null;
         pendingEnqueues = Promise.resolve();
+        pendingEnqueueFailure = null;
         scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
@@ -1444,11 +1446,18 @@ interface Window {
             }
             await processAndScheduleChunk(buffer, rate, generation, onAccepted);
         });
-        pendingEnqueues = queued.catch(() => {});
+        pendingEnqueues = queued.catch(error => {
+            if (generation === scheduledGeneration) {
+                pendingEnqueueFailure ??= { error };
+            }
+        });
         await queued;
     };
 
-    const drainCurrentGeneration = async (generation: number, observer?: PcmAdmissionObserver): Promise<void> => {
+    const drainCurrentGeneration = async (
+        generation: number,
+        onAccepted: () => Promise<void>
+    ): Promise<void> => {
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
         if (generation !== scheduledGeneration) {
             return;
@@ -1456,6 +1465,9 @@ interface Window {
         await pendingEnqueues;
         if (generation !== scheduledGeneration) {
             return;
+        }
+        if (pendingEnqueueFailure) {
+            throw pendingEnqueueFailure.error;
         }
 
         if (!audioCtx || audioCtx.state === "closed" || !masterGainNode) {
@@ -1488,7 +1500,6 @@ interface Window {
                 if (streamingSink) {
                     // Am Ende des gesamten Audiostroms auch den letzten Rest auf null ausblenden.
                     fadeBufferEndToZero(tail);
-                    const onAccepted = observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined;
                     const streamed = await writeStreamingFrames(tail, playbackSampleRate(), generation, onAccepted);
                     if (generation !== scheduledGeneration) {
                         return;
@@ -1497,12 +1508,12 @@ interface Window {
                         scheduleProcessedBuffer(tail);
                     }
                     if (!microSharpPlayback) {
-                        await onAccepted?.();
+                        await onAccepted();
                     }
                 } else {
                     fadeBufferEndToZero(tail);
                     scheduleProcessedBuffer(tail);
-                    await observer?.invokeMethodAsync("OnAccepted");
+                    await onAccepted();
                 }
                 if (generation !== scheduledGeneration) {
                     return;
@@ -1557,16 +1568,38 @@ interface Window {
     };
 
     const scheduledDrain = (observer?: PcmAdmissionObserver): Promise<void> => {
-        if (!activeDrain) {
-            const operation = drainCurrentGeneration(scheduledGeneration, observer).finally(() => {
-                if (activeDrain === operation) {
-                    activeDrain = null;
-                }
-            });
-            activeDrain = operation;
+        if (activeDrain) {
+            return activeDrain(observer);
         }
 
-        return activeDrain;
+        let accepted = false;
+        const observers = new Set<PcmAdmissionObserver>();
+        const notify = (listener: PcmAdmissionObserver): Promise<void> =>
+            Promise.resolve().then(() => listener.invokeMethodAsync("OnAccepted"));
+        const onAccepted = async (): Promise<void> => {
+            if (!accepted) {
+                accepted = true;
+                await Promise.all(Array.from(observers, notify));
+            }
+        };
+        const completion = drainCurrentGeneration(scheduledGeneration, onAccepted).finally(() => {
+            if (activeDrain === join) {
+                activeDrain = null;
+            }
+        });
+        const join = async (listener?: PcmAdmissionObserver): Promise<void> => {
+            if (listener && !observers.has(listener)) {
+                observers.add(listener);
+                if (accepted) {
+                    await Promise.all([completion, notify(listener)]);
+                    return;
+                }
+            }
+
+            await completion;
+        };
+        activeDrain = join;
+        return join(observer);
     };
 
     window.pcmPlayer = {

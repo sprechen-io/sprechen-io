@@ -336,7 +336,10 @@ test("concurrent drains share completion while admission is pending", { timeout:
     await accepted.promise;
 
     let secondFinished = false;
-    const second = player.drain().then(result => {
+    let secondAccepted = 0;
+    const second = player.drain({ async invokeMethodAsync() {
+        secondAccepted++;
+    } }).then(result => {
         secondFinished = true;
         return result;
     });
@@ -347,8 +350,37 @@ test("concurrent drains share completion while admission is pending", { timeout:
     const results = await Promise.all([first, second]);
     assert.ok(results.every(result => result.succeeded));
     assert.equal(finishedDuringAdmission, false);
+    assert.equal(secondAccepted, 1);
     assert.deepEqual(drains, ["flush", "endOfStream"]);
 });
+
+test("enqueue failure is reported by drains until reset without breaking the queue",
+    { timeout: 5000 }, async () => {
+        let writes = 0;
+        const { player, resume } = fixture(true, "drained", async () => ({
+            async write() {
+                if (++writes === 2) throw Error("worklet write failed");
+            },
+            bindInputRate() {},
+            clear() {},
+            async endOfStream() { return "drained"; }
+        }));
+        const init = player.init(32000);
+        resume.open();
+        assert.ok((await init).succeeded);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        const rejected = player.enqueue(firstChunk);
+        const drain = player.drain();
+        const concurrent = player.drain();
+        assert.equal((await rejected).succeeded, false);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        assert.equal((await drain).succeeded, false);
+        assert.equal((await concurrent).succeeded, false);
+
+        assert.ok((await player.reset()).succeeded);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        assert.ok((await player.drain()).succeeded);
+    });
 
 test("concurrent startup shares the output and preserves enqueue order as it becomes ready",
     { timeout: 5000 }, async () => {
