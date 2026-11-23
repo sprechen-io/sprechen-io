@@ -101,6 +101,19 @@ jobs:
             --output "$feed/MicroSharp.Browser.0.3.1.nupkg"
           bash scripts/run-microphone-browser-harness.sh "$feed" "$RUNNER_TEMP/microphone-harness" --nuget-org
 
+      - name: Verify MicroSharp playback in Chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/playwright
+        run: |
+          set -euo pipefail
+          harness=src/speech/Sprechen.Speech.MicrophoneBrowserHarness.Tests
+          web=src/web/Sprechen.Web.HostSupport
+          cache="$(dotnet nuget locals global-packages --list)"
+          cache="${cache#global-packages: }"
+          export PLAYWRIGHT_PACKAGE="$PWD/$harness/bin/Release/net11.0/.playwright/package"
+          node "$web/Tests/microSharpPlayback.browser.cjs" "$web/wwwroot/voice-support" \
+            "$cache/microsharp.browser.playback/0.5.0/staticwebassets"
+
       - name: Merge coverage reports
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool

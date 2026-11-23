@@ -4,11 +4,7 @@
     const TransportCapacityFrames = 96000;
     const ResamplerBatchFrames = 1024;
     const TransportStartupWindowMs = 2000;
-    const createMicroSharpPlaybackSink = async (context, destination, moduleUrl, initialRate, initialLeadMs) => {
-        const url = new URL(moduleUrl, document.baseURI);
-        if (url.origin !== location.origin) {
-            throw new Error("The playback module must use the application origin.");
-        }
+    const createMicroSharpPlaybackSink = async (context, destination, initialRate, initialLeadMs) => {
         const playbackModule = await import("../../../../MicroSharp.Browser.Playback/microsharp-playback.js");
         const scope = globalThis;
         const nodeConstructor = scope.standardizedAudioContext?.AudioWorkletNode ?? scope.AudioWorkletNode;
@@ -18,7 +14,6 @@
             throw new Error("Borrowed MicroSharp playback is unavailable.");
         }
         const createBorrowedPlayer = playbackModule.createBorrowedPlayer;
-        await audioWorklet.addModule(new URL("pcm-playback-processor.js", url).href);
         const createGeneration = (leadMs) => ({
             leadMs,
             controller: new AbortController(),
@@ -93,8 +88,16 @@
                     if (!generation.transport) {
                         generation.earliestOutputFrame = Math.ceil((context.currentTime + generation.leadMs / 1000) * context.sampleRate);
                         const prefill = Math.min(TransportCapacityFrames, Math.ceil(LegacyPrefillInputFrames * context.sampleRate / inputRate));
-                        generation.transport = createBorrowedPlayer(context, destination, context.sampleRate, TransportCapacityFrames, nodeConstructor, { earliestOutputFrame: generation.earliestOutputFrame, minimumBufferedInputFrames: prefill });
-                        await generation.transport.start();
+                        try {
+                            generation.transport = createBorrowedPlayer(context, destination, context.sampleRate, TransportCapacityFrames, nodeConstructor, { earliestOutputFrame: generation.earliestOutputFrame, minimumBufferedInputFrames: prefill });
+                            await generation.transport.start();
+                        }
+                        catch (cause) {
+                            const detail = cause instanceof Error ? cause.message : String(cause);
+                            const error = new Error(detail);
+                            error.name = "MicroSharpPlaybackStartupError";
+                            throw error;
+                        }
                     }
                     const transport = generation.transport;
                     const batch = new Float32Array(ResamplerBatchFrames);

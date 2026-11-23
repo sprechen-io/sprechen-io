@@ -28,7 +28,6 @@ interface Window {
     pcmPlayer: PcmPlayerApi;
     sprechenIoWeb?: {
         pcmPlaybackWorkletUrls?: string[];
-        microSharpPlaybackModuleUrl?: string;
         earconUrls?: Record<string, string>;
     };
 }
@@ -103,6 +102,7 @@ interface Window {
     let streamingSink: StreamingPlaybackSink | null = null;
     let streamingSinkAttempted = false;
     let microSharpPlayback = false;
+    let pendingEnqueues: Promise<void> = Promise.resolve();
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
     let streamingSinkStatus: "pending" | "streaming" | "microsharp" | "unwired" | "no-context" | "error" = "pending";
@@ -123,32 +123,7 @@ interface Window {
             };
         }).sprechenIoPlaybackSink?.createWorkletPlaybackSink;
 
-    const ensureStreamingSinkAsync = async (): Promise<StreamingPlaybackSink | null> => {
-        if (streamingSink || streamingSinkAttempted) {
-            return streamingSink;
-        }
-
-        streamingSinkAttempted = true;
-        const moduleUrl = window.sprechenIoWeb?.microSharpPlaybackModuleUrl;
-        const microSharpFactory = (globalThis as typeof globalThis & {
-            sprechenIoMicroSharpPlayback?: {
-                createMicroSharpPlaybackSink: (
-                    context: BaseAudioContext, destination: AudioNode, url: string, rate: number, lead: number
-                ) => Promise<StreamingPlaybackSink>;
-            };
-        }).sprechenIoMicroSharpPlayback?.createMicroSharpPlaybackSink;
-        if (moduleUrl && microSharpFactory && audioCtx && masterGainNode && prefersMicroSharpPlayback()) {
-            try {
-                streamingSink = await microSharpFactory(
-                    audioCtx, masterGainNode, moduleUrl, pcmSampleRate,
-                    ScheduledFirstContentLeadMs + remainingFirstContentWakeMs());
-                microSharpPlayback = true;
-                streamingSinkStatus = "microsharp";
-                return streamingSink;
-            } catch {
-                recordCtxStateEvent("microsharp-sink-unavailable");
-            }
-        }
+    const createLegacyStreamingSink = async (rate: number): Promise<StreamingPlaybackSink | null> => {
         const factory = resolveStreamingSinkFactory();
         const moduleUrls = window.sprechenIoWeb?.pcmPlaybackWorkletUrls;
         if (!factory || !moduleUrls || moduleUrls.length === 0 || !audioCtx || !masterGainNode) {
@@ -159,23 +134,46 @@ interface Window {
         }
 
         try {
-            streamingSink = await factory(
-                audioCtx,
-                masterGainNode,
-                pcmSampleRate,
-                moduleUrls);
+            const sink = await factory(audioCtx, masterGainNode, rate, moduleUrls);
+            if (sink) {
+                streamingSinkStatus = "streaming";
+            }
+            return sink;
         } catch (error) {
             // Bei fehlgeschlagenem Worklet-Aufbau den geplanten Wiedergabepfad verwenden
             // und den Grund im Bericht festhalten.
-            streamingSink = null;
             streamingSinkStatus = "error";
             recordCtxStateEvent("streaming-sink-unavailable");
+            return null;
+        }
+    };
+
+    const ensureStreamingSinkAsync = async (): Promise<StreamingPlaybackSink | null> => {
+        if (streamingSink || streamingSinkAttempted) {
+            return streamingSink;
         }
 
-        if (streamingSink) {
-            streamingSinkStatus = "streaming";
+        streamingSinkAttempted = true;
+        const microSharpFactory = (globalThis as typeof globalThis & {
+            sprechenIoMicroSharpPlayback?: {
+                createMicroSharpPlaybackSink: (
+                    context: BaseAudioContext, destination: AudioNode, rate: number, lead: number
+                ) => Promise<StreamingPlaybackSink>;
+            };
+        }).sprechenIoMicroSharpPlayback?.createMicroSharpPlaybackSink;
+        if (microSharpFactory && audioCtx && masterGainNode && prefersMicroSharpPlayback()) {
+            try {
+                streamingSink = await microSharpFactory(
+                    audioCtx, masterGainNode, pcmSampleRate, ScheduledFirstContentLeadMs + remainingFirstContentWakeMs());
+                microSharpPlayback = true;
+                streamingSinkStatus = "microsharp";
+                return streamingSink;
+            } catch {
+                recordCtxStateEvent("microsharp-sink-unavailable");
+            }
         }
 
+        streamingSink = await createLegacyStreamingSink(pcmSampleRate);
         return streamingSink;
     };
 
@@ -1161,8 +1159,46 @@ interface Window {
             frames[frames.length - fadeLength + index] *= weight;
         }
     };
+    const writeStreamingFrames = async (
+        frames: Float32Array, rate: number, generation: number, onAccepted?: () => Promise<void>
+    ): Promise<boolean> => {
+        const sink = streamingSink;
+        if (!sink) {
+            return false;
+        }
+
+        try {
+            await sink.write(Float32Array.from(frames), microSharpPlayback ? onAccepted : undefined);
+        } catch (error) {
+            if (!microSharpPlayback || !(error instanceof Error) || error.name !== "MicroSharpPlaybackStartupError") {
+                throw error;
+            }
+            if (generation !== scheduledGeneration) {
+                return true;
+            }
+
+            sink.dispose();
+            const fallback = await createLegacyStreamingSink(rate);
+            if (generation !== scheduledGeneration) {
+                fallback?.dispose();
+                return true;
+            }
+
+            streamingSink = fallback;
+            microSharpPlayback = false;
+            recordCtxStateEvent("microsharp-sink-unavailable");
+            if (!fallback) {
+                return false;
+            }
+            fallback.clear(sink.routeLeadMs);
+            fallback.bindInputRate(rate);
+            await fallback.write(Float32Array.from(frames));
+        }
+        return true;
+    };
+
     const processAndScheduleChunk = async (
-        buffer: ArrayBuffer, rate: number, onAccepted?: () => Promise<void>
+        buffer: ArrayBuffer, rate: number, generation: number, onAccepted?: () => Promise<void>
     ): Promise<void> => {
         if (scheduledInputRate !== null && scheduledInputRate !== rate) {
             throw createPcmPlayerFailure(
@@ -1180,7 +1216,11 @@ interface Window {
             if (processed.length === 0) {
                 return;
             }
-            if (!streamingSink) {
+            const streamed = await writeStreamingFrames(processed, rate, generation, onAccepted);
+            if (generation !== scheduledGeneration) {
+                return;
+            }
+            if (!streamed) {
                 // Nur einzeln geplante Puffer ausblenden. Der fortlaufende Worklet-Strom
                 // braucht an internen Blockgrenzen keinen künstlichen Übergang zu null.
                 fadeBufferEndToZero(processed);
@@ -1190,15 +1230,13 @@ interface Window {
                 processed,
                 ScheduledSilenceScanQuantumFrames,
                 rate);
-            if (streamingSink) {
+            if (streamed) {
                 // Stillewerte auch für den Streamingpfad sammeln, bevor der Puffer weitergegeben wird.
                 scheduledSilentOutputWindows += scan.silentOutputWindows;
                 scheduledMaxContiguousSilentMs = Math.max(
                     scheduledMaxContiguousSilentMs,
                     scan.maxContiguousSilentMs);
                 measureUtteranceOnset(processed);
-                // Eine Kopie übergeben, da postMessage den übertragenen Puffer vom Hauptthread trennt.
-                await streamingSink.write(Float32Array.from(processed), onAccepted);
                 return;
             }
         } catch (error) {
@@ -1347,6 +1385,7 @@ interface Window {
 
         stopAllScheduledSources();
         scheduledGeneration++;
+        pendingEnqueues = Promise.resolve();
         scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
@@ -1395,15 +1434,26 @@ interface Window {
             ensureScheduledKeepAlive();
         }
         const onAccepted = observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined;
-        await processAndScheduleChunk(buffer, rate, microSharpPlayback ? onAccepted : undefined);
-        if (!microSharpPlayback && generation === scheduledGeneration) {
-            await onAccepted?.();
-        }
+        const queued = pendingEnqueues.then(async () => {
+            if (generation !== scheduledGeneration) {
+                return;
+            }
+            await processAndScheduleChunk(buffer, rate, generation, onAccepted);
+            if (!microSharpPlayback && generation === scheduledGeneration) {
+                await onAccepted?.();
+            }
+        });
+        pendingEnqueues = queued.catch(() => {});
+        await queued;
     };
 
     const scheduledDrain = async (observer?: PcmAdmissionObserver): Promise<void> => {
         const generation = scheduledGeneration;
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
+        if (generation !== scheduledGeneration) {
+            return;
+        }
+        await pendingEnqueues;
         if (generation !== scheduledGeneration) {
             return;
         }
@@ -1442,10 +1492,16 @@ interface Window {
                 if (streamingSink) {
                     // Am Ende des gesamten Audiostroms auch den letzten Rest auf null ausblenden.
                     fadeBufferEndToZero(tail);
-                    await streamingSink.write(
-                        Float32Array.from(tail), observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined);
+                    const onAccepted = observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined;
+                    const streamed = await writeStreamingFrames(tail, playbackSampleRate(), generation, onAccepted);
                     if (generation !== scheduledGeneration) {
                         return;
+                    }
+                    if (!streamed) {
+                        scheduleProcessedBuffer(tail);
+                    }
+                    if (!microSharpPlayback) {
+                        await onAccepted?.();
                     }
                 } else {
                     fadeBufferEndToZero(tail);

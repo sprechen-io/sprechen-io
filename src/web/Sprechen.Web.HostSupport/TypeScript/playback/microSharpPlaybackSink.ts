@@ -32,14 +32,9 @@
     const createMicroSharpPlaybackSink = async (
         context: BaseAudioContext,
         destination: AudioNode,
-        moduleUrl: string,
         initialRate: number,
         initialLeadMs: number
     ) => {
-        const url = new URL(moduleUrl, document.baseURI);
-        if (url.origin !== location.origin) {
-            throw new Error("The playback module must use the application origin.");
-        }
         const playbackModule: { createBorrowedPlayer?: unknown } = await import(
             "../../../../MicroSharp.Browser.Playback/microsharp-playback.js"
         );
@@ -55,7 +50,6 @@
             throw new Error("Borrowed MicroSharp playback is unavailable.");
         }
         const createBorrowedPlayer = playbackModule.createBorrowedPlayer as Factory;
-        await audioWorklet.addModule(new URL("pcm-playback-processor.js", url).href);
 
         const createGeneration = (leadMs: number) => ({
             leadMs,
@@ -133,10 +127,17 @@
                             (context.currentTime + generation.leadMs / 1000) * context.sampleRate);
                         const prefill = Math.min(TransportCapacityFrames,
                             Math.ceil(LegacyPrefillInputFrames * context.sampleRate / inputRate));
-                        generation.transport = createBorrowedPlayer(
-                            context, destination, context.sampleRate, TransportCapacityFrames, nodeConstructor,
-                            { earliestOutputFrame: generation.earliestOutputFrame, minimumBufferedInputFrames: prefill });
-                        await generation.transport.start();
+                        try {
+                            generation.transport = createBorrowedPlayer(
+                                context, destination, context.sampleRate, TransportCapacityFrames, nodeConstructor,
+                                { earliestOutputFrame: generation.earliestOutputFrame, minimumBufferedInputFrames: prefill });
+                            await generation.transport.start();
+                        } catch (cause) {
+                            const detail = cause instanceof Error ? cause.message : String(cause);
+                            const error = new Error(detail);
+                            error.name = "MicroSharpPlaybackStartupError";
+                            throw error;
+                        }
                     }
 
                     const transport = generation.transport;

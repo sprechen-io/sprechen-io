@@ -77,12 +77,11 @@ function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybac
             }[key] ?? null;
         } },
         sprechenIoWeb: {
-            pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : [],
-            microSharpPlaybackModuleUrl: "/playback/microsharp-playback.js"
+            pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : []
         }
     };
     runInNewContext(playerSource, {
-        window, ArrayBuffer, Uint8Array, Float32Array,
+        window, ArrayBuffer, Uint8Array, Float32Array, Error,
         console: { ...console, info(message) {
             if (message.startsWith("pcmPlayer: playback report")) reports.push(message);
         } },
@@ -103,6 +102,7 @@ function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybac
                 return {
                     bindInputRate(newRate) { rate = newRate; },
                     clear() {},
+                    dispose() {},
                     write(samples) { output.push({ route: "worklet", rate, sample: samples[0] }); },
                     writtenFrames: 0,
                     playedFrames: 0,
@@ -173,6 +173,49 @@ test("failure to prepare opt-in playback selects the legacy worklet before admis
         assert.equal(reported, 1);
         assert.deepEqual(output, [{ route: "worklet", rate: 32000, sample: 0.5 }]);
     });
+
+test("a transport startup failure reuses the already processed frames on the legacy route",
+    { timeout: 5000 }, async () => {
+        let disposed = 0;
+        const { player, resume, workletReady, output, dspRates } = fixture(true, "drained", async () => ({
+            bindInputRate() {},
+            dispose() { disposed++; },
+            async write() {
+                const error = new Error("AudioWorklet did not start");
+                error.name = "MicroSharpPlaybackStartupError";
+                throw error;
+            }
+        }));
+        const init = player.init(32000);
+        resume.open();
+        workletReady.open();
+        assert.ok((await init).succeeded);
+        let reported = 0;
+        assert.ok((await player.enqueue(firstChunk, { async invokeMethodAsync() { reported++; } })).succeeded);
+        assert.equal(reported, 1);
+        assert.equal(disposed, 1);
+        assert.deepEqual(dspRates, [32000]);
+        assert.deepEqual(output, [{ route: "worklet", rate: 32000, sample: 0.5 }]);
+    });
+
+test("an error after admission never replays frames on the legacy route", { timeout: 5000 }, async () => {
+    const { player, resume, starts, output } = fixture(true, "drained", async () => ({
+        bindInputRate() {},
+        async write(_frames, onAccepted) {
+            await onAccepted();
+            throw new Error("Processor failed after the first admission");
+        }
+    }));
+    const init = player.init(32000);
+    resume.open();
+    assert.ok((await init).succeeded);
+    let reported = 0;
+    const result = await player.enqueue(firstChunk, { async invokeMethodAsync() { reported++; } });
+    assert.equal(reported, 1);
+    assert.equal(result.succeeded, false);
+    assert.equal(starts.worklet, 0);
+    assert.deepEqual(output, []);
+});
 
 for (const useWorklet of [false, true]) {
     const route = useWorklet ? "worklet" : "scheduled";
