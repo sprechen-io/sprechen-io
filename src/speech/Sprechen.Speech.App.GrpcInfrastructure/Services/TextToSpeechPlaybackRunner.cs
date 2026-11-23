@@ -197,7 +197,9 @@ internal sealed partial class TextToSpeechPlaybackRunner
                         using var drainCts = CancellationTokenSource.CreateLinkedTokenSource(token, drainTimeoutCts.Token);
                         try
                         {
-                            await _pcmStreamPlayer.DrainAsync(drainCts.Token).ConfigureAwait(false);
+                            await _pcmStreamPlayer.DrainAsync(
+                                Volatile.Read(ref firstPcmState) == waiting ? OnFirstPcmEnqueued : null,
+                                drainCts.Token).ConfigureAwait(false);
                         }
                         catch (OperationCanceledException) when (
                             drainTimeoutCts.IsCancellationRequested && !token.IsCancellationRequested)

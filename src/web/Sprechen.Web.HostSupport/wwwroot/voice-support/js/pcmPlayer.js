@@ -38,6 +38,7 @@
     // die Wiedergabe mit einzeln geplanten Audioquellen.
     let streamingSink = null;
     let streamingSinkAttempted = false;
+    let microSharpPlayback = false;
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
     let streamingSinkStatus = "pending";
@@ -50,6 +51,19 @@
             return streamingSink;
         }
         streamingSinkAttempted = true;
+        const moduleUrl = window.sprechenIoWeb?.microSharpPlaybackModuleUrl;
+        const microSharpFactory = globalThis.sprechenIoMicroSharpPlayback?.createMicroSharpPlaybackSink;
+        if (moduleUrl && microSharpFactory && audioCtx && masterGainNode && prefersMicroSharpPlayback()) {
+            try {
+                streamingSink = await microSharpFactory(audioCtx, masterGainNode, moduleUrl, pcmSampleRate, ScheduledFirstContentLeadMs + remainingFirstContentWakeMs());
+                microSharpPlayback = true;
+                streamingSinkStatus = "streaming";
+                return streamingSink;
+            }
+            catch {
+                recordCtxStateEvent("microsharp-sink-unavailable");
+            }
+        }
         const factory = resolveStreamingSinkFactory();
         const moduleUrls = window.sprechenIoWeb?.pcmPlaybackWorkletUrls;
         if (!factory || !moduleUrls || moduleUrls.length === 0 || !audioCtx || !masterGainNode) {
@@ -72,6 +86,14 @@
             streamingSinkStatus = "streaming";
         }
         return streamingSink;
+    };
+    const prefersMicroSharpPlayback = () => {
+        try {
+            return window.localStorage.getItem("sprechenIo.audio.playbackTransport") === "microsharp";
+        }
+        catch {
+            return false;
+        }
     };
     const createPcmPlayerFailure = (errorCode, diagnosticDetail) => {
         const error = new Error(`${errorCode}: ${diagnosticDetail}`);
@@ -896,7 +918,7 @@
             frames[frames.length - fadeLength + index] *= weight;
         }
     };
-    const processAndScheduleChunk = (buffer, rate) => {
+    const processAndScheduleChunk = async (buffer, rate, onAccepted) => {
         if (scheduledInputRate !== null && scheduledInputRate !== rate) {
             throw createPcmPlayerFailure("PCM_PLAYER_SAMPLE_RATE_CHANGED", "The PCM sample rate changed within an utterance.");
         }
@@ -923,7 +945,7 @@
                 scheduledMaxContiguousSilentMs = Math.max(scheduledMaxContiguousSilentMs, scan.maxContiguousSilentMs);
                 measureUtteranceOnset(processed);
                 // Eine Kopie übergeben, da postMessage den übertragenen Puffer vom Hauptthread trennt.
-                streamingSink.write(Float32Array.from(processed));
+                await streamingSink.write(Float32Array.from(processed), onAccepted);
                 return;
             }
         }
@@ -1073,7 +1095,7 @@
             await ensureScheduledContextRunningAsync(ctx, "reset");
         }
     };
-    const scheduledEnqueue = async (pcm16leBytes) => {
+    const scheduledEnqueue = async (pcm16leBytes, observer) => {
         const buffer = toPcmArrayBuffer(pcm16leBytes);
         if (!buffer || buffer.byteLength < 2) {
             return;
@@ -1087,9 +1109,13 @@
         if (scheduledKeepAlivePrimingRequested) {
             ensureScheduledKeepAlive();
         }
-        processAndScheduleChunk(buffer, rate);
+        const onAccepted = observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined;
+        await processAndScheduleChunk(buffer, rate, microSharpPlayback ? onAccepted : undefined);
+        if (!microSharpPlayback && generation === scheduledGeneration) {
+            await onAccepted?.();
+        }
     };
-    const scheduledDrain = async () => {
+    const scheduledDrain = async (observer) => {
         const generation = scheduledGeneration;
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
         if (generation !== scheduledGeneration) {
@@ -1121,7 +1147,10 @@
                 if (streamingSink) {
                     // Am Ende des gesamten Audiostroms auch den letzten Rest auf null ausblenden.
                     fadeBufferEndToZero(tail);
-                    streamingSink.write(Float32Array.from(tail));
+                    await streamingSink.write(Float32Array.from(tail), observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined);
+                    if (generation !== scheduledGeneration) {
+                        return;
+                    }
                 }
                 else {
                     fadeBufferEndToZero(tail);
@@ -1168,8 +1197,8 @@
         warmup: () => invokePcmPlayerOperation(scheduledWarmup),
         init: (sampleRate) => invokePcmPlayerOperation(() => scheduledInit(sampleRate)),
         reset: () => invokePcmPlayerOperation(scheduledReset),
-        drain: () => invokePcmPlayerOperation(scheduledDrain),
-        enqueue: (pcm16leBytes) => invokePcmPlayerOperation(() => scheduledEnqueue(pcm16leBytes)),
+        drain: (observer) => invokePcmPlayerOperation(() => scheduledDrain(observer)),
+        enqueue: (pcm16leBytes, observer) => invokePcmPlayerOperation(() => scheduledEnqueue(pcm16leBytes, observer)),
         getVolume,
         setVolume,
         getMakeup,

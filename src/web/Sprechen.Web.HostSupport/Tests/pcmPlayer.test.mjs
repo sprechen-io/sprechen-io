@@ -12,7 +12,7 @@ function gate() {
     return { promise, open };
 }
 
-function fixture(useWorklet, drainOutcome = "cancelled") {
+function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybackSink) {
     const resume = gate();
     const workletStarted = gate();
     const workletReady = gate();
@@ -72,10 +72,14 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
             return {
                 "sprechenIo.audio.scheduledKeepAlive": "off",
                 "sprechenIo.audio.scheduledLeadingSilenceMs": "0",
-                "sprechenIo.audio.scheduledFirstUtteranceWakeMs": "0"
+                "sprechenIo.audio.scheduledFirstUtteranceWakeMs": "0",
+                "sprechenIo.audio.playbackTransport": createMicroSharpPlaybackSink ? "microsharp" : null,
             }[key] ?? null;
         } },
-        sprechenIoWeb: { pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : [] }
+        sprechenIoWeb: {
+            pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : [],
+            microSharpPlaybackModuleUrl: "/playback/microsharp-playback.js"
+        }
     };
     runInNewContext(playerSource, {
         window, ArrayBuffer, Uint8Array, Float32Array,
@@ -83,6 +87,7 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
             if (message.startsWith("pcmPlayer: playback report")) reports.push(message);
         } },
         setTimeout, clearTimeout,
+        sprechenIoMicroSharpPlayback: { createMicroSharpPlaybackSink },
         sprechenIoAudioDsp: {
             MakeupLimiterProcessor,
             scanSilentOutput(_samples, _quantum, rate) {
@@ -118,6 +123,56 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
 
 const firstChunk = new Uint8Array([0, 64, 0, 64]);
 const laterChunk = new Uint8Array([0, 32, 0, 32]);
+
+test("opt-in playback reports the first positive admission before the enqueue settles",
+    { timeout: 5000 }, async () => {
+        const entered = gate();
+        const credit = gate();
+        const accepted = gate();
+        const complete = gate();
+        const { player, resume, starts } = fixture(true, "drained", async () => ({
+            bindInputRate() {},
+            async write(_frames, onAccepted) {
+                entered.open();
+                await credit.promise;
+                await onAccepted();
+                await complete.promise;
+            }
+        }));
+        const init = player.init(32000);
+        resume.open();
+        assert.ok((await init).succeeded);
+        let reported = 0;
+        let settled = false;
+        const enqueue = player.enqueue(firstChunk, { async invokeMethodAsync() {
+            reported++;
+            accepted.open();
+        } }).then(result => { settled = true; return result; });
+        await entered.promise;
+        assert.equal(reported, 0);
+        credit.open();
+        await accepted.promise;
+        assert.equal(reported, 1);
+        assert.equal(settled, false);
+        complete.open();
+        assert.ok((await enqueue).succeeded);
+        assert.equal(starts.worklet, 0);
+    });
+
+test("failure to prepare opt-in playback selects the legacy worklet before admission",
+    { timeout: 5000 }, async () => {
+        const { player, resume, workletReady, output } = fixture(true, "drained", async () => {
+            throw new Error("Playback module unavailable");
+        });
+        const init = player.init(32000);
+        resume.open();
+        workletReady.open();
+        assert.ok((await init).succeeded);
+        let reported = 0;
+        assert.ok((await player.enqueue(firstChunk, { async invokeMethodAsync() { reported++; } })).succeeded);
+        assert.equal(reported, 1);
+        assert.deepEqual(output, [{ route: "worklet", rate: 32000, sample: 0.5 }]);
+    });
 
 for (const useWorklet of [false, true]) {
     const route = useWorklet ? "worklet" : "scheduled";

@@ -121,6 +121,7 @@
             '@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/streamingResampler.js"]',
             '@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/worklets/pcmPlaybackProcessor.js"]'
         ];
+        window.sprechenIoWeb.microSharpPlaybackModuleUrl = '@Assets["_content/MicroSharp.Browser.Playback/microsharp-playback.js"]';
         window.sprechenIoWeb.earconUrls = {
             FlowOutputStart: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/s1.ogg"])',
             FlowBargeIn: '@ToRootRelativeCanonicalHostSupportEarconAssetPath(Assets["_content/Sprechen.Web.HostSupport/voice-support/earcon/f1.ogg"])',
@@ -143,7 +144,9 @@
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/vendor/standardized-audio-context/sac.global.js"]"></script>
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/earcons.js"]"></script>
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/audioDsp.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/streamingResampler.js"]"></script>
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/workletPlaybackSink.js"]"></script>
+    <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/playback/microSharpPlaybackSink.js"]"></script>
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/pcmPlayer.js"]"></script>
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/userLanguageSettings.js"]"></script>
     <script src="@Assets["_content/Sprechen.Web.HostSupport/voice-support/js/themeSettings.js"]"></script>

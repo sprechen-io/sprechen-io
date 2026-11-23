@@ -9,7 +9,7 @@ namespace Sprechen.Speech.App.BrowserInfrastructure.Services;
 /// </summary>
 internal sealed class PcmAudioPlayer(
     IJSRuntime jsRuntime,
-    IAssistantPlaybackOutputLatencyState outputLatencyState) : IPcmAudioPlayer
+    IAssistantPlaybackOutputLatencyState outputLatencyState) : IPcmAudioPlayer, IPcmPlaybackAdmission
 {
     private readonly IJSRuntime _jsRuntime = jsRuntime ?? throw new ArgumentNullException(nameof(jsRuntime));
     private readonly IAssistantPlaybackOutputLatencyState _outputLatencyState =
@@ -37,6 +37,18 @@ internal sealed class PcmAudioPlayer(
         }
 
         return InvokePlaybackOperationAsync("pcmPlayer.drain", cancellationToken);
+    }
+
+    public async ValueTask DrainAsync(Action onAccepted, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(onAccepted);
+        if (!_initialized)
+        {
+            return;
+        }
+
+        using var observer = DotNetObjectReference.Create(new PcmAdmissionObserver(onAccepted, cancellationToken));
+        await InvokePlaybackOperationAsync("pcmPlayer.drain", cancellationToken, observer);
     }
 
     public ValueTask SetMakeupAsync(double makeup, CancellationToken cancellationToken)
@@ -105,6 +117,25 @@ internal sealed class PcmAudioPlayer(
         }
 
         return InvokePlaybackOperationAsync("pcmPlayer.enqueue", cancellationToken, pcm16Le);
+    }
+
+    public async ValueTask EnqueuePcm16LeAsync(
+        byte[] pcm16Le, Action onAccepted, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pcm16Le);
+        ArgumentNullException.ThrowIfNull(onAccepted);
+        if (pcm16Le.Length == 0)
+        {
+            return;
+        }
+
+        if (!_initialized)
+        {
+            throw new InvalidOperationException("PCM player is not initialized. Call InitializeAsync first.");
+        }
+
+        using var observer = DotNetObjectReference.Create(new PcmAdmissionObserver(onAccepted, cancellationToken));
+        await InvokePlaybackOperationAsync("pcmPlayer.enqueue", cancellationToken, pcm16Le, observer);
     }
 
     private async ValueTask InvokePlaybackOperationAsync(
