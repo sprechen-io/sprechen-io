@@ -40,6 +40,7 @@
     let streamingSinkAttempted = false;
     let microSharpPlayback = false;
     let pendingEnqueues = Promise.resolve();
+    let activeDrain = null;
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
     let streamingSinkStatus = "pending";
@@ -1110,6 +1111,7 @@
         recordCtxStateEvent("reset");
         stopAllScheduledSources();
         scheduledGeneration++;
+        activeDrain = null;
         pendingEnqueues = Promise.resolve();
         scheduledInputRate = null;
         if (streamingSink) {
@@ -1164,8 +1166,7 @@
         pendingEnqueues = queued.catch(() => { });
         await queued;
     };
-    const scheduledDrain = async (observer) => {
-        const generation = scheduledGeneration;
+    const drainCurrentGeneration = async (generation, observer) => {
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
         if (generation !== scheduledGeneration) {
             return;
@@ -1180,9 +1181,6 @@
         if (audioCtx.state !== "running") {
             noteContextNotRunning(audioCtx.state);
             throw createPcmPlayerFailure("AUDIO_CONTEXT_SUSPENDED", `AudioContext state is "${audioCtx.state}"; playback cannot drain.`);
-        }
-        if (scheduledDrainPromise) {
-            return scheduledDrainPromise;
         }
         // Noch im Look-ahead-Puffer zurückgehaltene Samples ausgeben.
         // Dafür braucht auch der Streamingpfad einen Abschluss, obwohl er keine Quellen plant.
@@ -1256,6 +1254,17 @@
         scheduledDrainRequested = true;
         maybeCompleteScheduledDrain();
         return promise;
+    };
+    const scheduledDrain = (observer) => {
+        if (!activeDrain) {
+            const operation = drainCurrentGeneration(scheduledGeneration, observer).finally(() => {
+                if (activeDrain === operation) {
+                    activeDrain = null;
+                }
+            });
+            activeDrain = operation;
+        }
+        return activeDrain;
     };
     window.pcmPlayer = {
         warmup: () => invokePcmPlayerOperation(scheduledWarmup),

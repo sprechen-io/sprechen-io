@@ -319,6 +319,37 @@ test("reset fences a drain whose admission callback is still pending", { timeout
     assert.deepEqual(drains, ["flush"]);
 });
 
+test("concurrent drains share completion while admission is pending", { timeout: 5000 }, async () => {
+    const { player, resume, workletReady, drains } = fixture(true, "drained", undefined, true);
+    const init = player.init(32000);
+    resume.open();
+    workletReady.open();
+    assert.ok((await init).succeeded);
+    assert.ok((await player.enqueue(firstChunk)).succeeded);
+
+    const accepted = gate();
+    const callback = gate();
+    const first = player.drain({ async invokeMethodAsync() {
+        accepted.open();
+        await callback.promise;
+    } });
+    await accepted.promise;
+
+    let secondFinished = false;
+    const second = player.drain().then(result => {
+        secondFinished = true;
+        return result;
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    const finishedDuringAdmission = secondFinished;
+    callback.open();
+
+    const results = await Promise.all([first, second]);
+    assert.ok(results.every(result => result.succeeded));
+    assert.equal(finishedDuringAdmission, false);
+    assert.deepEqual(drains, ["flush", "endOfStream"]);
+});
+
 test("concurrent startup shares the output and preserves enqueue order as it becomes ready",
     { timeout: 5000 }, async () => {
         const { player, resume, workletStarted, workletReady, output, starts } = fixture(true);

@@ -103,6 +103,7 @@ interface Window {
     let streamingSinkAttempted = false;
     let microSharpPlayback = false;
     let pendingEnqueues: Promise<void> = Promise.resolve();
+    let activeDrain: Promise<void> | null = null;
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
     let streamingSinkStatus: "pending" | "streaming" | "microsharp" | "unwired" | "no-context" | "error" = "pending";
@@ -1387,6 +1388,7 @@ interface Window {
 
         stopAllScheduledSources();
         scheduledGeneration++;
+        activeDrain = null;
         pendingEnqueues = Promise.resolve();
         scheduledInputRate = null;
         if (streamingSink) {
@@ -1446,8 +1448,7 @@ interface Window {
         await queued;
     };
 
-    const scheduledDrain = async (observer?: PcmAdmissionObserver): Promise<void> => {
-        const generation = scheduledGeneration;
+    const drainCurrentGeneration = async (generation: number, observer?: PcmAdmissionObserver): Promise<void> => {
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
         if (generation !== scheduledGeneration) {
             return;
@@ -1468,10 +1469,6 @@ interface Window {
             throw createPcmPlayerFailure(
                 "AUDIO_CONTEXT_SUSPENDED",
                 `AudioContext state is "${audioCtx.state}"; playback cannot drain.`);
-        }
-
-        if (scheduledDrainPromise) {
-            return scheduledDrainPromise;
         }
 
         // Noch im Look-ahead-Puffer zurückgehaltene Samples ausgeben.
@@ -1557,6 +1554,19 @@ interface Window {
         maybeCompleteScheduledDrain();
 
         return promise;
+    };
+
+    const scheduledDrain = (observer?: PcmAdmissionObserver): Promise<void> => {
+        if (!activeDrain) {
+            const operation = drainCurrentGeneration(scheduledGeneration, observer).finally(() => {
+                if (activeDrain === operation) {
+                    activeDrain = null;
+                }
+            });
+            activeDrain = operation;
+        }
+
+        return activeDrain;
     };
 
     window.pcmPlayer = {

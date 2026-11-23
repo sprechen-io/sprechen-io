@@ -170,6 +170,11 @@ const server = createServer((req, res) => {
         const result = {};
         for (const route of ["legacy", "microsharp", "missing", "failed-worklet", "credits", "reset", "credit-reset", "bad-drain", "tiny", "legacy-abort"]) {
             const page = await browser.newPage();
+            const packageResponses = new Map();
+            page.on("response", response => {
+                const path = new URL(response.url()).pathname;
+                if (path.startsWith(packageBase)) packageResponses.set(path, response.status());
+            });
             await page.addInitScript(() => { localStorage.setItem("sprechenIo.audio.scheduledKeepAlive", "off"); localStorage.setItem("sprechenIo.audio.scheduledFirstUtteranceWakeMs", "0"); });
             if (route === "missing") await page.route("**/MicroSharp.Browser.Playback/microsharp-playback.js", route => route.abort());
             if (route === "failed-worklet") await page.route("**/MicroSharp.Browser.Playback/pcm-playback-processor.js", route => route.abort());
@@ -180,6 +185,10 @@ const server = createServer((req, res) => {
             await page.evaluate(prepare, { route, worklets });
             await page.getByRole("button").click();
             result[route] = await page.evaluate(() => window.measurement);
+            if (route === "microsharp") {
+                assert.equal(packageResponses.get(packageBase + "microsharp-playback.js"), 200);
+                assert.equal(packageResponses.get(packageBase + "pcm-playback-processor.js"), 200);
+            }
             await page.close();
         }
         for (const item of Object.values(result)) assert.ok(item.trusted && item.admissions === 1);

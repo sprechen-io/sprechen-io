@@ -8,6 +8,8 @@
         if (typeof AbortSignal.prototype.throwIfAborted !== "function") {
             throw new Error("Borrowed MicroSharp playback requires abortable credit waits.");
         }
+        // Both libraries are served under /_content. The four parent segments
+        // leave this library's static asset directory at that shared root.
         const playbackModule = await import("../../../../MicroSharp.Browser.Playback/microsharp-playback.js");
         const scope = globalThis;
         const nodeConstructor = scope.standardizedAudioContext?.AudioWorkletNode ?? scope.AudioWorkletNode;
