@@ -128,6 +128,30 @@ public sealed class SpeechAssistantLifecycleTests
         Assert.Equal(3, resetCalls);
     }
 
+    [Fact]
+    public async Task Toggle_WhenPausing_QueuesPauseBeforeInterruptingTheDialog()
+    {
+        var capture = CreateSpeechCaptureClient();
+        capture.Setup(c => c.PauseAsync(It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var context = CreateContext(capture.Object);
+        var host = CreateHost();
+        var dispatches = new List<DispatchMode>();
+        host.Setup(h => h.DispatchToActiveAsync(
+                It.IsAny<SpeechAssistantVoiceInputPausedEvent>(), It.IsAny<DispatchMode>(), It.IsAny<CancellationToken>()))
+            .Callback<SpeechAssistantEvent, DispatchMode, CancellationToken>((_, mode, _) => dispatches.Add(mode))
+            .Returns(ValueTask.CompletedTask);
+        var state = SpeechAssistantState.Initial with { Phase = SpeechAssistantPhase.Armed };
+        await using var lifecycle = new SpeechAssistantLifecycle(context, () => host.Object, _ => { }, () => { });
+        var toggle = new SpeechAssistantVoiceInputToggle(context, lifecycle, () => state, next => state = next);
+        await lifecycle.EnsureStartedAsync(CancellationToken.None);
+
+        var outcome = await toggle.ToggleAsync(CancellationToken.None);
+
+        Assert.Equal(SpeechAssistantActivationState.Paused, outcome);
+        Assert.Equal([DispatchMode.Enqueue, DispatchMode.Interrupt], dispatches);
+    }
+
     private static Mock<IDialogHost<SpeechAssistantEvent>> CreateHost()
     {
         var host = new Mock<IDialogHost<SpeechAssistantEvent>>(MockBehavior.Strict);
