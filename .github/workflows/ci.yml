@@ -110,6 +110,12 @@ jobs:
           web=src/web/Sprechen.Web.HostSupport
           cache="$(dotnet nuget locals global-packages --list)"
           cache="${cache#global-packages: }"
+          endpoints=src/voice/Sprechen.Voice.Host/obj/Release/net11.0/staticwebassets.build.endpoints.json
+          jq -e '
+            any(.Endpoints[]; .Route == "_content/MicroSharp.Browser.Playback/microsharp-playback.js")
+            and any(.Endpoints[]; .Route == "_content/MicroSharp.Browser.Playback/pcm-playback-processor.js")
+            and any(.Endpoints[]; .Route == "_content/Sprechen.Web.HostSupport/voice-support/js/playback/microSharpPlaybackSink.js")
+          ' "$endpoints"
           export NODE_PATH="$RUNNER_TEMP/playback-browser-modules"
           mkdir -p "$NODE_PATH"
           ln -s "$PWD/$harness/bin/Release/net11.0/.playwright/package" "$NODE_PATH/playwright"

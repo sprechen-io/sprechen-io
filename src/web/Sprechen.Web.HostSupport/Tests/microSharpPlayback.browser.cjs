@@ -161,7 +161,10 @@ const server = createServer((req, res) => {
 });
 
 (async () => {
-    await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+    await new Promise((resolve, reject) => {
+        server.once("error", reject);
+        server.listen(41737, "127.0.0.1", resolve);
+    });
     const browser = await chromium.launch({ headless: true, args: ["--autoplay-policy=user-gesture-required"] });
     try {
         const result = {};
@@ -170,7 +173,7 @@ const server = createServer((req, res) => {
             await page.addInitScript(() => { localStorage.setItem("sprechenIo.audio.scheduledKeepAlive", "off"); localStorage.setItem("sprechenIo.audio.scheduledFirstUtteranceWakeMs", "0"); });
             if (route === "missing") await page.route("**/MicroSharp.Browser.Playback/microsharp-playback.js", route => route.abort());
             if (route === "failed-worklet") await page.route("**/MicroSharp.Browser.Playback/pcm-playback-processor.js", route => route.abort());
-            await page.goto("http://127.0.0.1:" + server.address().port);
+            await page.goto("http://127.0.0.1:41737/");
             await page.evaluate(prepare, { route, worklets });
             await page.getByRole("button").click();
             result[route] = await page.evaluate(() => window.measurement);
