@@ -12,7 +12,7 @@ function gate() {
     return { promise, open };
 }
 
-function fixture(useWorklet, drainOutcome = "cancelled") {
+function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybackSink, bufferedTail = false) {
     const resume = gate();
     const workletStarted = gate();
     const workletReady = gate();
@@ -58,11 +58,11 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
         reset() {}
         flush() {
             drains.push("flush");
-            return new Float32Array();
+            return bufferedTail ? Float32Array.of(0.5) : new Float32Array();
         }
         process(samples) {
             dspRates.push(this.rate);
-            return samples;
+            return bufferedTail ? new Float32Array() : samples;
         }
     }
 
@@ -72,17 +72,21 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
             return {
                 "sprechenIo.audio.scheduledKeepAlive": "off",
                 "sprechenIo.audio.scheduledLeadingSilenceMs": "0",
-                "sprechenIo.audio.scheduledFirstUtteranceWakeMs": "0"
+                "sprechenIo.audio.scheduledFirstUtteranceWakeMs": "0",
+                "sprechenIo.audio.playbackTransport": createMicroSharpPlaybackSink ? "microsharp" : null,
             }[key] ?? null;
         } },
-        sprechenIoWeb: { pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : [] }
+        sprechenIoWeb: {
+            pcmPlaybackWorkletUrls: useWorklet ? ["processor.js"] : []
+        }
     };
     runInNewContext(playerSource, {
-        window, ArrayBuffer, Uint8Array, Float32Array,
+        window, ArrayBuffer, Uint8Array, Float32Array, Error,
         console: { ...console, info(message) {
             if (message.startsWith("pcmPlayer: playback report")) reports.push(message);
         } },
         setTimeout, clearTimeout,
+        sprechenIoMicroSharpPlayback: { createMicroSharpPlaybackSink },
         sprechenIoAudioDsp: {
             MakeupLimiterProcessor,
             scanSilentOutput(_samples, _quantum, rate) {
@@ -98,6 +102,7 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
                 return {
                     bindInputRate(newRate) { rate = newRate; },
                     clear() {},
+                    dispose() {},
                     write(samples) { output.push({ route: "worklet", rate, sample: samples[0] }); },
                     writtenFrames: 0,
                     playedFrames: 0,
@@ -118,6 +123,99 @@ function fixture(useWorklet, drainOutcome = "cancelled") {
 
 const firstChunk = new Uint8Array([0, 64, 0, 64]);
 const laterChunk = new Uint8Array([0, 32, 0, 32]);
+
+test("opt-in playback reports the first positive admission before the enqueue settles",
+    { timeout: 5000 }, async () => {
+        const entered = gate();
+        const credit = gate();
+        const accepted = gate();
+        const complete = gate();
+        const { player, resume, starts } = fixture(true, "drained", async () => ({
+            bindInputRate() {},
+            async write(_frames, onAccepted) {
+                entered.open();
+                await credit.promise;
+                await onAccepted();
+                await complete.promise;
+            }
+        }));
+        const init = player.init(32000);
+        resume.open();
+        assert.ok((await init).succeeded);
+        let reported = 0;
+        let settled = false;
+        const enqueue = player.enqueue(firstChunk, { async invokeMethodAsync() {
+            reported++;
+            accepted.open();
+        } }).then(result => { settled = true; return result; });
+        await entered.promise;
+        assert.equal(reported, 0);
+        credit.open();
+        await accepted.promise;
+        assert.equal(reported, 1);
+        assert.equal(settled, false);
+        complete.open();
+        assert.ok((await enqueue).succeeded);
+        assert.equal(starts.worklet, 0);
+    });
+
+test("failure to prepare opt-in playback selects the legacy worklet before admission",
+    { timeout: 5000 }, async () => {
+        const { player, resume, workletReady, output } = fixture(true, "drained", async () => {
+            throw new Error("Playback module unavailable");
+        });
+        const init = player.init(32000);
+        resume.open();
+        workletReady.open();
+        assert.ok((await init).succeeded);
+        let reported = 0;
+        assert.ok((await player.enqueue(firstChunk, { async invokeMethodAsync() { reported++; } })).succeeded);
+        assert.equal(reported, 1);
+        assert.deepEqual(output, [{ route: "worklet", rate: 32000, sample: 0.5 }]);
+    });
+
+test("a transport startup failure reuses the already processed frames on the legacy route",
+    { timeout: 5000 }, async () => {
+        let disposed = 0;
+        const { player, resume, workletReady, output, dspRates } = fixture(true, "drained", async () => ({
+            bindInputRate() {},
+            dispose() { disposed++; },
+            async write() {
+                const error = new Error("AudioWorklet did not start");
+                error.name = "MicroSharpPlaybackStartupError";
+                throw error;
+            }
+        }));
+        const init = player.init(32000);
+        resume.open();
+        workletReady.open();
+        assert.ok((await init).succeeded);
+        let reported = 0;
+        assert.ok((await player.enqueue(firstChunk, { async invokeMethodAsync() { reported++; } })).succeeded);
+        assert.equal(reported, 1);
+        assert.equal(disposed, 1);
+        assert.deepEqual(dspRates, [32000]);
+        assert.deepEqual(output, [{ route: "worklet", rate: 32000, sample: 0.5 }]);
+    });
+
+test("an error after admission never replays frames on the legacy route", { timeout: 5000 }, async () => {
+    const { player, resume, starts, output } = fixture(true, "drained", async () => ({
+        bindInputRate() {},
+        async write(_frames, onAccepted) {
+            await onAccepted();
+            throw new Error("Processor failed after the first admission");
+        }
+    }));
+    const init = player.init(32000);
+    resume.open();
+    assert.ok((await init).succeeded);
+    let reported = 0;
+    const result = await player.enqueue(firstChunk, { async invokeMethodAsync() { reported++; } });
+    assert.equal(reported, 1);
+    assert.equal(result.succeeded, false);
+    assert.equal(starts.worklet, 0);
+    assert.deepEqual(output, []);
+});
 
 for (const useWorklet of [false, true]) {
     const route = useWorklet ? "worklet" : "scheduled";
@@ -199,6 +297,143 @@ test("reset suppresses a completed worklet drain report from the old generation"
     assert.equal((await staleDrain).succeeded, true);
     assert.deepEqual(reports, []);
 });
+
+test("reset fences a drain whose admission callback is still pending", { timeout: 5000 }, async () => {
+    const { player, resume, workletReady, drains } = fixture(true, "drained", undefined, true);
+    const init = player.init(32000);
+    resume.open();
+    workletReady.open();
+    assert.ok((await init).succeeded);
+    assert.ok((await player.enqueue(firstChunk)).succeeded);
+
+    const accepted = gate();
+    const callback = gate();
+    const drain = player.drain({ async invokeMethodAsync() {
+        accepted.open();
+        await callback.promise;
+    } });
+    await accepted.promise;
+    assert.ok((await player.reset()).succeeded);
+    callback.open();
+    assert.ok((await drain).succeeded);
+    assert.deepEqual(drains, ["flush"]);
+});
+
+test("a drain waits for audio queued before output initialization completes",
+    { timeout: 5000 }, async () => {
+        const { player, resume, workletStarted, workletReady, drains, output } = fixture(true, "drained");
+        const init = player.init(32000);
+        const accepted = gate();
+        const admission = gate();
+        const enqueue = player.enqueue(firstChunk, { async invokeMethodAsync() {
+            accepted.open();
+            await admission.promise;
+        } });
+        let drainFinished = false;
+        const drain = player.drain().then(result => {
+            drainFinished = true;
+            return result;
+        });
+
+        resume.open();
+        await workletStarted.promise;
+        assert.equal(drainFinished, false);
+        workletReady.open();
+        await accepted.promise;
+        assert.equal(drainFinished, false);
+        assert.deepEqual(drains, []);
+        admission.open();
+
+        assert.ok((await Promise.all([init, enqueue, drain])).every(result => result.succeeded));
+        assert.equal(output.length, 1);
+        assert.deepEqual(drains, ["flush", "endOfStream"]);
+    });
+
+test("concurrent drains share completion while admission is pending", { timeout: 5000 }, async () => {
+    const { player, resume, workletReady, drains } = fixture(true, "drained", undefined, true);
+    const init = player.init(32000);
+    resume.open();
+    workletReady.open();
+    assert.ok((await init).succeeded);
+    assert.ok((await player.enqueue(firstChunk)).succeeded);
+
+    const accepted = gate();
+    const callback = gate();
+    const first = player.drain({ async invokeMethodAsync() {
+        accepted.open();
+        await callback.promise;
+    } });
+    await accepted.promise;
+
+    let secondFinished = false;
+    let secondAccepted = 0;
+    const second = player.drain({ async invokeMethodAsync() {
+        secondAccepted++;
+    } }).then(result => {
+        secondFinished = true;
+        return result;
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    const finishedDuringAdmission = secondFinished;
+    callback.open();
+
+    const results = await Promise.all([first, second]);
+    assert.ok(results.every(result => result.succeeded));
+    assert.equal(finishedDuringAdmission, false);
+    assert.equal(secondAccepted, 1);
+    assert.deepEqual(drains, ["flush", "endOfStream"]);
+});
+
+test("an unavailable drain observer does not fail other callers or stop playback",
+    { timeout: 5000 }, async () => {
+        const { player, resume, workletReady, drains } = fixture(true, "drained", undefined, true);
+        const init = player.init(32000);
+        resume.open();
+        workletReady.open();
+        assert.ok((await init).succeeded);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        let othersNotified = 0;
+
+        const unavailable = player.drain({ async invokeMethodAsync() {
+            throw Error("interop reference unavailable");
+        } });
+        const other = player.drain({ async invokeMethodAsync() {
+            othersNotified++;
+        } });
+
+        assert.equal((await unavailable).succeeded, false);
+        assert.equal((await other).succeeded, true);
+        assert.equal(othersNotified, 1);
+        assert.deepEqual(drains, ["flush", "endOfStream"]);
+    });
+
+test("enqueue failure is reported by drains until reset without breaking the queue",
+    { timeout: 5000 }, async () => {
+        let writes = 0;
+        const { player, resume } = fixture(true, "drained", async () => ({
+            async write() {
+                if (++writes === 2) throw Error("worklet write failed");
+            },
+            bindInputRate() {},
+            clear() {},
+            async endOfStream() { return "drained"; }
+        }));
+        const init = player.init(32000);
+        resume.open();
+        assert.ok((await init).succeeded);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        const rejected = player.enqueue(firstChunk);
+        const drain = player.drain();
+        const concurrent = player.drain();
+        assert.equal((await rejected).succeeded, false);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        assert.equal((await drain).succeeded, false);
+        assert.equal((await concurrent).succeeded, false);
+
+        assert.ok((await player.reset()).succeeded);
+        assert.ok((await player.enqueue(firstChunk)).succeeded);
+        assert.ok((await player.drain()).succeeded);
+    });
 
 test("concurrent startup shares the output and preserves enqueue order as it becomes ready",
     { timeout: 5000 }, async () => {
