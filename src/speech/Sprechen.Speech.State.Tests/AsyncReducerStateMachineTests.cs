@@ -140,6 +140,62 @@ public sealed class AsyncReducerStateMachineTests
     }
 
     [Fact]
+    public async Task DispatchAsync_WhenInterruptStartsEffect_WaitsForCancellationCallbacks()
+    {
+        var reducer = new Mock<IStateReducer<int, string, object>>(MockBehavior.Strict);
+        var previousEffect = new Mock<IStateEffect<string, object>>(MockBehavior.Strict);
+        var nextEffect = new Mock<IStateEffect<string, object>>(MockBehavior.Strict);
+        var previousStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var callbackStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var nextStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var releaseCallback = new ManualResetEventSlim();
+
+        previousEffect.Setup(e => e.ExecuteAsync(
+                It.IsAny<object>(), It.IsAny<IEventDispatcher<string>>(), It.IsAny<CancellationToken>()))
+            .Returns((object _, IEventDispatcher<string> _, CancellationToken token) =>
+                FinishEffectWhenCancellationStartsAsync(token));
+        nextEffect.Setup(e => e.ExecuteAsync(
+                It.IsAny<object>(), It.IsAny<IEventDispatcher<string>>(), It.IsAny<CancellationToken>()))
+            .Callback(() => nextStarted.TrySetResult())
+            .Returns(ValueTask.CompletedTask);
+        reducer.Setup(r => r.Reduce(0, "start"))
+            .Returns(StateUpdate<int, string, object>.WithEffects(1, previousEffect.Object));
+        reducer.Setup(r => r.Reduce(1, "interrupt"))
+            .Returns(StateUpdate<int, string, object>.WithEffects(2, nextEffect.Object));
+
+        await using var machine = new AsyncReducerStateMachine<int, string, object>(0, reducer.Object, new object());
+        await machine.DispatchAsync("start");
+        await previousStarted.Task.WaitAsync(WaitTimeout);
+
+        var interrupt = Task.Run(async () => await machine.DispatchAsync("interrupt", DispatchMode.Interrupt));
+        try
+        {
+            await callbackStarted.Task.WaitAsync(WaitTimeout);
+            await Assert.ThrowsAsync<TimeoutException>(() => nextStarted.Task.WaitAsync(TimeSpan.FromMilliseconds(500)));
+        }
+        finally
+        {
+            releaseCallback.Set();
+            await interrupt.WaitAsync(WaitTimeout);
+        }
+
+        await nextStarted.Task.WaitAsync(WaitTimeout);
+        Assert.Equal(2, machine.State);
+
+        async ValueTask FinishEffectWhenCancellationStartsAsync(CancellationToken token)
+        {
+            // Keep the callback registered while the old effect returns to the reader.
+            _ = token.Register(() =>
+            {
+                callbackStarted.TrySetResult();
+                Assert.True(releaseCallback.Wait(WaitTimeout));
+            });
+            previousStarted.TrySetResult();
+            await callbackStarted.Task;
+        }
+    }
+
+    [Fact]
     public async Task DispatchAsync_WhenEffectDispatchesInterruptEvent_DoesNotDropDispatchedEvent()
     {
         var reducer = new Mock<IStateReducer<int, string, object>>(MockBehavior.Strict);

@@ -11,13 +11,15 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
     private readonly object _gate = new();
     private readonly IStateReducer<TState, TEvent, TContext> _reducer;
     private readonly TContext _context;
-    private readonly Channel<TEvent> _events;
+    private readonly Channel<QueuedEvent> _events;
     private readonly Task _runner;
 
     private CancellationTokenSource _effectsCts = new();
     private Exception? _fault;
     private bool _disposed;
     private TState _state;
+
+    private readonly record struct QueuedEvent(TEvent Event, Task<bool>? CancellationCompleted = null);
 
     public AsyncReducerStateMachine(
         TState initialState,
@@ -28,7 +30,7 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
         _reducer = reducer ?? throw new ArgumentNullException(nameof(reducer));
         _context = context;
 
-        _events = Channel.CreateUnbounded<TEvent>(new UnboundedChannelOptions
+        _events = Channel.CreateUnbounded<QueuedEvent>(new UnboundedChannelOptions
         {
             SingleReader = true,
             SingleWriter = false,
@@ -64,23 +66,27 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
         {
             CancellationTokenSource previous;
             ValueTask queued;
+            var cancellationCompleted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             lock (_gate)
             {
                 ThrowIfDisposedOrFaulted();
                 previous = _effectsCts;
                 _effectsCts = new CancellationTokenSource();
-                // Cancellation can synchronously enqueue the interrupted effect's result.
-                queued = _events.Writer.WriteAsync(@event, CancellationToken.None);
+                // Reserve the queue position before cancellation callbacks can publish results.
+                queued = _events.Writer.WriteAsync(new QueuedEvent(@event, cancellationCompleted.Task), CancellationToken.None);
             }
 
+            var cancelled = false;
             try
             {
                 previous.Cancel();
+                cancelled = true;
             }
             finally
             {
                 previous.Dispose();
+                cancellationCompleted.SetResult(cancelled);
             }
 
             return queued;
@@ -91,7 +97,7 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
             ThrowIfDisposedOrFaulted();
         }
 
-        return _events.Writer.WriteAsync(@event, cancellationToken);
+        return _events.Writer.WriteAsync(new QueuedEvent(@event), cancellationToken);
     }
 
     public async ValueTask DisposeAsync()
@@ -138,8 +144,14 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
     {
         try
         {
-            await foreach (var @event in _events.Reader.ReadAllAsync().ConfigureAwait(false))
+            await foreach (var queued in _events.Reader.ReadAllAsync().ConfigureAwait(false))
             {
+                if (queued.CancellationCompleted is { } cancellationCompleted
+                    && !await cancellationCompleted.ConfigureAwait(false))
+                {
+                    continue;
+                }
+
                 lock (_gate)
                 {
                     if (_disposed)
@@ -159,7 +171,7 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
 
                 try
                 {
-                    update = _reducer.Reduce(previousState, @event);
+                    update = _reducer.Reduce(previousState, queued.Event);
                 }
                 catch (Exception ex)
                 {
