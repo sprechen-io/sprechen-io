@@ -63,12 +63,15 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
         if (mode == DispatchMode.Interrupt)
         {
             CancellationTokenSource previous;
+            ValueTask queued;
 
             lock (_gate)
             {
                 ThrowIfDisposedOrFaulted();
                 previous = _effectsCts;
                 _effectsCts = new CancellationTokenSource();
+                // Cancellation can synchronously enqueue the interrupted effect's result.
+                queued = _events.Writer.WriteAsync(@event, CancellationToken.None);
             }
 
             try
@@ -80,7 +83,7 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
                 previous.Dispose();
             }
 
-            return _events.Writer.WriteAsync(@event, CancellationToken.None);
+            return queued;
         }
 
         lock (_gate)

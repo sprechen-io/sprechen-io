@@ -101,6 +101,45 @@ public sealed class AsyncReducerStateMachineTests
     }
 
     [Fact]
+    public async Task DispatchAsync_WhenCancelledEffectPublishesResult_ProcessesInterruptFirst()
+    {
+        var reducer = new Mock<IStateReducer<int, string, object>>(MockBehavior.Strict);
+        var effect = new Mock<IStateEffect<string, object>>(MockBehavior.Strict);
+        var effectStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var resultDispatch = new TaskCompletionSource<ValueTask>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        effect.Setup(e => e.ExecuteAsync(
+                It.IsAny<object>(),
+                It.IsAny<IEventDispatcher<string>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((object _, IEventDispatcher<string> dispatcher, CancellationToken token)
+                => PublishResultOnCancellationAsync(dispatcher, token));
+        reducer.Setup(r => r.Reduce(0, "start"))
+            .Returns(StateUpdate<int, string, object>.WithEffects(1, effect.Object));
+        reducer.Setup(r => r.Reduce(1, "pause"))
+            .Returns(StateUpdate<int, string, object>.WithoutEffects(2));
+        reducer.Setup(r => r.Reduce(2, "saved"))
+            .Returns(StateUpdate<int, string, object>.WithoutEffects(3));
+
+        await using var machine = new AsyncReducerStateMachine<int, string, object>(0, reducer.Object, new object());
+
+        await machine.DispatchAsync("start");
+        await effectStarted.Task.WaitAsync(WaitTimeout);
+        await machine.DispatchAsync("pause", DispatchMode.Interrupt);
+
+        await WaitUntilAsync(() => machine.State == 3);
+
+        async ValueTask PublishResultOnCancellationAsync(
+            IEventDispatcher<string> dispatcher, CancellationToken token)
+        {
+            using var registration = token.Register(() => resultDispatch.TrySetResult(dispatcher.DispatchAsync("saved")));
+            effectStarted.TrySetResult();
+            var queuedResult = await resultDispatch.Task;
+            await queuedResult;
+        }
+    }
+
+    [Fact]
     public async Task DispatchAsync_WhenEffectDispatchesInterruptEvent_DoesNotDropDispatchedEvent()
     {
         var reducer = new Mock<IStateReducer<int, string, object>>(MockBehavior.Strict);
