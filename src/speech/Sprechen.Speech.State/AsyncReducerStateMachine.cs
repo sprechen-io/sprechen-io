@@ -13,13 +13,17 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
     private readonly TContext _context;
     private readonly Channel<QueuedEvent> _events;
     private readonly Task _runner;
+    private readonly TaskCompletionSource _disposalStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private CancellationTokenSource _effectsCts = new();
     private Exception? _fault;
     private bool _disposed;
     private TState _state;
 
-    private readonly record struct QueuedEvent(TEvent Event, Task<bool>? CancellationCompleted = null);
+    private readonly record struct QueuedEvent(
+        TEvent Event,
+        Task<bool>? CancellationCompleted = null,
+        CancellationToken? InterruptEffectsToken = null);
 
     public AsyncReducerStateMachine(
         TState initialState,
@@ -74,7 +78,9 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
                 previous = _effectsCts;
                 _effectsCts = new CancellationTokenSource();
                 // Reserve the queue position before cancellation callbacks can publish results.
-                queued = _events.Writer.WriteAsync(new QueuedEvent(@event, cancellationCompleted.Task), CancellationToken.None);
+                queued = _events.Writer.WriteAsync(
+                    new QueuedEvent(@event, cancellationCompleted.Task, _effectsCts.Token),
+                    CancellationToken.None);
             }
 
             var cancelled = false;
@@ -115,6 +121,7 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
             effectsCts = _effectsCts;
         }
 
+        _disposalStarted.TrySetResult();
         _events.Writer.TryComplete();
 
         try
@@ -146,10 +153,18 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
         {
             await foreach (var queued in _events.Reader.ReadAllAsync().ConfigureAwait(false))
             {
-                if (queued.CancellationCompleted is { } cancellationCompleted
-                    && !await cancellationCompleted.ConfigureAwait(false))
+                if (queued.CancellationCompleted is { } cancellationCompleted)
                 {
-                    continue;
+                    if (await Task.WhenAny(cancellationCompleted, _disposalStarted.Task).ConfigureAwait(false)
+                        != cancellationCompleted)
+                    {
+                        return;
+                    }
+
+                    if (!await cancellationCompleted.ConfigureAwait(false))
+                    {
+                        continue;
+                    }
                 }
 
                 lock (_gate)
@@ -160,7 +175,7 @@ internal sealed class AsyncReducerStateMachine<TState, TEvent, TContext> : IEven
                     }
                 }
 
-                var effectsToken = GetEffectsToken();
+                var effectsToken = queued.InterruptEffectsToken ?? GetEffectsToken();
 
                 StateUpdate<TState, TEvent, TContext> update;
                 TState previousState;
