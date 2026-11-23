@@ -53,6 +53,7 @@
     <PackageReference Include="Grpc.AspNetCore.Web" Version="2.80.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.80.0" />
     <PackageReference Include="Grpc.Net.ClientFactory" Version="2.80.0" />
+    <PackageReference Include="MicroSharp.Browser.Playback" Version="0.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="11.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
     <!-- Die direkte Referenz erlaubt Sicherheitskorrekturen in Microsoft.OpenApi unabhängig von der transitiven Mindestversion von Microsoft.AspNetCore.OpenApi. -->

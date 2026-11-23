@@ -31,6 +31,7 @@ internal static class PlaybackDiagnosticsEndpoint
         "writtenSeconds",
         "playedOutSeconds",
         "underruns",
+        "underrunOutputFrames",
         "silentOutputWindows",
         "maxContiguousSilentMs",
         "outputSampleRate",

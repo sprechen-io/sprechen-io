@@ -3,13 +3,17 @@ type PcmPlayerApi = {
     warmup(): Promise<PcmPlayerInvocationResult>;
     init(sampleRate?: number): Promise<PcmPlayerInvocationResult>;
     reset(): Promise<PcmPlayerInvocationResult>;
-    drain(): Promise<PcmPlayerInvocationResult>;
-    enqueue(pcm16leBytes: unknown): Promise<PcmPlayerInvocationResult>;
+    drain(observer?: PcmAdmissionObserver): Promise<PcmPlayerInvocationResult>;
+    enqueue(pcm16leBytes: unknown, observer?: PcmAdmissionObserver): Promise<PcmPlayerInvocationResult>;
     getVolume(): number;
     setVolume(volume: unknown): void;
     getMakeup(): number;
     setMakeup(value: unknown): Promise<PcmPlayerInvocationResult>;
     getOutputLatencyMs(): number;
+};
+
+type PcmAdmissionObserver = {
+    invokeMethodAsync(method: "OnAccepted"): Promise<void>;
 };
 
 /** Ergebnis eines Wiedergabeaufrufs mit stabilem Fehlercode und zusätzlichem Diagnosetext. */
@@ -81,11 +85,12 @@ interface Window {
     type StreamingPlaybackSink = {
         readonly writtenFrames: number;
         readonly playedFrames: number;
-        readonly underruns: number;
-        readonly starvedQuanta: number;
+        readonly underruns?: number;
+        readonly underrunOutputFrames?: number;
+        readonly starvedQuanta?: number;
         readonly droppedFrames: number;
         readonly routeLeadMs: number;
-        write(frames: Float32Array): void;
+        write(frames: Float32Array, onAccepted?: () => Promise<void>): void | Promise<void>;
         bindInputRate(rate: number): void;
         clear(routeLeadMs: number): void;
         endOfStream(timeoutMs: number): Promise<"drained" | "watchdog" | "cancelled">;
@@ -96,9 +101,13 @@ interface Window {
     // die Wiedergabe mit einzeln geplanten Audioquellen.
     let streamingSink: StreamingPlaybackSink | null = null;
     let streamingSinkAttempted = false;
+    let microSharpPlayback = false;
+    let pendingEnqueues: Promise<void> = Promise.resolve();
+    let pendingEnqueueFailure: { error: unknown } | null = null;
+    let activeDrain: ((observer?: PcmAdmissionObserver) => Promise<void>) | null = null;
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
-    let streamingSinkStatus: "pending" | "streaming" | "unwired" | "no-context" | "error" = "pending";
+    let streamingSinkStatus: "pending" | "streaming" | "microsharp" | "unwired" | "no-context" | "error" = "pending";
     // Geplanter Vorlauf und Kontextzustand beim erfassten Beginn der Äußerung.
     let firstContentLeadMs: number | null = null;
     let firstContentCtxState: string | null = null;
@@ -116,12 +125,7 @@ interface Window {
             };
         }).sprechenIoPlaybackSink?.createWorkletPlaybackSink;
 
-    const ensureStreamingSinkAsync = async (): Promise<StreamingPlaybackSink | null> => {
-        if (streamingSink || streamingSinkAttempted) {
-            return streamingSink;
-        }
-
-        streamingSinkAttempted = true;
+    const createLegacyStreamingSink = async (rate: number): Promise<StreamingPlaybackSink | null> => {
         const factory = resolveStreamingSinkFactory();
         const moduleUrls = window.sprechenIoWeb?.pcmPlaybackWorkletUrls;
         if (!factory || !moduleUrls || moduleUrls.length === 0 || !audioCtx || !masterGainNode) {
@@ -132,24 +136,53 @@ interface Window {
         }
 
         try {
-            streamingSink = await factory(
-                audioCtx,
-                masterGainNode,
-                pcmSampleRate,
-                moduleUrls);
+            const sink = await factory(audioCtx, masterGainNode, rate, moduleUrls);
+            streamingSinkStatus = "streaming";
+            return sink;
         } catch (error) {
             // Bei fehlgeschlagenem Worklet-Aufbau den geplanten Wiedergabepfad verwenden
             // und den Grund im Bericht festhalten.
-            streamingSink = null;
             streamingSinkStatus = "error";
             recordCtxStateEvent("streaming-sink-unavailable");
+            return null;
+        }
+    };
+
+    const ensureStreamingSinkAsync = async (): Promise<StreamingPlaybackSink | null> => {
+        if (streamingSink || streamingSinkAttempted) {
+            return streamingSink;
         }
 
-        if (streamingSink) {
-            streamingSinkStatus = "streaming";
+        streamingSinkAttempted = true;
+        const microSharpFactory = (globalThis as typeof globalThis & {
+            sprechenIoMicroSharpPlayback?: {
+                createMicroSharpPlaybackSink: (
+                    context: BaseAudioContext, destination: AudioNode, rate: number, lead: number
+                ) => Promise<StreamingPlaybackSink>;
+            };
+        }).sprechenIoMicroSharpPlayback?.createMicroSharpPlaybackSink;
+        if (microSharpFactory && audioCtx && masterGainNode && prefersMicroSharpPlayback()) {
+            try {
+                streamingSink = await microSharpFactory(
+                    audioCtx, masterGainNode, pcmSampleRate, ScheduledFirstContentLeadMs + remainingFirstContentWakeMs());
+                microSharpPlayback = true;
+                streamingSinkStatus = "microsharp";
+                return streamingSink;
+            } catch {
+                recordCtxStateEvent("microsharp-sink-unavailable");
+            }
         }
 
+        streamingSink = await createLegacyStreamingSink(pcmSampleRate);
         return streamingSink;
+    };
+
+    const prefersMicroSharpPlayback = (): boolean => {
+        try {
+            return window.localStorage.getItem("sprechenIo.audio.playbackTransport") === "microsharp";
+        } catch {
+            return false;
+        }
     };
 
     const createPcmPlayerFailure = (errorCode: string, diagnosticDetail: string): Error => {
@@ -295,6 +328,7 @@ interface Window {
         droppedFrames?: number;
         // Vollständig leere Ausgabeblöcke während eines noch nicht abgeschlossenen Audiostroms.
         starvedQuanta?: number;
+        underrunOutputFrames?: number;
         // Spitzenpegel und Zahl der geprüften Eingangssamples zu Beginn der Äußerung.
         onsetPeakDbfs?: number | null;
         onsetFrames?: number;
@@ -303,7 +337,7 @@ interface Window {
     const emitPlaybackReport = (
         writtenFrames: number,
         playedOutFrames: number,
-        underruns: number,
+        underruns: number | undefined,
         drainOutcome: string,
         outputSilence?: OutputSilenceDiagnostic): void => {
         if (!isDiagnosticsEnabled()) {
@@ -323,6 +357,7 @@ interface Window {
         const playbackPath = outputSilence?.playbackPath;
         const droppedFrames = outputSilence?.droppedFrames;
         const starvedQuanta = outputSilence?.starvedQuanta;
+        const underrunOutputFrames = outputSilence?.underrunOutputFrames;
         const onsetPeakDbfs = outputSilence?.onsetPeakDbfs;
         const onsetFrames = outputSilence?.onsetFrames;
         const report = {
@@ -332,7 +367,7 @@ interface Window {
             ...diagnosticIdentity(),
             writtenSeconds,
             playedOutSeconds,
-            underruns,
+            ...(typeof underruns === "number" ? { underruns } : {}),
             silentOutputWindows,
             maxContiguousSilentMs,
             outputSampleRate,
@@ -343,6 +378,7 @@ interface Window {
             firstContentCtxState,
             ...(typeof droppedFrames === "number" ? { droppedFrames } : {}),
             ...(typeof starvedQuanta === "number" ? { starvedQuanta } : {}),
+            ...(typeof underrunOutputFrames === "number" ? { underrunOutputFrames } : {}),
             ...(onsetPeakDbfs === null || typeof onsetPeakDbfs === "number" ? { onsetPeakDbfs } : {}),
             ...(typeof onsetFrames === "number" ? { onsetFrames } : {}),
             drainOutcome,
@@ -1123,7 +1159,47 @@ interface Window {
             frames[frames.length - fadeLength + index] *= weight;
         }
     };
-    const processAndScheduleChunk = (buffer: ArrayBuffer, rate: number): void => {
+    const writeStreamingFrames = async (
+        frames: Float32Array, rate: number, generation: number, onAccepted?: () => Promise<void>
+    ): Promise<boolean> => {
+        const sink = streamingSink;
+        if (!sink) {
+            return false;
+        }
+
+        try {
+            await sink.write(Float32Array.from(frames), microSharpPlayback ? onAccepted : undefined);
+        } catch (error) {
+            if (!microSharpPlayback || !(error instanceof Error) || error.name !== "MicroSharpPlaybackStartupError") {
+                throw error;
+            }
+            if (generation !== scheduledGeneration) {
+                return true;
+            }
+
+            sink.dispose();
+            const fallback = await createLegacyStreamingSink(rate);
+            if (generation !== scheduledGeneration) {
+                fallback?.dispose();
+                return true;
+            }
+
+            streamingSink = fallback;
+            microSharpPlayback = false;
+            recordCtxStateEvent("microsharp-sink-unavailable");
+            if (!fallback) {
+                return false;
+            }
+            fallback.clear(sink.routeLeadMs);
+            fallback.bindInputRate(rate);
+            await fallback.write(Float32Array.from(frames));
+        }
+        return true;
+    };
+
+    const processAndScheduleChunk = async (
+        buffer: ArrayBuffer, rate: number, generation: number, onAccepted?: () => Promise<void>
+    ): Promise<void> => {
         if (scheduledInputRate !== null && scheduledInputRate !== rate) {
             throw createPcmPlayerFailure(
                 "PCM_PLAYER_SAMPLE_RATE_CHANGED", "The PCM sample rate changed within an utterance.");
@@ -1140,7 +1216,11 @@ interface Window {
             if (processed.length === 0) {
                 return;
             }
-            if (!streamingSink) {
+            const streamed = await writeStreamingFrames(processed, rate, generation, onAccepted);
+            if (generation !== scheduledGeneration) {
+                return;
+            }
+            if (!streamed) {
                 // Nur einzeln geplante Puffer ausblenden. Der fortlaufende Worklet-Strom
                 // braucht an internen Blockgrenzen keinen künstlichen Übergang zu null.
                 fadeBufferEndToZero(processed);
@@ -1150,15 +1230,16 @@ interface Window {
                 processed,
                 ScheduledSilenceScanQuantumFrames,
                 rate);
-            if (streamingSink) {
+            if (streamed) {
                 // Stillewerte auch für den Streamingpfad sammeln, bevor der Puffer weitergegeben wird.
                 scheduledSilentOutputWindows += scan.silentOutputWindows;
                 scheduledMaxContiguousSilentMs = Math.max(
                     scheduledMaxContiguousSilentMs,
                     scan.maxContiguousSilentMs);
                 measureUtteranceOnset(processed);
-                // Eine Kopie übergeben, da postMessage den übertragenen Puffer vom Hauptthread trennt.
-                streamingSink.write(Float32Array.from(processed));
+                if (!microSharpPlayback) {
+                    await onAccepted?.();
+                }
                 return;
             }
         } catch (error) {
@@ -1173,6 +1254,7 @@ interface Window {
         if (scan.maxContiguousSilentMs > scheduledMaxContiguousSilentMs) {
             scheduledMaxContiguousSilentMs = scan.maxContiguousSilentMs;
         }
+        await onAccepted?.();
     };
     const resetScheduledUtteranceState = (): void => {
         scheduledCursorArmed = false;
@@ -1254,6 +1336,7 @@ interface Window {
                 playbackPath: "streaming",
                 droppedFrames: sink.droppedFrames,
                 starvedQuanta: sink.starvedQuanta,
+                underrunOutputFrames: sink.underrunOutputFrames,
                 onsetPeakDbfs: onsetFramesSeen > 0
                     ? Math.round(20 * Math.log10(Math.max(onsetPeak, 1e-6)) * 10) / 10
                     : null,
@@ -1306,6 +1389,9 @@ interface Window {
 
         stopAllScheduledSources();
         scheduledGeneration++;
+        activeDrain = null;
+        pendingEnqueues = Promise.resolve();
+        pendingEnqueueFailure = null;
         scheduledInputRate = null;
         if (streamingSink) {
             // Verbleibenden Aufwachvorlauf an das Worklet übergeben und für diese Aktivierung als verwendet markieren.
@@ -1337,7 +1423,7 @@ interface Window {
         }
     };
 
-    const scheduledEnqueue = async (pcm16leBytes: unknown): Promise<void> => {
+    const scheduledEnqueue = async (pcm16leBytes: unknown, observer?: PcmAdmissionObserver): Promise<void> => {
         const buffer = toPcmArrayBuffer(pcm16leBytes);
         if (!buffer || buffer.byteLength < 2) {
             return;
@@ -1345,22 +1431,42 @@ interface Window {
 
         const rate = pcmSampleRate;
         const generation = scheduledGeneration;
-        await ensurePlaybackOutputAsync();
-        if (generation !== scheduledGeneration) {
-            return;
-        }
-
-        if (scheduledKeepAlivePrimingRequested) {
-            ensureScheduledKeepAlive();
-        }
-        processAndScheduleChunk(buffer, rate);
+        const onAccepted = observer ? () => observer.invokeMethodAsync("OnAccepted") : undefined;
+        const queued = pendingEnqueues.then(async () => {
+            if (generation !== scheduledGeneration) {
+                return;
+            }
+            await ensurePlaybackOutputAsync();
+            if (generation !== scheduledGeneration) {
+                return;
+            }
+            if (scheduledKeepAlivePrimingRequested) {
+                ensureScheduledKeepAlive();
+            }
+            await processAndScheduleChunk(buffer, rate, generation, onAccepted);
+        });
+        pendingEnqueues = queued.catch(error => {
+            if (generation === scheduledGeneration) {
+                pendingEnqueueFailure ??= { error };
+            }
+        });
+        await queued;
     };
 
-    const scheduledDrain = async (): Promise<void> => {
-        const generation = scheduledGeneration;
+    const drainCurrentGeneration = async (
+        generation: number,
+        onAccepted: () => Promise<void>
+    ): Promise<void> => {
         await (playbackOutputInitPromise ?? ensureScheduledContextAsync());
         if (generation !== scheduledGeneration) {
             return;
+        }
+        await pendingEnqueues;
+        if (generation !== scheduledGeneration) {
+            return;
+        }
+        if (pendingEnqueueFailure) {
+            throw pendingEnqueueFailure.error;
         }
 
         if (!audioCtx || audioCtx.state === "closed" || !masterGainNode) {
@@ -1376,13 +1482,9 @@ interface Window {
                 `AudioContext state is "${audioCtx.state}"; playback cannot drain.`);
         }
 
-        if (scheduledDrainPromise) {
-            return scheduledDrainPromise;
-        }
-
         // Noch im Look-ahead-Puffer zurückgehaltene Samples ausgeben.
         // Dafür braucht auch der Streamingpfad einen Abschluss, obwohl er keine Quellen plant.
-        if (scheduledDsp && (scheduledCursorArmed || streamingSink)) {
+        if (scheduledDsp && scheduledInputRate !== null) {
             let tail: Float32Array;
             try {
                 bindScheduledInputRate(pcmSampleRate);
@@ -1397,10 +1499,23 @@ interface Window {
                 if (streamingSink) {
                     // Am Ende des gesamten Audiostroms auch den letzten Rest auf null ausblenden.
                     fadeBufferEndToZero(tail);
-                    streamingSink.write(Float32Array.from(tail));
+                    const streamed = await writeStreamingFrames(tail, playbackSampleRate(), generation, onAccepted);
+                    if (generation !== scheduledGeneration) {
+                        return;
+                    }
+                    if (!streamed) {
+                        scheduleProcessedBuffer(tail);
+                    }
+                    if (!microSharpPlayback) {
+                        await onAccepted();
+                    }
                 } else {
                     fadeBufferEndToZero(tail);
                     scheduleProcessedBuffer(tail);
+                    await onAccepted();
+                }
+                if (generation !== scheduledGeneration) {
+                    return;
                 }
             }
         }
@@ -1451,12 +1566,55 @@ interface Window {
         return promise;
     };
 
+    const scheduledDrain = (observer?: PcmAdmissionObserver): Promise<void> => {
+        if (activeDrain) {
+            return activeDrain(observer);
+        }
+
+        let accepted = false;
+        const observers = new Map<PcmAdmissionObserver, Promise<void> | null>();
+        const notify = (listener: PcmAdmissionObserver): Promise<void> => {
+            const notification = Promise.resolve().then(() => listener.invokeMethodAsync("OnAccepted"));
+            observers.set(listener, notification);
+            return notification;
+        };
+        const onAccepted = async (): Promise<void> => {
+            if (!accepted) {
+                accepted = true;
+                await Promise.allSettled(Array.from(observers.keys(), notify));
+            }
+        };
+        const completion = drainCurrentGeneration(scheduledGeneration, onAccepted).finally(() => {
+            if (activeDrain === join) {
+                activeDrain = null;
+            }
+        });
+        const join = async (listener?: PcmAdmissionObserver): Promise<void> => {
+            if (listener && !observers.has(listener)) {
+                if (accepted) {
+                    await Promise.all([completion, notify(listener)]);
+                    return;
+                }
+
+                observers.set(listener, null);
+            }
+
+            await completion;
+            if (listener) {
+                await observers.get(listener);
+            }
+        };
+        activeDrain = join;
+        return join(observer);
+    };
+
     window.pcmPlayer = {
         warmup: () => invokePcmPlayerOperation(scheduledWarmup),
         init: (sampleRate?: number) => invokePcmPlayerOperation(() => scheduledInit(sampleRate)),
         reset: () => invokePcmPlayerOperation(scheduledReset),
-        drain: () => invokePcmPlayerOperation(scheduledDrain),
-        enqueue: (pcm16leBytes: unknown) => invokePcmPlayerOperation(() => scheduledEnqueue(pcm16leBytes)),
+        drain: (observer?: PcmAdmissionObserver) => invokePcmPlayerOperation(() => scheduledDrain(observer)),
+        enqueue: (pcm16leBytes: unknown, observer?: PcmAdmissionObserver) =>
+            invokePcmPlayerOperation(() => scheduledEnqueue(pcm16leBytes, observer)),
         getVolume,
         setVolume,
         getMakeup,
