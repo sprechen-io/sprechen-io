@@ -23,7 +23,7 @@
             drain: null,
             written: 0,
             played: 0,
-            underruns: 0,
+            underrunOutputFrames: 0,
         });
         let current = createGeneration(initialLeadMs);
         let rate = initialRate;
@@ -65,8 +65,7 @@
         return {
             get writtenFrames() { return current.written; },
             get playedFrames() { return current.played; },
-            get underruns() { return current.underruns; },
-            get starvedQuanta() { return 0; },
+            get underrunOutputFrames() { return current.underrunOutputFrames; },
             get droppedFrames() { return 0; },
             get routeLeadMs() { return current.leadMs; },
             bindInputRate(inputRate) {
@@ -140,7 +139,7 @@
                             await transport.drain();
                             const snapshot = await transport.snapshot();
                             generation.played = snapshot.contentOutputFrames;
-                            generation.underruns = snapshot.underrunOutputFrames;
+                            generation.underrunOutputFrames = snapshot.underrunOutputFrames;
                             await transport.stop();
                         }
                         return generation.controller.signal.aborted ? "cancelled" : "drained";

@@ -57,7 +57,7 @@
             try {
                 streamingSink = await microSharpFactory(audioCtx, masterGainNode, moduleUrl, pcmSampleRate, ScheduledFirstContentLeadMs + remainingFirstContentWakeMs());
                 microSharpPlayback = true;
-                streamingSinkStatus = "streaming";
+                streamingSinkStatus = "microsharp";
                 return streamingSink;
             }
             catch {
@@ -227,6 +227,7 @@
         const playbackPath = outputSilence?.playbackPath;
         const droppedFrames = outputSilence?.droppedFrames;
         const starvedQuanta = outputSilence?.starvedQuanta;
+        const underrunOutputFrames = outputSilence?.underrunOutputFrames;
         const onsetPeakDbfs = outputSilence?.onsetPeakDbfs;
         const onsetFrames = outputSilence?.onsetFrames;
         const report = {
@@ -236,7 +237,7 @@
             ...diagnosticIdentity(),
             writtenSeconds,
             playedOutSeconds,
-            underruns,
+            ...(typeof underruns === "number" ? { underruns } : {}),
             silentOutputWindows,
             maxContiguousSilentMs,
             outputSampleRate,
@@ -247,6 +248,7 @@
             firstContentCtxState,
             ...(typeof droppedFrames === "number" ? { droppedFrames } : {}),
             ...(typeof starvedQuanta === "number" ? { starvedQuanta } : {}),
+            ...(typeof underrunOutputFrames === "number" ? { underrunOutputFrames } : {}),
             ...(onsetPeakDbfs === null || typeof onsetPeakDbfs === "number" ? { onsetPeakDbfs } : {}),
             ...(typeof onsetFrames === "number" ? { onsetFrames } : {}),
             drainOutcome,
@@ -1022,6 +1024,7 @@
             playbackPath: "streaming",
             droppedFrames: sink.droppedFrames,
             starvedQuanta: sink.starvedQuanta,
+            underrunOutputFrames: sink.underrunOutputFrames,
             onsetPeakDbfs: onsetFramesSeen > 0
                 ? Math.round(20 * Math.log10(Math.max(onsetPeak, 1e-6)) * 10) / 10
                 : null,

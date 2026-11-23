@@ -86,8 +86,9 @@ interface Window {
     type StreamingPlaybackSink = {
         readonly writtenFrames: number;
         readonly playedFrames: number;
-        readonly underruns: number;
-        readonly starvedQuanta: number;
+        readonly underruns?: number;
+        readonly underrunOutputFrames?: number;
+        readonly starvedQuanta?: number;
         readonly droppedFrames: number;
         readonly routeLeadMs: number;
         write(frames: Float32Array, onAccepted?: () => Promise<void>): void | Promise<void>;
@@ -104,7 +105,7 @@ interface Window {
     let microSharpPlayback = false;
     // Sitzungsweiter Grund für den gewählten Wiedergabepfad. Separat halten,
     // weil reset die Ereignisse der einzelnen Äußerung löscht.
-    let streamingSinkStatus: "pending" | "streaming" | "unwired" | "no-context" | "error" = "pending";
+    let streamingSinkStatus: "pending" | "streaming" | "microsharp" | "unwired" | "no-context" | "error" = "pending";
     // Geplanter Vorlauf und Kontextzustand beim erfassten Beginn der Äußerung.
     let firstContentLeadMs: number | null = null;
     let firstContentCtxState: string | null = null;
@@ -142,7 +143,7 @@ interface Window {
                     audioCtx, masterGainNode, moduleUrl, pcmSampleRate,
                     ScheduledFirstContentLeadMs + remainingFirstContentWakeMs());
                 microSharpPlayback = true;
-                streamingSinkStatus = "streaming";
+                streamingSinkStatus = "microsharp";
                 return streamingSink;
             } catch {
                 recordCtxStateEvent("microsharp-sink-unavailable");
@@ -329,6 +330,7 @@ interface Window {
         droppedFrames?: number;
         // Vollständig leere Ausgabeblöcke während eines noch nicht abgeschlossenen Audiostroms.
         starvedQuanta?: number;
+        underrunOutputFrames?: number;
         // Spitzenpegel und Zahl der geprüften Eingangssamples zu Beginn der Äußerung.
         onsetPeakDbfs?: number | null;
         onsetFrames?: number;
@@ -337,7 +339,7 @@ interface Window {
     const emitPlaybackReport = (
         writtenFrames: number,
         playedOutFrames: number,
-        underruns: number,
+        underruns: number | undefined,
         drainOutcome: string,
         outputSilence?: OutputSilenceDiagnostic): void => {
         if (!isDiagnosticsEnabled()) {
@@ -357,6 +359,7 @@ interface Window {
         const playbackPath = outputSilence?.playbackPath;
         const droppedFrames = outputSilence?.droppedFrames;
         const starvedQuanta = outputSilence?.starvedQuanta;
+        const underrunOutputFrames = outputSilence?.underrunOutputFrames;
         const onsetPeakDbfs = outputSilence?.onsetPeakDbfs;
         const onsetFrames = outputSilence?.onsetFrames;
         const report = {
@@ -366,7 +369,7 @@ interface Window {
             ...diagnosticIdentity(),
             writtenSeconds,
             playedOutSeconds,
-            underruns,
+            ...(typeof underruns === "number" ? { underruns } : {}),
             silentOutputWindows,
             maxContiguousSilentMs,
             outputSampleRate,
@@ -377,6 +380,7 @@ interface Window {
             firstContentCtxState,
             ...(typeof droppedFrames === "number" ? { droppedFrames } : {}),
             ...(typeof starvedQuanta === "number" ? { starvedQuanta } : {}),
+            ...(typeof underrunOutputFrames === "number" ? { underrunOutputFrames } : {}),
             ...(onsetPeakDbfs === null || typeof onsetPeakDbfs === "number" ? { onsetPeakDbfs } : {}),
             ...(typeof onsetFrames === "number" ? { onsetFrames } : {}),
             drainOutcome,
@@ -1290,6 +1294,7 @@ interface Window {
                 playbackPath: "streaming",
                 droppedFrames: sink.droppedFrames,
                 starvedQuanta: sink.starvedQuanta,
+                underrunOutputFrames: sink.underrunOutputFrames,
                 onsetPeakDbfs: onsetFramesSeen > 0
                     ? Math.round(20 * Math.log10(Math.max(onsetPeak, 1e-6)) * 10) / 10
                     : null,
