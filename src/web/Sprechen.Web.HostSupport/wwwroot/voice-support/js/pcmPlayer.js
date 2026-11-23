@@ -996,11 +996,11 @@
             throw createPcmPlayerFailure("PCM_PLAYER_DSP_PROCESS_FAILED", `Chunk processing failed (${detail}).`);
         }
         scheduleProcessedBuffer(processed);
-        await onAccepted?.();
         scheduledSilentOutputWindows += scan.silentOutputWindows;
         if (scan.maxContiguousSilentMs > scheduledMaxContiguousSilentMs) {
             scheduledMaxContiguousSilentMs = scan.maxContiguousSilentMs;
         }
+        await onAccepted?.();
     };
     const resetScheduledUtteranceState = () => {
         scheduledCursorArmed = false;
@@ -1216,6 +1216,9 @@
                     fadeBufferEndToZero(tail);
                     scheduleProcessedBuffer(tail);
                     await observer?.invokeMethodAsync("OnAccepted");
+                }
+                if (generation !== scheduledGeneration) {
+                    return;
                 }
             }
         }

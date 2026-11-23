@@ -12,7 +12,7 @@ function gate() {
     return { promise, open };
 }
 
-function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybackSink) {
+function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybackSink, bufferedTail = false) {
     const resume = gate();
     const workletStarted = gate();
     const workletReady = gate();
@@ -58,11 +58,11 @@ function fixture(useWorklet, drainOutcome = "cancelled", createMicroSharpPlaybac
         reset() {}
         flush() {
             drains.push("flush");
-            return new Float32Array();
+            return bufferedTail ? Float32Array.of(0.5) : new Float32Array();
         }
         process(samples) {
             dspRates.push(this.rate);
-            return samples;
+            return bufferedTail ? new Float32Array() : samples;
         }
     }
 
@@ -296,6 +296,27 @@ test("reset suppresses a completed worklet drain report from the old generation"
 
     assert.equal((await staleDrain).succeeded, true);
     assert.deepEqual(reports, []);
+});
+
+test("reset fences a drain whose admission callback is still pending", { timeout: 5000 }, async () => {
+    const { player, resume, workletReady, drains } = fixture(true, "drained", undefined, true);
+    const init = player.init(32000);
+    resume.open();
+    workletReady.open();
+    assert.ok((await init).succeeded);
+    assert.ok((await player.enqueue(firstChunk)).succeeded);
+
+    const accepted = gate();
+    const callback = gate();
+    const drain = player.drain({ async invokeMethodAsync() {
+        accepted.open();
+        await callback.promise;
+    } });
+    await accepted.promise;
+    assert.ok((await player.reset()).succeeded);
+    callback.open();
+    assert.ok((await drain).succeeded);
+    assert.deepEqual(drains, ["flush"]);
 });
 
 test("concurrent startup shares the output and preserves enqueue order as it becomes ready",

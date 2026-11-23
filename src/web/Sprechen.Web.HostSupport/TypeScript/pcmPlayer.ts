@@ -1248,11 +1248,11 @@ interface Window {
         }
 
         scheduleProcessedBuffer(processed);
-        await onAccepted?.();
         scheduledSilentOutputWindows += scan.silentOutputWindows;
         if (scan.maxContiguousSilentMs > scheduledMaxContiguousSilentMs) {
             scheduledMaxContiguousSilentMs = scan.maxContiguousSilentMs;
         }
+        await onAccepted?.();
     };
     const resetScheduledUtteranceState = (): void => {
         scheduledCursorArmed = false;
@@ -1506,6 +1506,9 @@ interface Window {
                     fadeBufferEndToZero(tail);
                     scheduleProcessedBuffer(tail);
                     await observer?.invokeMethodAsync("OnAccepted");
+                }
+                if (generation !== scheduledGeneration) {
+                    return;
                 }
             }
         }
