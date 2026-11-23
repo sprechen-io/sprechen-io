@@ -58,7 +58,7 @@ public sealed class PcmAudioPlayerTests : TestContext
         await player.InitializeAsync(24000, CancellationToken.None);
 
         var deliveries = 0;
-        void OnAccepted() => deliveries++;
+        void OnAccepted() => Interlocked.Increment(ref deliveries);
         var operation = drain
             ? player.DrainAsync(OnAccepted, CancellationToken.None)
             : player.EnqueuePcm16LeAsync(new byte[] { 1, 2 }, OnAccepted, CancellationToken.None);

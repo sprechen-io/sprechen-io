@@ -6,17 +6,23 @@
     const TransportStartupWindowMs = 2000;
     const createMicroSharpPlaybackSink = async (context, destination, moduleUrl, initialRate, initialLeadMs) => {
         const url = new URL(moduleUrl, document.baseURI);
-        const { createBorrowedPlayer } = await import(url.href);
-        const host = globalThis.standardizedAudioContext;
-        const nodeConstructor = host?.AudioWorkletNode ?? globalThis.AudioWorkletNode;
-        if (typeof createBorrowedPlayer !== "function" || !nodeConstructor || !context.audioWorklet) {
+        if (url.origin !== location.origin) {
+            throw new Error("The playback module must use the application origin.");
+        }
+        const playbackModule = await import("../../../../MicroSharp.Browser.Playback/microsharp-playback.js");
+        const scope = globalThis;
+        const nodeConstructor = scope.standardizedAudioContext?.AudioWorkletNode ?? scope.AudioWorkletNode;
+        const Resampler = scope.sprechenIoPlaybackDsp?.StreamingResampler;
+        const audioWorklet = context.audioWorklet;
+        if (typeof playbackModule.createBorrowedPlayer !== "function" || !nodeConstructor || !Resampler || !audioWorklet) {
             throw new Error("Borrowed MicroSharp playback is unavailable.");
         }
-        await context.audioWorklet.addModule(new URL("pcm-playback-processor.js", url).href);
+        const createBorrowedPlayer = playbackModule.createBorrowedPlayer;
+        await audioWorklet.addModule(new URL("pcm-playback-processor.js", url).href);
         const createGeneration = (leadMs) => ({
             leadMs,
             controller: new AbortController(),
-            resampler: new StreamingResampler(initialRate, context.sampleRate),
+            resampler: new Resampler(initialRate, context.sampleRate),
             transport: null,
             earliestOutputFrame: 0,
             write: Promise.resolve(),
@@ -41,7 +47,9 @@
             try {
                 await new Promise((resolve, reject) => {
                     signal.throwIfAborted();
-                    abort = () => reject(signal.reason);
+                    abort = () => {
+                        reject(new DOMException("Playback was reset.", "AbortError"));
+                    };
                     signal.addEventListener("abort", abort, { once: true });
                     timer = window.setTimeout(resolve, waitMs);
                 });
@@ -70,7 +78,7 @@
             get routeLeadMs() { return current.leadMs; },
             bindInputRate(inputRate) {
                 rate = inputRate;
-                current.resampler = new StreamingResampler(rate, context.sampleRate);
+                current.resampler = new Resampler(rate, context.sampleRate);
             },
             clear(routeLeadMs) {
                 stop();

@@ -37,20 +37,30 @@
         initialLeadMs: number
     ) => {
         const url = new URL(moduleUrl, document.baseURI);
-        const { createBorrowedPlayer } = await import(url.href) as { createBorrowedPlayer: Factory };
-        const host = (globalThis as typeof globalThis & {
+        if (url.origin !== location.origin) {
+            throw new Error("The playback module must use the application origin.");
+        }
+        const playbackModule: { createBorrowedPlayer?: unknown } = await import(
+            "../../../../MicroSharp.Browser.Playback/microsharp-playback.js"
+        );
+        const scope = globalThis as unknown as {
+            AudioWorkletNode?: typeof AudioWorkletNode;
             standardizedAudioContext?: { AudioWorkletNode?: typeof AudioWorkletNode };
-        }).standardizedAudioContext;
-        const nodeConstructor = host?.AudioWorkletNode ?? globalThis.AudioWorkletNode;
-        if (typeof createBorrowedPlayer !== "function" || !nodeConstructor || !context.audioWorklet) {
+            sprechenIoPlaybackDsp?: { StreamingResampler: typeof StreamingResampler };
+        };
+        const nodeConstructor = scope.standardizedAudioContext?.AudioWorkletNode ?? scope.AudioWorkletNode;
+        const Resampler = scope.sprechenIoPlaybackDsp?.StreamingResampler;
+        const audioWorklet = (context as { audioWorklet?: AudioWorklet }).audioWorklet;
+        if (typeof playbackModule.createBorrowedPlayer !== "function" || !nodeConstructor || !Resampler || !audioWorklet) {
             throw new Error("Borrowed MicroSharp playback is unavailable.");
         }
-        await context.audioWorklet.addModule(new URL("pcm-playback-processor.js", url).href);
+        const createBorrowedPlayer = playbackModule.createBorrowedPlayer as Factory;
+        await audioWorklet.addModule(new URL("pcm-playback-processor.js", url).href);
 
         const createGeneration = (leadMs: number) => ({
             leadMs,
             controller: new AbortController(),
-            resampler: new StreamingResampler(initialRate, context.sampleRate),
+            resampler: new Resampler(initialRate, context.sampleRate),
             transport: null as Transport | null,
             earliestOutputFrame: 0,
             write: Promise.resolve(),
@@ -76,7 +86,9 @@
             try {
                 await new Promise<void>((resolve, reject) => {
                     signal.throwIfAborted();
-                    abort = () => reject(signal.reason);
+                    abort = () => {
+                        reject(new DOMException("Playback was reset.", "AbortError"));
+                    };
                     signal.addEventListener("abort", abort, { once: true });
                     timer = window.setTimeout(resolve, waitMs);
                 });
@@ -104,7 +116,7 @@
             get routeLeadMs() { return current.leadMs; },
             bindInputRate(inputRate: number) {
                 rate = inputRate;
-                current.resampler = new StreamingResampler(rate, context.sampleRate);
+                current.resampler = new Resampler(rate, context.sampleRate);
             },
             clear(routeLeadMs: number) {
                 stop();
