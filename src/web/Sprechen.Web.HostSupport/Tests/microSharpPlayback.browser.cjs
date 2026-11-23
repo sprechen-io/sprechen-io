@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const { createServer } = require("node:http");
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
-const { chromium } = require(process.env.PLAYWRIGHT_PACKAGE || "playwright");
+const { chromium } = require("playwright");
 
 const [assets, packageAssets] = process.argv.slice(2);
 const scripts = [
@@ -33,7 +33,7 @@ const tap = `class RenderTap extends AudioWorkletProcessor {
 }
 registerProcessor("render-tap", RenderTap);`;
 
-function prepare(route, worklets) {
+function prepare({ route, worklets }) {
     const host = window.standardizedAudioContext;
     const { AudioContext, AudioWorkletNode } = host;
     const probe = window.probe = { packets: [], blocks: [], admissions: 0, nodes: [] };
@@ -75,6 +75,15 @@ function prepare(route, worklets) {
     window.sprechenIoWeb = {
         pcmPlaybackWorkletUrls: worklets.map(file => "/js/" + file)
     };
+    if (route === "tiny") {
+        // Exercise a DSP that retains a chunk and produces its first frames during drain.
+        const dsp = window.sprechenIoAudioDsp.MakeupLimiterProcessor.prototype;
+        const process = dsp.process;
+        dsp.process = function (frames) {
+            process.call(this, frames);
+            return new Float32Array();
+        };
+    }
     const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
     async function checked(operation) {
         const result = await operation;
@@ -110,13 +119,17 @@ function prepare(route, worklets) {
             const observer = { invokeMethodAsync: async () => { probe.admissions++; } };
             let inputOffset = 0;
             const start = Math.round(context.currentTime * context.sampleRate);
-            for (const frames of route === "credits" ? [110000] : [127, 193, 197]) {
+            const blocks = route === "credits" ? [110000] : route === "tiny" ? [1] : [127, 193, 197];
+            for (const frames of blocks) {
                 const block = Int16Array.from({ length: frames }, (_, i) => 16000 + (inputOffset + i) % 17 * 512);
                 inputOffset += frames;
                 await checked(pcmPlayer.enqueue(new Uint8Array(block.buffer), probe.admissions ? undefined : observer));
                 await wait(18);
             }
-            const drain = await pcmPlayer.drain();
+            if (route === "tiny" && probe.admissions !== 0) {
+                throw Error("Buffered input was reported as an admission before the drain.");
+            }
+            const drain = await pcmPlayer.drain(probe.admissions ? undefined : observer);
             if (route === "bad-drain") {
                 if (drain.succeeded) throw Error("A missing worklet acknowledgement reported success.");
             } else {
@@ -152,13 +165,13 @@ const server = createServer((req, res) => {
     const browser = await chromium.launch({ headless: true, args: ["--autoplay-policy=user-gesture-required"] });
     try {
         const result = {};
-        for (const route of ["legacy", "microsharp", "missing", "failed-worklet", "credits", "reset", "credit-reset", "bad-drain"]) {
+        for (const route of ["legacy", "microsharp", "missing", "failed-worklet", "credits", "reset", "credit-reset", "bad-drain", "tiny"]) {
             const page = await browser.newPage();
             await page.addInitScript(() => { localStorage.setItem("sprechenIo.audio.scheduledKeepAlive", "off"); localStorage.setItem("sprechenIo.audio.scheduledFirstUtteranceWakeMs", "0"); });
             if (route === "missing") await page.route("**/MicroSharp.Browser.Playback/microsharp-playback.js", route => route.abort());
             if (route === "failed-worklet") await page.route("**/MicroSharp.Browser.Playback/pcm-playback-processor.js", route => route.abort());
             await page.goto("http://127.0.0.1:" + server.address().port);
-            await page.evaluate(([fn, selected, modules]) => Function("return (" + fn + ")")()(selected, modules), [prepare.toString(), route, worklets]);
+            await page.evaluate(prepare, { route, worklets });
             await page.getByRole("button").click();
             result[route] = await page.evaluate(() => window.measurement);
             await page.close();

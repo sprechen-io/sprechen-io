@@ -135,9 +135,7 @@ interface Window {
 
         try {
             const sink = await factory(audioCtx, masterGainNode, rate, moduleUrls);
-            if (sink) {
-                streamingSinkStatus = "streaming";
-            }
+            streamingSinkStatus = "streaming";
             return sink;
         } catch (error) {
             // Bei fehlgeschlagenem Worklet-Aufbau den geplanten Wiedergabepfad verwenden
@@ -1237,6 +1235,9 @@ interface Window {
                     scheduledMaxContiguousSilentMs,
                     scan.maxContiguousSilentMs);
                 measureUtteranceOnset(processed);
+                if (!microSharpPlayback) {
+                    await onAccepted?.();
+                }
                 return;
             }
         } catch (error) {
@@ -1247,6 +1248,7 @@ interface Window {
         }
 
         scheduleProcessedBuffer(processed);
+        await onAccepted?.();
         scheduledSilentOutputWindows += scan.silentOutputWindows;
         if (scan.maxContiguousSilentMs > scheduledMaxContiguousSilentMs) {
             scheduledMaxContiguousSilentMs = scan.maxContiguousSilentMs;
@@ -1439,9 +1441,6 @@ interface Window {
                 return;
             }
             await processAndScheduleChunk(buffer, rate, generation, onAccepted);
-            if (!microSharpPlayback && generation === scheduledGeneration) {
-                await onAccepted?.();
-            }
         });
         pendingEnqueues = queued.catch(() => {});
         await queued;
@@ -1477,7 +1476,7 @@ interface Window {
 
         // Noch im Look-ahead-Puffer zurückgehaltene Samples ausgeben.
         // Dafür braucht auch der Streamingpfad einen Abschluss, obwohl er keine Quellen plant.
-        if (scheduledDsp && (scheduledCursorArmed || streamingSink)) {
+        if (scheduledDsp && scheduledInputRate !== null) {
             let tail: Float32Array;
             try {
                 bindScheduledInputRate(pcmSampleRate);
@@ -1506,6 +1505,7 @@ interface Window {
                 } else {
                     fadeBufferEndToZero(tail);
                     scheduleProcessedBuffer(tail);
+                    await observer?.invokeMethodAsync("OnAccepted");
                 }
             }
         }

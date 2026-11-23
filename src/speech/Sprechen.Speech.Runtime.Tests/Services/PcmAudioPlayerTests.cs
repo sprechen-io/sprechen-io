@@ -74,6 +74,27 @@ public sealed class PcmAudioPlayerTests : TestContext
     }
 
     [Fact]
+    public void AdmissionCallback_DoesNotNotifyAnAlreadyCanceledInvocation()
+    {
+        using var cancellation = new CancellationTokenSource();
+        var deliveries = 0;
+        var observer = new PcmAdmissionObserver(() => Interlocked.Increment(ref deliveries), cancellation.Token);
+        cancellation.Cancel();
+
+        Assert.Throws<OperationCanceledException>(observer.OnAccepted);
+        Assert.Equal(0, deliveries);
+    }
+
+    [Fact]
+    public void AdmissionCallback_IsNotRetriedAfterItsActionThrows()
+    {
+        var observer = new PcmAdmissionObserver(
+            () => throw new InvalidOperationException("callback failed"), CancellationToken.None);
+        Assert.Throws<InvalidOperationException>(observer.OnAccepted);
+        observer.OnAccepted();
+    }
+
+    [Fact]
     public async Task InitializeAsync_WhenInitialized_AllowsResetDrainAndEnqueue()
     {
         JSInterop
