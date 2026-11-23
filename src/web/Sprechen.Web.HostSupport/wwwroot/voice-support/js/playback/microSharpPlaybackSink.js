@@ -5,6 +5,9 @@
     const ResamplerBatchFrames = 1024;
     const TransportStartupWindowMs = 2000;
     const createMicroSharpPlaybackSink = async (context, destination, initialRate, initialLeadMs) => {
+        if (typeof AbortSignal.prototype.throwIfAborted !== "function") {
+            throw new Error("Borrowed MicroSharp playback requires abortable credit waits.");
+        }
         const playbackModule = await import("../../../../MicroSharp.Browser.Playback/microsharp-playback.js");
         const scope = globalThis;
         const nodeConstructor = scope.standardizedAudioContext?.AudioWorkletNode ?? scope.AudioWorkletNode;

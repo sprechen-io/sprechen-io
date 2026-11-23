@@ -168,11 +168,14 @@ const server = createServer((req, res) => {
     const browser = await chromium.launch({ headless: true, args: ["--autoplay-policy=user-gesture-required"] });
     try {
         const result = {};
-        for (const route of ["legacy", "microsharp", "missing", "failed-worklet", "credits", "reset", "credit-reset", "bad-drain", "tiny"]) {
+        for (const route of ["legacy", "microsharp", "missing", "failed-worklet", "credits", "reset", "credit-reset", "bad-drain", "tiny", "legacy-abort"]) {
             const page = await browser.newPage();
             await page.addInitScript(() => { localStorage.setItem("sprechenIo.audio.scheduledKeepAlive", "off"); localStorage.setItem("sprechenIo.audio.scheduledFirstUtteranceWakeMs", "0"); });
             if (route === "missing") await page.route("**/MicroSharp.Browser.Playback/microsharp-playback.js", route => route.abort());
             if (route === "failed-worklet") await page.route("**/MicroSharp.Browser.Playback/pcm-playback-processor.js", route => route.abort());
+            if (route === "legacy-abort") await page.addInitScript(() => {
+                Object.defineProperty(AbortSignal.prototype, "throwIfAborted", { value: undefined });
+            });
             await page.goto("http://127.0.0.1:41737/");
             await page.evaluate(prepare, { route, worklets });
             await page.getByRole("button").click();
@@ -183,12 +186,14 @@ const server = createServer((req, res) => {
         assert.deepEqual(result.microsharp.values, result.legacy.values);
         assert.deepEqual(result.missing.values, result.legacy.values);
         assert.deepEqual(result["failed-worklet"].values, result.legacy.values);
+        assert.deepEqual(result["legacy-abort"].values, result.legacy.values);
         assert.deepEqual(result.reset.values, result.legacy.values);
         assert.deepEqual(result["credit-reset"].values, result.legacy.values);
         assert.equal(result["bad-drain"].drain, false);
         assert.equal(result.microsharp.nodes[0].name, "microsharp-pcm-playback");
         assert.equal(result.missing.nodes[0].name, "sprechen-pcm-playback");
         assert.equal(result["failed-worklet"].nodes[0].name, "sprechen-pcm-playback");
+        assert.equal(result["legacy-abort"].nodes[0].name, "sprechen-pcm-playback");
         const creditWrites = result.credits.packets.filter(packet => packet.kind === "float32");
         assert.equal(creditWrites.reduce((total, packet) => total + packet.frames, 0),
             Math.ceil((110000 + 48) * 44100 / 32000));

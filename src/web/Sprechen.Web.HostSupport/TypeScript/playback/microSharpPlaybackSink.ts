@@ -35,6 +35,9 @@
         initialRate: number,
         initialLeadMs: number
     ) => {
+        if (typeof AbortSignal.prototype.throwIfAborted !== "function") {
+            throw new Error("Borrowed MicroSharp playback requires abortable credit waits.");
+        }
         const playbackModule: { createBorrowedPlayer?: unknown } = await import(
             "../../../../MicroSharp.Browser.Playback/microsharp-playback.js"
         );
