@@ -60,8 +60,10 @@ internal sealed partial class EvaluationTelemetryTaskOutbox : IDisposable
 
     public void Dispose()
     {
+        // Cancellation can release an owner before the waiting caller is notified.
+        var owners = SnapshotTaskOwners();
         _shutdown.Cancel();
-        foreach (var owner in SnapshotTaskOwners())
+        foreach (var owner in owners)
         {
             var exception = new ObjectDisposedException(nameof(EvaluationTelemetryTaskOutbox));
             owner.TerminalAcceptance.TrySetException(exception);
