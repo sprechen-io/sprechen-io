@@ -18,6 +18,7 @@ public sealed class PlaybackDiagnosticsFieldCoverageTests
         "writtenSeconds",
         "playedOutSeconds",
         "underruns",
+        "underrunOutputFrames",
         "silentOutputWindows",
         "maxContiguousSilentMs",
         "outputSampleRate",

@@ -46,6 +46,54 @@ public sealed class PcmAudioPlayerTests : TestContext
         await player.EnqueuePcm16LeAsync(Array.Empty<byte>(), CancellationToken.None);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AdmissionCallback_IsDeliveredOnceBeforeBrowserOperationCompletes(bool drain)
+    {
+        JSInterop.Setup<PcmAudioPlayerInvocationResult>("pcmPlayer.init", 24000).SetResult(SuccessfulInvocation);
+        var identifier = drain ? "pcmPlayer.drain" : "pcmPlayer.enqueue";
+        var browser = JSInterop.Setup<PcmAudioPlayerInvocationResult>(identifier, _ => true);
+        var player = new PcmAudioPlayer(JSInterop.JSRuntime, new AssistantPlaybackOutputLatencyState());
+        await player.InitializeAsync(24000, CancellationToken.None);
+
+        var deliveries = 0;
+        void OnAccepted() => Interlocked.Increment(ref deliveries);
+        var operation = drain
+            ? player.DrainAsync(OnAccepted, CancellationToken.None)
+            : player.EnqueuePcm16LeAsync(new byte[] { 1, 2 }, OnAccepted, CancellationToken.None);
+        var observer = Assert.IsType<DotNetObjectReference<PcmAdmissionObserver>>(
+            JSInterop.VerifyInvoke(identifier).Arguments[drain ? 0 : 1]);
+        observer.Value.OnAccepted();
+        observer.Value.OnAccepted();
+
+        Assert.Equal(1, deliveries);
+        Assert.False(operation.IsCompleted);
+        browser.SetResult(SuccessfulInvocation);
+        await operation;
+    }
+
+    [Fact]
+    public void AdmissionCallback_DoesNotNotifyAnAlreadyCanceledInvocation()
+    {
+        using var cancellation = new CancellationTokenSource();
+        var deliveries = 0;
+        var observer = new PcmAdmissionObserver(() => Interlocked.Increment(ref deliveries), cancellation.Token);
+        cancellation.Cancel();
+
+        Assert.Throws<OperationCanceledException>(observer.OnAccepted);
+        Assert.Equal(0, deliveries);
+    }
+
+    [Fact]
+    public void AdmissionCallback_IsNotRetriedAfterItsActionThrows()
+    {
+        var observer = new PcmAdmissionObserver(
+            () => throw new InvalidOperationException("callback failed"), CancellationToken.None);
+        Assert.Throws<InvalidOperationException>(observer.OnAccepted);
+        observer.OnAccepted();
+    }
+
     [Fact]
     public async Task InitializeAsync_WhenInitialized_AllowsResetDrainAndEnqueue()
     {

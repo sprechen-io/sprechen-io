@@ -37,16 +37,22 @@ internal sealed class TextToSpeechPcmStreamPlayer
 
         var reader = new GrpcPcmAudioStreamReader();
         var chunkCount = 0;
+        var firstAccepted = 0;
+        void ReportFirstAdmission()
+        {
+            if (Interlocked.Exchange(ref firstAccepted, 1) == 0)
+            {
+                onFirstPcmEnqueued();
+            }
+        }
+
         await foreach (var (bytes, sampleRateHz) in reader.ReadAlignedPcm16LeAsync(call.ResponseStream, cancellationToken))
         {
             await _pcmPlayback.EnsureInitializedAsync(sampleRateHz, cancellationToken);
             enqueueProgress.MarkEnqueueStarted();
-            await _pcmPlayback.EnqueuePcm16LeAsync(bytes, cancellationToken);
+            await _pcmPlayback.EnqueuePcm16LeAsync(
+                bytes, Volatile.Read(ref firstAccepted) == 0 ? ReportFirstAdmission : null, cancellationToken);
             enqueueProgress.MarkEnqueued();
-            if (chunkCount == 0)
-            {
-                onFirstPcmEnqueued();
-            }
 
             chunkCount++;
         }
@@ -54,7 +60,8 @@ internal sealed class TextToSpeechPcmStreamPlayer
         return chunkCount;
     }
 
-    public ValueTask DrainAsync(CancellationToken cancellationToken) => _pcmPlayback.DrainAsync(cancellationToken);
+    public ValueTask DrainAsync(Action? onAccepted, CancellationToken cancellationToken) =>
+        _pcmPlayback.DrainAsync(onAccepted, cancellationToken);
 
     public Task ResetBestEffortAsync() => _pcmPlayback.ResetBestEffortAsync();
 }

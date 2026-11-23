@@ -6,6 +6,24 @@ namespace Sprechen.Speech.Runtime.Tests.Services;
 public sealed class PcmAudioPlaybackLifecycleTests
 {
     [Fact]
+    public async Task DrainAsync_ReportsFallbackAdmissionAfterSuccessfulDrain()
+    {
+        var pcmPlayer = new Mock<IPcmAudioPlayer>(MockBehavior.Strict);
+        var draining = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        pcmPlayer.Setup(player => player.DrainAsync(It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask(draining.Task));
+        var lifecycle = new PcmAudioPlaybackLifecycle(
+            pcmPlayer.Object, NullLogger<PcmAudioPlaybackLifecycle>.Instance);
+
+        var notified = false;
+        var drain = lifecycle.DrainAsync(() => notified = true, CancellationToken.None).AsTask();
+        Assert.False(notified);
+        draining.SetResult();
+        await drain;
+        Assert.True(notified);
+    }
+
+    [Fact]
     public async Task EnsureInitializedAsync_WhenSampleRateIsUnchanged_InitializesOnlyOnce()
     {
         var pcmPlayer = new Mock<IPcmAudioPlayer>(MockBehavior.Strict);
