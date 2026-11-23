@@ -2,9 +2,9 @@ namespace Sprechen.Speech.State;
 
 /// <summary>
 /// Steuert die Unterbrechung laufender Effekte beim Einreihen eines Ereignisses.
-/// <see cref="Enqueue"/> reiht regulär ein, und <see cref="Interrupt"/> signalisiert
-/// den bisherigen Effekten den Abbruch und reiht danach ebenfalls in dieselbe Warteschlange ein.
-/// Bereits wartende Ereignisse werden dadurch nicht überholt.
+/// <see cref="Enqueue"/> reiht regulär ein. <see cref="Interrupt"/> reiht das Ereignis ein
+/// und signalisiert dann den bisherigen Effekten den Abbruch. Bereits wartende Ereignisse
+/// bleiben in ihrer Reihenfolge erhalten.
 /// </summary>
 public enum DispatchMode
 {
